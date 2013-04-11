@@ -1,0 +1,32 @@
+#################
+## Git
+#################
+
+*.orig
+
+#################
+## Unity
+#################
+
+Library
+Temp
+
+#################
+## Windows
+#################
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
+
+#################
+## MonoDevelop
+#################
+
+*.csproj
+*.pidb
+*.pidb21
+*.sln
+*.userprefs
