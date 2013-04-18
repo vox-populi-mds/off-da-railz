@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Client : MonoBehaviour
+public class Lobby : MonoBehaviour
 {
 	void OnGUI()
 	{
