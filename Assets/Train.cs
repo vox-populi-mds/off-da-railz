@@ -168,6 +168,8 @@ public class Train : MonoBehaviour
 		ProcessWheelGraphics(RelativeVelocity);
 	
 		ProcessGear(RelativeVelocity);
+		
+		Debug.Log(RelativeVelocity);
 	}
 	
 	void ProcessIfFlipped()
@@ -397,9 +399,14 @@ public class Train : MonoBehaviour
 	
 	void CalculateEnginePower(Vector3 _RelativeVelocity)
 	{
+		if(m_AutomaticThrottle)
+		{
+			m_Throttle = 1.0f;
+		}
+		
 		if(m_Throttle == 0)
 		{
-			m_CurrentEnginePower -= Time.deltaTime * 200;
+			m_CurrentEnginePower -= Time.deltaTime * 200.0f;
 		}
 		else if(Mathf.Sign(_RelativeVelocity.z) == Mathf.Sign(m_Throttle))
 		{
@@ -530,11 +537,11 @@ public class Train : MonoBehaviour
 	}
 	
 	// Public
-	public float 		m_AccemerationRate 		= 25.0f;
-	public float 		m_MaximumVelocity 		= 100.0f;
+	public float 		m_MaximumVelocity 		= 20.0f;
 	public float 		m_MaximumTurn			= 15f;
 	public float 		m_MinimumTurn			= 10f;
-	public int 			m_NumberOfGears 		= 5;
+	public int 			m_NumberOfGears 		= 2;
+	public bool			m_AutomaticThrottle		= true;
 	
 	public Transform[] 	m_FrontWheels;
 	public Transform[] 	m_RearWheels;
