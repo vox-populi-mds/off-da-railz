@@ -13,6 +13,15 @@ public class CameraToggle : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		if (Input.GetKeyDown(KeyCode.C))
+		{
+			int prev = cameraIndex;
+			cameraIndex++;			
+			if (cameraIndex	>= Cameras.Length) {
+				cameraIndex = 0;
+			}
+			Cameras[cameraIndex].gameObject.SetActive(true);
+			Cameras[prev].gameObject.SetActive(false);
+		}				
 	}
 }
