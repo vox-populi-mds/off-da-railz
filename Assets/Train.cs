@@ -17,11 +17,6 @@ public class Wheel
 
 public class Train : MonoBehaviour 
 {
-	// Public
-	
-	// Protected
-	
-	// Private
 	void Start() 
 	{
 		SetupWheelColliders();
@@ -32,7 +27,7 @@ public class Train : MonoBehaviour
 	
 		//SetUpSkidmarks();
 	
-		m_InitialDragMultiplierX = m_DragMultiplier.x;
+		m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
 	}
 	
 	void SetupWheelColliders()
@@ -148,7 +143,7 @@ public class Train : MonoBehaviour
 		
 		for(int i = 0; i < m_NumberOfGears; ++i)
 		{
-			float MaxLinearDrag = m_GearSpeeds[i] * m_GearSpeeds[i];// * dragMultiplier.z;
+			float MaxLinearDrag = m_GearSpeeds[i] * m_GearSpeeds[i];
 			m_EngineForceValues[i] = MaxLinearDrag * EngineFactor;
 		}
 	}
@@ -168,8 +163,6 @@ public class Train : MonoBehaviour
 		ProcessWheelGraphics(RelativeVelocity);
 	
 		ProcessGear(RelativeVelocity);
-		
-		Debug.Log(RelativeVelocity);
 	}
 	
 	void ProcessIfFlipped()
@@ -190,8 +183,15 @@ public class Train : MonoBehaviour
 	}
 	
 	void ProcessWheelGraphics(Vector3 _RelativeVelocity)
-	{	
-		foreach(Wheel w in m_Wheels)
+	{		
+		Animation DriveAnimation = GetComponentInChildren<Animation>();
+		
+		float CurrentSpeed = _RelativeVelocity.z;
+		float SpeedScale = CurrentSpeed / 10.0f;
+		
+		DriveAnimation.animation["Drive"].speed = SpeedScale;
+		
+		/*foreach(Wheel w in m_Wheels)
 		{
 			WheelCollider Wc = w.m_Collider;
 			WheelHit Wh = new WheelHit();
@@ -203,55 +203,6 @@ public class Train : MonoBehaviour
 				w.m_WheelVelo = rigidbody.GetPointVelocity(Wh.point);
 				w.m_GroundSpeed = w.m_WheelGraphic.InverseTransformDirection(w.m_WheelVelo);
 				
-				// Code to handle skidmark drawing. Not covered in the tutorial
-				/*if(skidmarks)
-				{
-					if(skidmarkTime[wheelCount] < 0.02 && w.lastSkidmark != -1)
-					{
-						skidmarkTime[wheelCount] += Time.deltaTime;
-					}
-					else
-					{
-						var dt : float = skidmarkTime[wheelCount] == 0.0 ? Time.deltaTime : skidmarkTime[wheelCount];
-						skidmarkTime[wheelCount] = 0.0;
-	
-						var handbrakeSkidding : float = handbrake && w.driveWheel ? w.wheelVelo.magnitude * 0.3 : 0;
-						var skidGroundSpeed = Mathf.Abs(w.groundSpeed.x) - 15;
-						if(skidGroundSpeed > 0 || handbrakeSkidding > 0)
-						{
-							var staticVel : Vector3 = transform.TransformDirection(skidSmoke.localVelocity) + skidSmoke.worldVelocity;
-							if(w.lastSkidmark != -1)
-							{
-								var emission : float = UnityEngine.Random.Range(skidSmoke.minEmission, skidSmoke.maxEmission);
-								var lastParticleCount : float = w.lastEmitTime * emission;
-								var currentParticleCount : float = Time.time * emission;
-								var noOfParticles : int = Mathf.CeilToInt(currentParticleCount) - Mathf.CeilToInt(lastParticleCount);
-								var lastParticle : int = Mathf.CeilToInt(lastParticleCount);
-								
-								for(var i = 0; i <= noOfParticles; i++)
-								{
-									var particleTime : float = Mathf.InverseLerp(lastParticleCount, currentParticleCount, lastParticle + i);
-									skidSmoke.Emit(	Vector3.Lerp(w.lastEmitPosition, wh.point, particleTime) + new Vector3(Random.Range(-0.1, 0.1), Random.Range(-0.1, 0.1), Random.Range(-0.1, 0.1)), staticVel + (w.wheelVelo * 0.05), Random.Range(skidSmoke.minSize, skidSmoke.maxSize) * Mathf.Clamp(skidGroundSpeed * 0.1,0.5,1), Random.Range(skidSmoke.minEnergy, skidSmoke.maxEnergy), Color.white);
-								}
-							}
-							else
-							{
-								skidSmoke.Emit(	wh.point + new Vector3(Random.Range(-0.1, 0.1), Random.Range(-0.1, 0.1), Random.Range(-0.1, 0.1)), staticVel + (w.wheelVelo * 0.05), Random.Range(skidSmoke.minSize, skidSmoke.maxSize) * Mathf.Clamp(skidGroundSpeed * 0.1,0.5,1), Random.Range(skidSmoke.minEnergy, skidSmoke.maxEnergy), Color.white);
-							}
-						
-							w.lastEmitPosition = wh.point;
-							w.lastEmitTime = Time.time;
-						
-							w.lastSkidmark = skidmarks.AddSkidMark(wh.point + rigidbody.velocity * dt, wh.normal, (skidGroundSpeed * 0.1 + handbrakeSkidding) * Mathf.Clamp01(wh.force / wheel.suspensionSpring.spring), w.lastSkidmark);
-							sound.Skid(true, Mathf.Clamp01(skidGroundSpeed * 0.1));
-						}
-						else
-						{
-							w.lastSkidmark = -1;
-							sound.Skid(false, 0);
-						}
-					}
-				}*/
 			}
 			else
 			{
@@ -268,11 +219,11 @@ public class Train : MonoBehaviour
 					w.m_WheelVelo *= 0.9f * (1.0f - m_Throttle);
 				}
 				
-				/*if(skidmarks)
+				if(skidmarks)
 				{
 					w.lastSkidmark = -1.0f;
 					sound.Skid(false, 0);
-				}*/
+				}
 			}
 			// If the wheel is a steer wheel we apply two rotations:
 			// *Rotation around the Steer Column (visualizes the steer direction)
@@ -290,7 +241,8 @@ public class Train : MonoBehaviour
 				// If we are hand braking we don't rotate it.
 				w.m_TireGraphic.Rotate(Vector3.right * (w.m_GroundSpeed.z / m_WheelRadius) * Time.deltaTime * Mathf.Rad2Deg);
 			}
-		}
+		}*/
+
 	}
 	
 	void ProcessGear(Vector3 _RelativeVelocity)
@@ -327,9 +279,9 @@ public class Train : MonoBehaviour
 		else
 		{
 			brakeLights.SetFloat("_Intensity", 0.0);
-		}
+		}*/
 		
-		CheckHandbrake();*/
+		//CheckHandbrake();
 	}
 	
 	/***************************************************************************************************/
@@ -356,16 +308,37 @@ public class Train : MonoBehaviour
 	
 	void ProcessDrag(Vector3 _RelativeVelocity)
 	{
+		// Only apply the drag if the train is on the ground
+		bool IsOnGround = false;
+		foreach(Wheel w in m_Wheels)
+		{
+			WheelCollider Wc = w.m_Collider;
+			WheelHit Wh = new WheelHit();
+			
+			// First we get the velocity at the point where the wheel meets the ground, if the wheel is touching the ground
+			if(Wc.GetGroundHit(out Wh))
+			{	
+				IsOnGround = true;
+				break;
+			}
+		}
+		
+		Vector3 DragMultiplier = m_GroundDragMultiplier;
+		if(!IsOnGround)
+		{
+			DragMultiplier = m_AirDragMultiplier;
+		}
+		
 		Vector3 RelativeDrag = new Vector3(	-_RelativeVelocity.x * Mathf.Abs(_RelativeVelocity.x), 
 											-_RelativeVelocity.y * Mathf.Abs(_RelativeVelocity.y), 
 											-_RelativeVelocity.z * Mathf.Abs(_RelativeVelocity.z) );
 		
-		Vector3 Drag = Vector3.Scale(m_DragMultiplier, RelativeDrag);
+		Vector3 Drag = Vector3.Scale(DragMultiplier, RelativeDrag);
 			
-		if(m_InitialDragMultiplierX > m_DragMultiplier.x) // Handbrake code
+		if(m_InitialDragMultiplierX > DragMultiplier.x) // Handbrake code
 		{			
 			Drag.x /= (_RelativeVelocity.magnitude / (m_MaximumVelocity / ( 1 + 2 * m_HandbrakeXDragFactor ) ) );
-			Drag.z *= (1 + Mathf.Abs(Vector3.Dot(rigidbody.velocity.normalized, transform.forward)));
+			Drag.z *= (1.0f + Mathf.Abs(Vector3.Dot(rigidbody.velocity.normalized, transform.forward)));
 			Drag += rigidbody.velocity * Mathf.Clamp01(rigidbody.velocity.magnitude / m_MaximumVelocity);
 		}
 		else // No handbrake
@@ -375,10 +348,9 @@ public class Train : MonoBehaviour
 		
 		if(Mathf.Abs(_RelativeVelocity.x) < 5 && !m_Handbrake)
 		{
-			Drag.x = -_RelativeVelocity.x * m_DragMultiplier.x;
+			Drag.x = -_RelativeVelocity.x * DragMultiplier.x;
 		}
 			
-	
 		rigidbody.AddForce(transform.TransformDirection(Drag) * rigidbody.mass * Time.deltaTime);
 	}
 	
@@ -489,7 +461,7 @@ public class Train : MonoBehaviour
 			
 			Debug.DrawLine(DebugStartPoint, DebugEndPoint, Color.red);
 			
-			if(m_InitialDragMultiplierX > m_DragMultiplier.x) // Handbrake
+			if(m_InitialDragMultiplierX > m_GroundDragMultiplier.x) // Handbrake
 			{
 				float RotationDirection = Mathf.Sign(m_Steer); // rotationDirection is -1 or 1 by default, depending on steering
 				if(m_Steer == 0.0f)
@@ -546,6 +518,9 @@ public class Train : MonoBehaviour
 	public Transform[] 	m_FrontWheels;
 	public Transform[] 	m_RearWheels;
 	
+	public Transform	m_FrontSteering;
+	public Transform	m_RearSteering;
+	
 	public Transform 	m_CenterOfMass;
 	
 	float 				m_ResetTime  			= 5.0f;
@@ -555,7 +530,10 @@ public class Train : MonoBehaviour
 	public float 		m_SuspensionSpringFront = 18500.0f;
 	public float 		m_SuspensionSpringRear 	= 9000.0f;
 	
-	public Vector3 		m_DragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
+	public Vector3 		m_GroundDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
+	public Vector3 		m_AirDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
+	
+	public float 		m_Throttle			= 0.0f;
 		
 	// Protected
 		
@@ -564,11 +542,7 @@ public class Train : MonoBehaviour
 	Wheel[] 			m_Wheels;
 	float 				m_WheelRadius 		= 0.4f;
 	
-	float 				m_Throttle			= 0.0f;
-	float 				m_Steer 	 		= 0.0f;
-	
-	float 				m_RotationRatio;
-	float				m_RotationAmount; 		
+	float 				m_Steer 	 		= 0.0f;	
 
 	float 				m_ResetTimer  = 0.0f;
 
