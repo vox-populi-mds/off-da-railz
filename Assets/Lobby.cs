@@ -33,7 +33,10 @@ public class Lobby : MonoBehaviour
 		if (tempPlayerName != m_playerName)
 		{
 			m_playerName = tempPlayerName;
-			networkView.RPC("OnUpdatePlayerName", RPCMode.Server, m_playerName, networkView.owner);
+			if (m_connected)
+			{
+				networkView.RPC("OnUpdatePlayerName", RPCMode.Server, m_playerName, networkView.owner);
+			}
 		}
 		GUILayout.EndHorizontal();
 		
@@ -73,9 +76,9 @@ public class Lobby : MonoBehaviour
 			HostData[] hosts = MasterServer.PollHostList();
 			foreach (HostData host in hosts)
 			{
-				GUILayout.BeginHorizontal();	
+				GUILayout.BeginHorizontal();
 				string name = host.gameName + " " + host.connectedPlayers + " / " + host.playerLimit;
-				GUILayout.Label(name);	
+				GUILayout.Label(name);
 				GUILayout.Space(5);
 				string hostInfo;
 				hostInfo = "[";
@@ -84,7 +87,7 @@ public class Lobby : MonoBehaviour
 					hostInfo = hostInfo + ip + ":" + host.port + " ";
 				}
 				hostInfo = hostInfo + "]";
-				GUILayout.Label(hostInfo);	
+				GUILayout.Label(hostInfo);
 				GUILayout.Space(5);
 				GUILayout.Label(host.comment);
 				GUILayout.Space(5);
@@ -104,7 +107,6 @@ public class Lobby : MonoBehaviour
 						// Connect to HostData struct, internally the correct method is used (GUID when using NAT).
 						if (Network.Connect(host) == NetworkConnectionError.NoError)
 						{
-							networkView.RPC("OnUpdatePlayerName", RPCMode.Server, m_playerName, networkView.owner);
 							m_connected = true;
 						}
 						else
@@ -129,6 +131,17 @@ public class Lobby : MonoBehaviour
 				GUILayout.EndHorizontal();
 			}
 		}
+	}
+	
+	void OnPlayerConnected(NetworkPlayer player)
+	{
+		networkView.RPC("OnRequestPlayerName", player);
+	}
+	
+	[RPC]
+	void OnRequestPlayerName()
+	{
+		networkView.RPC("OnUpdatePlayerName", RPCMode.Server, m_playerName, networkView.owner);
 	}
 	
 	[RPC]
