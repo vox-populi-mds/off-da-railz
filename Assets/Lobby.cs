@@ -38,7 +38,11 @@ public class Lobby : MonoBehaviour
 	
 	string m_playerName;
 	
+	bool m_playerReady;
+	
 	Dictionary<NetworkPlayer, string> m_playerNames;
+	
+	Dictionary<NetworkPlayer, bool> m_playerReadyStates;
 	
 	static int PORT = 25002;
 	
@@ -49,6 +53,12 @@ public class Lobby : MonoBehaviour
 	void Awake()
 	{
 		MasterServer.RequestHostList(GAME_TYPE);
+	}
+	
+	[RPC]
+	void OnGO()
+	{
+		Application.LoadLevel("Level0");
 	}
 	
 	void OnGUI()
@@ -86,6 +96,7 @@ public class Lobby : MonoBehaviour
 				Network.InitializeServer(32, PORT, !Network.HavePublicAddress());
 				MasterServer.RegisterHost(GAME_TYPE, m_serverName, m_serverDescription);
 				OnUpdatePlayerName(m_playerName, Network.player);
+				m_playerReadyStates[Network.player] = false;
 				m_connected = true;
 			}
 		}
@@ -142,11 +153,12 @@ public class Lobby : MonoBehaviour
 						// Connect to HostData struct, internally the correct method is used (GUID when using NAT).
 						if (Network.Connect(host) == NetworkConnectionError.NoError)
 						{
+							m_playerReadyStates[Network.player] = false;
 							m_connected = true;
 						}
 						else
 						{
-							Debug.Log("Failed to connect!");
+							MasterServer.RequestHostList(GAME_TYPE);
 						}
 					}
 				}
@@ -159,18 +171,60 @@ public class Lobby : MonoBehaviour
 			GUILayout.BeginHorizontal();
 			GUILayout.Label("Players:");
 			GUILayout.EndHorizontal();
+			
 			foreach (string otherPlayerName in m_playerNames.Values)
 			{
 				GUILayout.BeginHorizontal();
 				GUILayout.Label(otherPlayerName);
 				GUILayout.EndHorizontal();
 			}
+			
+			GUILayout.BeginHorizontal();
+			if (m_playerReady)
+			{
+				GUILayout.Label("Ready!");
+			}
+			else
+			{
+				if (GUILayout.Button("Ready!"))
+				{
+					m_playerReady = true;
+
+					if (Network.isServer)
+					{
+						m_playerReadyStates[Network.player] = true;
+					}
+					else
+					{
+						networkView.RPC("OnPlayerReady", RPCMode.Server);
+					}
+				}
+			}
+			GUILayout.EndHorizontal();
+			
+			GUILayout.BeginHorizontal();
+			if (Network.isServer && !m_playerReadyStates.ContainsValue(false))
+			{
+				if (GUILayout.Button("GO!"))
+				{
+					networkView.RPC("OnGO", RPCMode.Others);
+					OnGO();
+				}
+			}
+			GUILayout.EndHorizontal();
 		}
 	}
 	
 	void OnPlayerConnected(NetworkPlayer player)
 	{
+		m_playerReadyStates[player] = false;
 		networkView.RPC("OnRequestPlayerName", player);
+	}
+	
+	[RPC]
+	void OnPlayerReady(NetworkMessageInfo info)
+	{
+		m_playerReadyStates[info.sender] = true;
 	}
 	
 	[RPC]
@@ -195,6 +249,8 @@ public class Lobby : MonoBehaviour
 		m_lastPlayerNameUpdateTime = Time.timeSinceLevelLoad;
 		m_playerName = "John Doe";
 		m_playerNames = new Dictionary<NetworkPlayer, string>(new NetworkPlayerComparer());
+		m_playerReady = false;
+		m_playerReadyStates = new Dictionary<NetworkPlayer, bool>(new NetworkPlayerComparer());
 		m_serverDescription = "Thy train shall be wreckethed.";
 		m_serverName = "Train wreck!";
 	}
