@@ -100,8 +100,8 @@ public class Audio : Singleton<Audio>
 	{
 		_source.rolloffMode = AudioRolloffMode.Logarithmic;
 		_source.dopplerLevel = 0.2f;
-		_source.minDistance = 100.0f;
-		_source.maxDistance = 1500.0f;
+		_source.minDistance = 40.0f;
+		_source.maxDistance = 800.0f;
 		_source.clip = _clip;
 		_source.volume = _volume;
 	}

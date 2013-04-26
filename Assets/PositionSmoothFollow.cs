@@ -13,7 +13,7 @@ using UnityEngine;
 using System.Collections;
 
 public class PositionSmoothFollow : MonoBehaviour {
-	public Transform m_target;
+	public Transform m_target = null;
 	public float m_distance = 10.0f;
 	public float m_height = 5.0f;
 	public float m_heightDamping = 2.0f;
@@ -26,7 +26,12 @@ public class PositionSmoothFollow : MonoBehaviour {
 	public Emode m_mode;
 	
 	// Use this for initialization
-	void Start () {		
+	void Start () 
+	{	
+		if(!m_target)
+		{
+			m_target = GameObject.Find("CenterOfMass").transform;
+		}
 	}
 	
 	// Update is called once per frame

@@ -191,7 +191,7 @@ public class Train : MonoBehaviour
 		
 		DriveAnimation.animation["Drive"].speed = SpeedScale;
 		
-		/*foreach(Wheel w in m_Wheels)
+		foreach(Wheel w in m_Wheels)
 		{
 			WheelCollider Wc = w.m_Collider;
 			WheelHit Wh = new WheelHit();
@@ -219,11 +219,11 @@ public class Train : MonoBehaviour
 					w.m_WheelVelo *= 0.9f * (1.0f - m_Throttle);
 				}
 				
-				if(skidmarks)
-				{
-					w.lastSkidmark = -1.0f;
-					sound.Skid(false, 0);
-				}
+				//if(skidmarks)
+				//{
+				//	w.lastSkidmark = -1.0f;
+				//	sound.Skid(false, 0);
+				//}
 			}
 			// If the wheel is a steer wheel we apply two rotations:
 			// *Rotation around the Steer Column (visualizes the steer direction)
@@ -241,7 +241,7 @@ public class Train : MonoBehaviour
 				// If we are hand braking we don't rotate it.
 				w.m_TireGraphic.Rotate(Vector3.right * (w.m_GroundSpeed.z / m_WheelRadius) * Time.deltaTime * Mathf.Rad2Deg);
 			}
-		}*/
+		}
 
 	}
 	
@@ -322,6 +322,8 @@ public class Train : MonoBehaviour
 				break;
 			}
 		}
+		
+		Debug.Log(string.Format("Train On Ground: {0}", IsOnGround));
 		
 		Vector3 DragMultiplier = m_GroundDragMultiplier;
 		if(!IsOnGround)
