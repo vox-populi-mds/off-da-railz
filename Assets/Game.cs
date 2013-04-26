@@ -1,16 +1,19 @@
 using UnityEngine;
 using System.Collections;
 
-public class Game : MonoBehaviour {
-	public bool showCursor;
-	// Use this for initialization
-	void Start () {
+public class Game : MonoBehaviour
+{
+	public Transform train;
+	
+	void Start()
+	{
 		// Diable cursor visibility
-		Screen.showCursor = showCursor;
+		Screen.showCursor = false;
+		
+		Network.Instantiate(train, new Vector3(0.0f, 3.712008f, 0.0f), Quaternion.identity, 0);
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+
+	void Update()
+	{
 	}
 }

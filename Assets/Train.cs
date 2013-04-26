@@ -19,6 +19,11 @@ public class Train : MonoBehaviour
 {
 	void Start() 
 	{
+		if (!networkView.isMine)
+		{
+			return;	
+		}
+		
 		SetupWheelColliders();
 		
 		SetupCenterOfMass();
@@ -154,6 +159,11 @@ public class Train : MonoBehaviour
 	
 	void Update() 
 	{
+		if (!networkView.isMine)
+		{
+			return;	
+		}
+		
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
 		ProcessInput();
@@ -290,6 +300,11 @@ public class Train : MonoBehaviour
 	
 	void FixedUpdate()
 	{	
+		if (!networkView.isMine)
+		{
+			return;	
+		}
+		
 		// Transform rigidbody velocity to local co-ordinate space
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
