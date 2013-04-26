@@ -1,9 +1,35 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 public class Lobby : MonoBehaviour
 {
+	private class NetworkPlayerComparer : IEqualityComparer<NetworkPlayer>
+	{
+		public bool Equals(NetworkPlayer a, NetworkPlayer b)
+		{
+			return a.ipAddress == b.ipAddress && a.port == b.port;
+		}
+		
+		public int GetHashCode(NetworkPlayer player)
+		{
+			int hashCode = 0;
+			
+			if (player.ipAddress.Length != 0)
+			{
+				string[] ipComponents = player.ipAddress.Split('.');
+				foreach (string ipComponent in ipComponents)
+				{
+					hashCode += Convert.ToInt32(ipComponent);
+				}
+			}
+			hashCode += player.port;
+			
+			return hashCode;
+		}
+	}
+	
 	bool m_connected;
 	
 	static string GAME_TYPE = "VoxPopuli::OffDaRails";
@@ -35,7 +61,14 @@ public class Lobby : MonoBehaviour
 			m_playerName = tempPlayerName;
 			if (m_connected)
 			{
-				networkView.RPC("OnUpdatePlayerName", RPCMode.Server, m_playerName, networkView.owner);
+				if (Network.isServer)
+				{
+					OnUpdatePlayerName(m_playerName, Network.player);
+				}
+				else
+				{
+					networkView.RPC("OnUpdatePlayerName", RPCMode.Server, m_playerName, Network.player);
+				}
 			}
 		}
 		GUILayout.EndHorizontal();
@@ -52,6 +85,7 @@ public class Lobby : MonoBehaviour
 				// Use NAT punchthrough if no public IP present
 				Network.InitializeServer(32, PORT, !Network.HavePublicAddress());
 				MasterServer.RegisterHost(GAME_TYPE, m_serverName, m_serverDescription);
+				OnUpdatePlayerName(m_playerName, Network.player);
 				m_connected = true;
 			}
 		}
@@ -97,6 +131,7 @@ public class Lobby : MonoBehaviour
 					if (GUILayout.Button("Disconnect"))
 					{
 						Network.Disconnect();
+						m_playerNames.Clear();
 						m_connected = false;
 					}
 				}
@@ -141,13 +176,16 @@ public class Lobby : MonoBehaviour
 	[RPC]
 	void OnRequestPlayerName()
 	{
-		networkView.RPC("OnUpdatePlayerName", RPCMode.Server, m_playerName, networkView.owner);
+		networkView.RPC("OnUpdatePlayerName", RPCMode.Server, m_playerName, Network.player);
 	}
 	
 	[RPC]
 	void OnUpdatePlayerName(string playerName, NetworkPlayer player)
 	{
-		m_playerNames[player] = playerName;
+		if (player.ipAddress.Length != 0)
+		{
+			m_playerNames[player] = playerName;
+		}
 	}
 	
 	void Start()
@@ -156,8 +194,7 @@ public class Lobby : MonoBehaviour
 		
 		m_lastPlayerNameUpdateTime = Time.timeSinceLevelLoad;
 		m_playerName = "John Doe";
-		m_playerNames = new Dictionary<NetworkPlayer, string>();
-		m_playerNames[networkView.owner] = m_playerName;
+		m_playerNames = new Dictionary<NetworkPlayer, string>(new NetworkPlayerComparer());
 		m_serverDescription = "Thy train shall be wreckethed.";
 		m_serverName = "Train wreck!";
 	}
