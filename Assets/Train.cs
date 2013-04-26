@@ -338,8 +338,6 @@ public class Train : MonoBehaviour
 			}
 		}
 		
-		Debug.Log(string.Format("Train On Ground: {0}", IsOnGround));
-		
 		Vector3 DragMultiplier = m_GroundDragMultiplier;
 		if(!IsOnGround)
 		{
