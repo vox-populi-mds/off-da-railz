@@ -12,7 +12,7 @@ public class Game : MonoBehaviour
 		Screen.showCursor = false;
 		
 		Network.Instantiate(train, new Vector3(0.0f, 3.712008f, 0.0f), Quaternion.identity, 0);
-		Network.Instantiate(cameras, new Vector3(0.0f, 3.712008f, 0.0f), Quaternion.identity, 0);
+		Network.Instantiate(cameras, Vector3.zero, Quaternion.identity, 0);
 	}
 
 	void Update()
