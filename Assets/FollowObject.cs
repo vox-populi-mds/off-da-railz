@@ -8,20 +8,29 @@ public Transform target;
 public float distance = 3.0f;
 public float rotationDamping = 3.0f;
 public float heightDamping = 2.0f;
-public GameObject[] DummyWaypoints = new GameObject[2];
+public bool DebugMode = false;
+protected GameObject[] DummyWaypoints = new GameObject[2];
 
 	void Start()
 	{
-		DummyWaypoints[0] = new GameObject();
-		//DummyWaypoints[0].collider.isTrigger = true;
-		DummyWaypoints[1] = new GameObject();
-		//DummyWaypoints[1].collider.isTrigger = true;
+		if(DebugMode == true)
+		{		
+			DummyWaypoints[0] = GameObject.CreatePrimitive(PrimitiveType.Sphere);       	
+			DummyWaypoints[1] = GameObject.CreatePrimitive(PrimitiveType.Sphere);	
+		}
+		else
+		{
+			DummyWaypoints[0] = new GameObject();       	
+			DummyWaypoints[1] = new GameObject();
+		}
 	}
 	
 	void Update()
 	{
 		if (!target)
+		{
 			return;
+		}
 		
 		//Set dummy object to follow target
 		
@@ -32,8 +41,7 @@ public GameObject[] DummyWaypoints = new GameObject[2];
 		Quaternion currentRotation = Quaternion.Euler (0, currentRotationAngle, 0);
 	
 		DummyWaypoints[0].transform.position = target.position;
-		DummyWaypoints[0].transform.position -= currentRotation * Vector3.forward * distance / 3;
-		
+		DummyWaypoints[0].transform.position -= currentRotation * Vector3.forward * distance / 3;			
 		DummyWaypoints[0].transform.LookAt (target);
 		
 		//Make second dummy object follow the first
@@ -45,8 +53,7 @@ public GameObject[] DummyWaypoints = new GameObject[2];
 		currentRotation = Quaternion.Euler (0, currentRotationAngle, 0);
 	
 		DummyWaypoints[1].transform.position = DummyWaypoints[0].transform.position;
-		DummyWaypoints[1].transform.position -= currentRotation * Vector3.forward * distance / 3;
-		
+		DummyWaypoints[1].transform.position -= currentRotation * Vector3.forward * distance / 3;		
 		DummyWaypoints[1].transform.LookAt (DummyWaypoints[0].transform.position);
 		
 		//Now fo' realz, make the object follow the second dummy object. This makes the object appear to follow it's targets path,
@@ -73,6 +80,11 @@ public GameObject[] DummyWaypoints = new GameObject[2];
 		transform.position = NewPosition;
 		
 		transform.LookAt (DummyWaypoints[1].transform.position);		
+	}
+	
+	void SetTarget(Transform _Target)
+	{
+		target = _Target;
 	}
 }
 
