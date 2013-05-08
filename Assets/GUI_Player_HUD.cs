@@ -32,7 +32,8 @@ public class GUI_Player_HUD : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update () 
+	{
 	
 	}
 }
