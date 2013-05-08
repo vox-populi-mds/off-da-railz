@@ -17,9 +17,26 @@ public class Wheel
 
 public class Train : MonoBehaviour 
 {
+	bool mine;
+	
+	Train()
+	{
+		mine = false;
+	}
+	
+	public bool IsMine()
+	{
+		return mine;
+	}
+	
+	public void SetMine(bool mine)
+	{
+		this.mine = mine;
+	}
+	
 	void Start() 
 	{
-		if (!networkView.isMine)
+		if (!mine)
 		{
 			return;	
 		}
@@ -159,7 +176,7 @@ public class Train : MonoBehaviour
 	
 	void Update() 
 	{
-		if (!networkView.isMine)
+		if (!mine)
 		{
 			return;	
 		}
@@ -300,7 +317,7 @@ public class Train : MonoBehaviour
 	
 	void FixedUpdate()
 	{	
-		if (!networkView.isMine)
+		if (!mine)
 		{
 			return;	
 		}
