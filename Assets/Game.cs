@@ -35,10 +35,10 @@ public class Game : MonoBehaviour
 
 	void Update()
 	{
-		if (Input.GetKey(KeyCode.Escape))
+		/*if (Input.GetKey(KeyCode.Escape))
 		{
 			Application.Quit();
 			Debug.Break();
-		}
+		}*/
 	}
 }
