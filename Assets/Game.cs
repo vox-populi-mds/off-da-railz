@@ -7,7 +7,6 @@ public class Game : MonoBehaviour
 	public Transform cameras;
 	public Transform userInterface;
 	public Transform[] levelObstacles = new Transform[10];
-	
 	void Start()
 	{
 		// Disable cursor visibility
