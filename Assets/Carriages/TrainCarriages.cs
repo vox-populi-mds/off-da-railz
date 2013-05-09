@@ -1,81 +1,62 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+/*
 public enum ECarriageType {
 	Rocket,
 	Shotgun,
-	Gatling
-	
-};
+	Gatling,
+};*/
 
 public class TrainCarriages : MonoBehaviour {
 	private List<Carriage> 	m_listCarriages;
-	private int				m_iActiveCarriage;
+	private Carriage		m_ActiveCarriage;
 	
 	int GetNumberOfCarrages(){
 		return (m_listCarriages.Count);
 	}
 	
-	Carriage GetActiveCarriage(string _magicWord) 
+	Carriage GetActiveCarriage() 
 	{
-		if (_magicWord == "please") 
-		{
-			return m_listCarriages[m_iActiveCarriage];
-		}
-		else return null;
+		return m_listCarriages[m_ActiveCarriage];
 	}
 	
 	int GetActiveCarriageIndex() 
 	{
-		return m_iActiveCarriage;		
+		return m_ActiveCarriage;		
 	}
 	
-	int AddCarriage(ECarriageType _carriageType) {
-		switch (_carriageType) {
-		case ECarriageType.Rocket:
-			//m_listCarriages.Add(new RocketCarriage());
-			break;
-		case ECarriageType.Shotgun:
-			break;
-		case ECarriageType.Gatling:
-			break;
-		}
+	int AddCarriage(Carriage _carriage) {
+		
+		m_listCarriages.Add(_carriage);
+		
 		return(0);
 	}
 	
-	void RemCarriage(int _carriageIndex) 
+	void RemCarriage(Carriage _carriage) 
 	{
-		if (_carriageIndex >= m_listCarriages.Count) 
+		if (!m_listCarriages.Find(_carriage)) 
 		{
 			// attempting to remove carriage that does not exist
 			return;
 		}
 		
-		var markedForDeletion = m_listCarriages[_carriageIndex];
-		
-		if (_carriageIndex == m_iActiveCarriage)
-		{						
-			if (_carriageIndex+1 < m_listCarriages.Count)
-			{
-				// Active car wasn't the last car, the car that would inherit this index number becomes active
-				m_listCarriages.RemoveAt (_carriageIndex);
-				return;
-			}
+		var markedForDeletion = _carriage;
+				
+		if (_carriage == m_ActiveCarriage)
+		{
+			m_listCarriages.FindIndex(_carriage);
 			
-			if (m_listCarriages.Count == 1)
-			{
-				// if there are no more carriages, set active to -1, to show that there is none.
-				m_iActiveCarriage = -1;
-				m_listCarriages.RemoveAt(_carriageIndex);
-				return;
-			}
+			Destroy(m_ActiveCarriage);
 			
+			m_ActiveCarriage = null;
+			m_listCarriages.RemoveAt(_carriageIndex);
+					
 			if (_carriageIndex != 0) 
 			{
 				// If active carriage was last in the list, select the carriage before it
 				m_listCarriages.RemoveAt (_carriageIndex);
-				m_iActiveCarriage --;
+				m_ActiveCarriage --;
 				return;
 			}
 			
@@ -85,7 +66,7 @@ public class TrainCarriages : MonoBehaviour {
 	// Use this for initialization
 	void Start() {
 		m_listCarriages = new List<Carriage>();
-		m_iActiveCarriage = -1;
+		m_ActiveCarriage = -1;
 	}
 	
 	// Update is called once per frame
@@ -94,24 +75,24 @@ public class TrainCarriages : MonoBehaviour {
 		{
 			if (Input.GetKeyDown(KeyCode.E))
 			{
-				if (m_listCarriages.Count > m_iActiveCarriage + 1)
+				if (m_listCarriages.Count > m_ActiveCarriage + 1)
 				{
-					m_iActiveCarriage++;
+					m_ActiveCarriage++;
 				}			
 				else
 				{
-					m_iActiveCarriage = 0;
+					m_ActiveCarriage = 0;
 				}
 			}
 			if (Input.GetKeyDown(KeyCode.Q))
 			{
-				if (m_iActiveCarriage > 0)
+				if (m_ActiveCarriage > 0)
 				{
-					m_iActiveCarriage--;
+					m_ActiveCarriage--;
 				}
 				else
 				{
-					m_iActiveCarriage = m_listCarriages.Count-1;
+					m_ActiveCarriage = m_listCarriages.Count-1;
 				}
 			}
 		}
