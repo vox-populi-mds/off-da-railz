@@ -185,11 +185,7 @@ public class Lobby : MonoBehaviour
 		GUI.Box(new Rect(10.0f, 345.0f, 830.0f, 240.0f), "");
 		GUILayout.BeginArea(new Rect(15.0f, 350.0f, 820.0f, 235.0f));
 		if (m_connected)
-		{
-			GUILayout.BeginHorizontal();
-			GUILayout.Label("Players:");
-			GUILayout.EndHorizontal();
-			
+		{			
 			foreach (string otherPlayerName in m_playerNames.Values)
 			{
 				GUILayout.BeginHorizontal();
@@ -206,10 +202,7 @@ public class Lobby : MonoBehaviour
 		{
 			if (m_playerReady)
 			{
-				if (!Network.isServer)
-				{
-					GUILayout.Label("Ready!");
-				}
+				GUILayout.Label("Ready!");
 			}
 			else
 			{
