@@ -35,21 +35,32 @@ public class Train : MonoBehaviour
 	}
 	
 	void Start() 
-	{
-		if (!mine)
-		{
-			return;	
+	{	
+		if(mine)
+		{	
+			SetupWheelColliders();
+			
+			SetupCenterOfMass();
+			
+			SetupGears();
+			
+			SetupTestBoxcar();
+			
+			SetupPlayerMarker();
+		
+			m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
 		}
 		
-		SetupWheelColliders();
-		
-		SetupCenterOfMass();
-		
-		SetupGears();
-		
-		SetupTestBoxcar();
-	
-		m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
+		foreach(Transform t in m_FrontWheels)	// disable debug wheel rendering
+		{
+			MeshRenderer Mr = t.FindChild("Wheel").GetComponent<MeshRenderer>();
+			Mr.enabled = false;
+		}
+		foreach(Transform t in m_RearWheels)	// disable debug wheel rendering
+		{
+			MeshRenderer Mr = t.FindChild("Wheel").GetComponent<MeshRenderer>();
+			Mr.enabled = false;
+		}
 	}
 	
 	void SetupPlayerMarker()
@@ -105,10 +116,7 @@ public class Train : MonoBehaviour
 	}
 	
 	Wheel SetupWheel(Transform _WheelTransform, bool _IsFrontWheel)
-	{
-		MeshRenderer Mr = _WheelTransform.FindChild("Wheel").GetComponent<MeshRenderer>();
-		Mr.enabled = false;
-		
+	{	
 		GameObject Go = new GameObject(_WheelTransform.name + " Collider");
 		Go.transform.position = _WheelTransform.position;
 		Go.transform.parent = transform;
@@ -225,18 +233,18 @@ public class Train : MonoBehaviour
 	
 	void Update() 
 	{
-		if (!mine)
+		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
+		
+		ProcessWheelGraphics(RelativeVelocity);
+		
+		if (!mine)	// only client updates their own train
 		{
 			return;	
 		}
 		
-		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
-		
 		ProcessInput();
 		
 		ProcessIfFlipped();
-		
-		ProcessWheelGraphics(RelativeVelocity);
 	
 		ProcessGear(RelativeVelocity);
 	}
@@ -378,7 +386,7 @@ public class Train : MonoBehaviour
 	
 	void FixedUpdate()
 	{	
-		if (!mine)
+		if (!mine)	// only client updates their own train
 		{
 			return;	
 		}

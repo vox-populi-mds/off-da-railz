@@ -173,8 +173,6 @@ public class TrainSound : MonoBehaviour
 	
 	AudioSource DubstepAudio = null;
 
-	AudioSource carAudio = null;
-
 	float gearShiftTime = 0.1f;
 	bool shiftingGear = false;
 
