@@ -5,6 +5,7 @@ public class Game : MonoBehaviour
 {
 	public Transform train;
 	public Transform cameras;
+	public Transform cube;
 	
 	void Start()
 	{
@@ -22,7 +23,8 @@ public class Game : MonoBehaviour
 		}
 		else // We're just playing a single player game.
 		{
-			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(0.0f, 3.712008f, 0.0f), Quaternion.identity)).gameObject;
+			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(0.0f, 3.712008f, 0.0f), Quaternion.ide
+			ntity)).gameObject;
 			trainObject.GetComponent<Train>().SetMine(true);
 		}
 		
