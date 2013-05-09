@@ -46,10 +46,34 @@ public class Train : MonoBehaviour
 		SetupCenterOfMass();
 		
 		SetupGears();
+		
+		SetupPlayerMarker();
 	
 		//SetUpSkidmarks();
 	
 		m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
+	}
+	
+	void SetupPlayerMarker()
+	{
+		GameObject marker = GameObject.Find("PlayerMarker");
+		//int iID = int.Parse(networkView.owner.guid);
+		Light light = marker.GetComponent<Light>();
+		
+		light.color = m_PlayerColor;
+		//print("Player ID = " + iID);
+		
+		/*switch (iID)
+		{
+		case 0:
+			light.color = Color.yellow;
+			break;
+			
+		case 1:
+			light.color = m_PlayerColor;
+			break;
+		}*/
+		
 	}
 	
 	void SetupWheelColliders()
@@ -541,6 +565,7 @@ public class Train : MonoBehaviour
 	}
 	
 	// Public
+	public Color		m_PlayerColor			= Color.blue;
 	public float 		m_MaximumVelocity 		= 20.0f;
 	public float 		m_MaximumTurn			= 15f;
 	public float 		m_MinimumTurn			= 10f;
