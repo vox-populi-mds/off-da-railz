@@ -20,7 +20,7 @@ public class Game : MonoBehaviour
 				trainObject.GetComponent<Train>().SetMine(true);
 			}
 		}
-		//else // We're just playing a single player game.
+		else // We're just playing a single player game.
 		{
 			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(0.0f, 3.712008f, 0.0f), Quaternion.identity)).gameObject;
 			trainObject.GetComponent<Train>().SetMine(true);

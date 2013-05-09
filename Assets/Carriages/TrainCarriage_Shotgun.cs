@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class TrainCarrage : MonoBehaviour{
+public class TrainCarriage : MonoBehaviour{
 	/*public static int m_iMagazineCapacity = 10;
 	public static float m_fReloadTime = 5.0f;
 	public static float m_fOffset = 10.0f;
