@@ -10,7 +10,7 @@ public enum ECarriageType {
 };
 
 public class TrainCarriages : MonoBehaviour {
-	private List<Carriages> m_listCarriages;
+	private List<Carriage> m_listCarriages;
 	 
 	int GetNumberOfCarrages(){
 		return (m_listCarriages.Count);
@@ -18,14 +18,16 @@ public class TrainCarriages : MonoBehaviour {
 	
 	int AddCarriage(ECarriageType carriageType) {
 		switch (carriageType) {
-		case Rocket:
+		case ECarriageType.Rocket:
 			break;
+			
 		}
+		return(0);
 	}
 	
 	// Use this for initialization
 	void Start() {
-		m_listCarriages = new List<Carriages>();
+		m_listCarriages = new List<Carriage>();
 	}
 	
 	// Update is called once per frame

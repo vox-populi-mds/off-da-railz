@@ -47,9 +47,7 @@ public class Train : MonoBehaviour
 		
 		SetupGears();
 		
-		SetupPlayerMarker();
-	
-		//SetUpSkidmarks();
+		SetupTestBoxcar();
 	
 		m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
 	}
@@ -192,6 +190,31 @@ public class Train : MonoBehaviour
 			float MaxLinearDrag = m_GearSpeeds[i] * m_GearSpeeds[i];
 			m_EngineForceValues[i] = MaxLinearDrag * EngineFactor;
 		}
+	}
+	
+	void SetupTestBoxcar()
+	{
+		Vector3 vPositionOffset = new Vector3(0, 0, -33.0f);
+		
+		vPositionOffset = transform.rotation * vPositionOffset;
+		Vector3 vPosition = transform.position + vPositionOffset;
+		
+		Object BoxObj =  Network.Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation, 0);
+			
+		// We're just playing a single player game.
+		if(!BoxObj)
+		{
+			BoxObj = Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation);
+		}
+		
+		GameObject networkBoxGO = ((Transform) BoxObj).gameObject;
+		
+		// Setup the follow script
+		FollowObject followScript = networkBoxGO.GetComponent<FollowObject>();
+		followScript.target = m_TrainLatchTransform;
+		followScript.distance = 20;
+		
+		Debug.Log(string.Format("Box car Created at {0} ", vPosition));
 	}
 	
 	/***************************************************************************************************/
@@ -591,6 +614,9 @@ public class Train : MonoBehaviour
 	public Vector3 		m_AirDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
 	
 	public float 		m_Throttle			= 0.0f;
+	
+	public Transform	m_TrainBoxCarTransform;
+	public Transform	m_TrainLatchTransform;
 		
 	// Protected
 		
