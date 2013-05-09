@@ -5,7 +5,7 @@ public class Game : MonoBehaviour
 {
 	public Transform train;
 	public Transform cameras;
-	public Transform cube;
+	
 	
 	void Start()
 	{
@@ -15,6 +15,7 @@ public class Game : MonoBehaviour
 		Object networkTrainObject = Network.Instantiate(train, new Vector3(0.0f, 3.712008f, 0.0f), Quaternion.identity, 0);
 		if (networkTrainObject != null)
 		{
+			
 			GameObject trainObject = ((Transform) networkTrainObject).gameObject;
 			if (trainObject.GetComponent<NetworkView>().isMine)
 			{
@@ -28,6 +29,8 @@ public class Game : MonoBehaviour
 		}
 		
 		Instantiate(cameras, Vector3.zero, Quaternion.identity);
+		
+
 	}
 
 	void Update()
