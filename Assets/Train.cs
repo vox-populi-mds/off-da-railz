@@ -106,6 +106,9 @@ public class Train : MonoBehaviour
 	
 	Wheel SetupWheel(Transform _WheelTransform, bool _IsFrontWheel)
 	{
+		MeshRenderer Mr = _WheelTransform.FindChild("Wheel").GetComponent<MeshRenderer>();
+		Mr.enabled = false;
+		
 		GameObject Go = new GameObject(_WheelTransform.name + " Collider");
 		Go.transform.position = _WheelTransform.position;
 		Go.transform.parent = transform;
@@ -214,7 +217,6 @@ public class Train : MonoBehaviour
 		followScript.target = m_TrainLatchTransform;
 		followScript.distance = 20;
 		
-		Debug.Log(string.Format("Box car Created at {0} ", vPosition));
 	}
 	
 	/***************************************************************************************************/
@@ -244,6 +246,11 @@ public class Train : MonoBehaviour
 		if(transform.localEulerAngles.z > 80 && transform.localEulerAngles.z < 280)
 		{
 			m_ResetTimer += Time.deltaTime;
+			
+			foreach(Wheel w in m_Wheels)
+			{
+				w.m_Collider.enabled = false;
+			}
 		}
 		else
 		{
@@ -252,6 +259,13 @@ public class Train : MonoBehaviour
 		
 		if(m_ResetTimer > m_ResetTime)
 		{
+			Debug.Log("Flipping Train!");
+			
+			foreach(Wheel w in m_Wheels)
+			{
+				w.m_Collider.enabled = true;
+			}
+			
 			FlipCar();
 		}
 	}
