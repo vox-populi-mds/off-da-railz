@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Lobby : MonoBehaviour
-{
+{	
 	private class NetworkPlayerComparer : IEqualityComparer<NetworkPlayer>
 	{
 		public bool Equals(NetworkPlayer a, NetworkPlayer b)
@@ -46,9 +46,13 @@ public class Lobby : MonoBehaviour
 	
 	static int PORT = 25002;
 	
+	System.Random m_random;
+	
 	string m_serverDescription;
 	
 	string m_serverName;
+	
+	public Transform m_train;
 	
 	void Awake()
 	{
@@ -97,6 +101,7 @@ public class Lobby : MonoBehaviour
 				MasterServer.RegisterHost(GAME_TYPE, m_serverName, m_serverDescription);
 				OnUpdatePlayerName(m_playerName, Network.player);
 				m_playerReadyStates[Network.player] = false;
+				Network.Instantiate(m_train, new Vector3(0.0f, 15.0f, 30.0f), new Quaternion(0.0f, m_random.Next(0, 7), 0.0f, 1.0f), 0);
 				m_connected = true;
 			}
 		}
@@ -154,6 +159,7 @@ public class Lobby : MonoBehaviour
 						if (Network.Connect(host) == NetworkConnectionError.NoError)
 						{
 							m_playerReadyStates[Network.player] = false;
+							Network.Instantiate(m_train, new Vector3(0.0f, 15.0f, 30.0f), new Quaternion(0.0f, m_random.Next(0, 7), 0.0f, 1.0f), 0);
 							m_connected = true;
 						}
 						else
@@ -251,6 +257,7 @@ public class Lobby : MonoBehaviour
 		m_playerNames = new Dictionary<NetworkPlayer, string>(new NetworkPlayerComparer());
 		m_playerReady = false;
 		m_playerReadyStates = new Dictionary<NetworkPlayer, bool>(new NetworkPlayerComparer());
+		m_random = new System.Random();
 		m_serverDescription = "Thy train shall be wreckethed.";
 		m_serverName = "Train wreck!";
 	}
