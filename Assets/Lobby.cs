@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Lobby : MonoBehaviour
-{
+{	
 	private class NetworkPlayerComparer : IEqualityComparer<NetworkPlayer>
 	{
 		public bool Equals(NetworkPlayer a, NetworkPlayer b)
@@ -46,9 +46,13 @@ public class Lobby : MonoBehaviour
 	
 	static int PORT = 25002;
 	
+	System.Random m_random;
+	
 	string m_serverDescription;
 	
 	string m_serverName;
+	
+	public Transform m_train;
 	
 	void Awake()
 	{
@@ -63,8 +67,10 @@ public class Lobby : MonoBehaviour
 	
 	void OnGUI()
 	{
+		GUI.Box(new Rect(10.0f, 15.0f, 300.0f, 30.0f), "");
+		GUILayout.BeginArea(new Rect(15.0f, 20.0f, 290.0f, 25.0f));
 		GUILayout.BeginHorizontal();
-		GUILayout.Label("Player Name:");
+		GUILayout.Label("Your Name");
 		string tempPlayerName = GUILayout.TextField(m_playerName);
 		if (tempPlayerName != m_playerName)
 		{
@@ -82,11 +88,14 @@ public class Lobby : MonoBehaviour
 			}
 		}
 		GUILayout.EndHorizontal();
+		GUILayout.EndArea();
 		
+		GUI.Box(new Rect(10.0f, 55.0f, 600.0f, 30.0f), "");
+		GUILayout.BeginArea(new Rect(15.0f, 60.0f, 590.0f, 25.0f));
 		GUILayout.BeginHorizontal();
-		GUILayout.Label("Server Name:");
+		GUILayout.Label("Server Name");
 		m_serverName = GUILayout.TextField(m_serverName);
-		GUILayout.Label("Server Description:");
+		GUILayout.Label("Description");
 		m_serverDescription = GUILayout.TextField(m_serverDescription, 50);
 		if (!m_connected)
 		{
@@ -97,6 +106,7 @@ public class Lobby : MonoBehaviour
 				MasterServer.RegisterHost(GAME_TYPE, m_serverName, m_serverDescription);
 				OnUpdatePlayerName(m_playerName, Network.player);
 				m_playerReadyStates[Network.player] = false;
+				//Network.Instantiate(m_train, new Vector3(0.0f, 15.0f, 30.0f), new Quaternion(0.0f, m_random.Next(0, 7), 0.0f, 1.0f), 0);
 				m_connected = true;
 			}
 		}
@@ -106,37 +116,41 @@ public class Lobby : MonoBehaviour
 			{
 				Network.Disconnect();
 				MasterServer.UnregisterHost();
+				MasterServer.RequestHostList(GAME_TYPE);
 				m_connected = false;
 			}
 		}
 		GUILayout.EndHorizontal();
+		GUILayout.EndArea();
 		
-		if (!Network.isServer)
+		GUI.Box(new Rect(10.0f, 95.0f, 830.0f, 240.0f), "");
+		GUILayout.BeginArea(new Rect(15.0f, 100.0f, 820.0f, 235.0f));
+		if (GUILayout.Button("Refresh Server List"))
 		{
-			if (GUILayout.Button("Refresh Server List"))
+			MasterServer.RequestHostList(GAME_TYPE);
+		}
+		
+		HostData[] hosts = MasterServer.PollHostList();
+		foreach (HostData host in hosts)
+		{
+			GUILayout.BeginHorizontal();
+			string name = host.gameName + " " + host.connectedPlayers + " / " + host.playerLimit;
+			GUILayout.Label(name);
+			GUILayout.Space(5);
+			string hostInfo;
+			hostInfo = "[";
+			foreach (string ip in host.ip)
 			{
-				MasterServer.RequestHostList(GAME_TYPE);
+				hostInfo = hostInfo + ip + ":" + host.port + " ";
 			}
-			
-			HostData[] hosts = MasterServer.PollHostList();
-			foreach (HostData host in hosts)
+			hostInfo = hostInfo + "]";
+			GUILayout.Label(hostInfo);
+			GUILayout.Space(5);
+			GUILayout.Label(host.comment);
+			GUILayout.Space(5);
+			GUILayout.FlexibleSpace();
+			if (!Network.isServer)
 			{
-				GUILayout.BeginHorizontal();
-				string name = host.gameName + " " + host.connectedPlayers + " / " + host.playerLimit;
-				GUILayout.Label(name);
-				GUILayout.Space(5);
-				string hostInfo;
-				hostInfo = "[";
-				foreach (string ip in host.ip)
-				{
-					hostInfo = hostInfo + ip + ":" + host.port + " ";
-				}
-				hostInfo = hostInfo + "]";
-				GUILayout.Label(hostInfo);
-				GUILayout.Space(5);
-				GUILayout.Label(host.comment);
-				GUILayout.Space(5);
-				GUILayout.FlexibleSpace();
 				if (m_connected)
 				{
 					if (GUILayout.Button("Disconnect"))
@@ -154,6 +168,7 @@ public class Lobby : MonoBehaviour
 						if (Network.Connect(host) == NetworkConnectionError.NoError)
 						{
 							m_playerReadyStates[Network.player] = false;
+							//Network.Instantiate(m_train, new Vector3(0.0f, 15.0f, 30.0f), new Quaternion(0.0f, m_random.Next(0, 7), 0.0f, 1.0f), 0);
 							m_connected = true;
 						}
 						else
@@ -162,24 +177,29 @@ public class Lobby : MonoBehaviour
 						}
 					}
 				}
-				GUILayout.EndHorizontal();
 			}
-		}
-		
-		if (m_connected)
-		{
-			GUILayout.BeginHorizontal();
-			GUILayout.Label("Players:");
 			GUILayout.EndHorizontal();
-			
+		}
+		GUILayout.EndArea();
+		
+		GUI.Box(new Rect(10.0f, 345.0f, 830.0f, 240.0f), "");
+		GUILayout.BeginArea(new Rect(15.0f, 350.0f, 820.0f, 235.0f));
+		if (m_connected)
+		{			
 			foreach (string otherPlayerName in m_playerNames.Values)
 			{
 				GUILayout.BeginHorizontal();
 				GUILayout.Label(otherPlayerName);
 				GUILayout.EndHorizontal();
 			}
-			
-			GUILayout.BeginHorizontal();
+		}
+		GUILayout.EndArea();
+		
+		GUI.Box(new Rect(640.0f, 595.0f, 200.0f, 30.0f), "");
+		GUILayout.BeginArea(new Rect(645.0f, 600.0f, 185.0f, 25.0f));
+		GUILayout.BeginHorizontal();
+		if (m_connected)
+		{
 			if (m_playerReady)
 			{
 				GUILayout.Label("Ready!");
@@ -189,7 +209,7 @@ public class Lobby : MonoBehaviour
 				if (GUILayout.Button("Ready!"))
 				{
 					m_playerReady = true;
-
+	
 					if (Network.isServer)
 					{
 						m_playerReadyStates[Network.player] = true;
@@ -200,9 +220,6 @@ public class Lobby : MonoBehaviour
 					}
 				}
 			}
-			GUILayout.EndHorizontal();
-			
-			GUILayout.BeginHorizontal();
 			if (Network.isServer && !m_playerReadyStates.ContainsValue(false))
 			{
 				if (GUILayout.Button("GO!"))
@@ -211,8 +228,9 @@ public class Lobby : MonoBehaviour
 					OnGO();
 				}
 			}
-			GUILayout.EndHorizontal();
 		}
+		GUILayout.EndHorizontal();
+		GUILayout.EndArea();
 	}
 	
 	void OnPlayerConnected(NetworkPlayer player)
@@ -251,6 +269,7 @@ public class Lobby : MonoBehaviour
 		m_playerNames = new Dictionary<NetworkPlayer, string>(new NetworkPlayerComparer());
 		m_playerReady = false;
 		m_playerReadyStates = new Dictionary<NetworkPlayer, bool>(new NetworkPlayerComparer());
+		m_random = new System.Random();
 		m_serverDescription = "Thy train shall be wreckethed.";
 		m_serverName = "Train wreck!";
 	}

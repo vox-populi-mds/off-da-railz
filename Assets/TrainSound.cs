@@ -19,6 +19,7 @@ public class TrainSound : MonoBehaviour
 		FAudio = Audio.GetInstance.Play(F, transform, FVolume, true);
 		KAudio = Audio.GetInstance.Play(K, transform, KVolume, true);
 		LAudio = Audio.GetInstance.Play(L, transform, LVolume, true);
+		DubstepAudio = Audio.GetInstance.Play(Dubstep, transform, DubstepVolume, true);
 	}
 	
 	void Update() 
@@ -160,14 +161,17 @@ public class TrainSound : MonoBehaviour
 	public float KVolume = 1.0f;
 	public AudioClip L  = null;
 	public float LVolume = 1.0f;
+	
+	public AudioClip Dubstep = null;
+	public float DubstepVolume = 1.0f;
 
 	AudioSource DAudio = null;
 	AudioSource EAudio = null;
 	AudioSource FAudio = null;
 	AudioSource KAudio = null;
 	AudioSource LAudio = null;
-
-	AudioSource carAudio = null;
+	
+	AudioSource DubstepAudio = null;
 
 	float gearShiftTime = 0.1f;
 	bool shiftingGear = false;

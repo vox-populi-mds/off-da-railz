@@ -35,21 +35,54 @@ public class Train : MonoBehaviour
 	}
 	
 	void Start() 
-	{
-		if (!mine)
-		{
-			return;	
+	{	
+		if(mine)
+		{	
+			SetupWheelColliders();
+			
+			SetupCenterOfMass();
+			
+			SetupGears();
+			
+			SetupTestBoxcar();
+			
+			SetupPlayerMarker();
+		
+			m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
 		}
 		
-		SetupWheelColliders();
-		
-		SetupCenterOfMass();
-		
-		SetupGears();
+		foreach(Transform t in m_FrontWheels)	// disable debug wheel rendering
+		{
+			MeshRenderer Mr = t.FindChild("Wheel").GetComponent<MeshRenderer>();
+			Mr.enabled = false;
+		}
+		foreach(Transform t in m_RearWheels)	// disable debug wheel rendering
+		{
+			MeshRenderer Mr = t.FindChild("Wheel").GetComponent<MeshRenderer>();
+			Mr.enabled = false;
+		}
+	}
 	
-		//SetUpSkidmarks();
-	
-		m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
+	void SetupPlayerMarker()
+	{
+		GameObject marker = GameObject.Find("PlayerMarker");
+		//int iID = int.Parse(networkView.owner.guid);
+		Light light = marker.GetComponent<Light>();
+		
+		light.color = m_PlayerColor;
+		//print("Player ID = " + iID);
+		
+		/*switch (iID)
+		{
+		case 0:
+			light.color = Color.yellow;
+			break;
+			
+		case 1:
+			light.color = m_PlayerColor;
+			break;
+		}*/
+		
 	}
 	
 	void SetupWheelColliders()
@@ -83,7 +116,7 @@ public class Train : MonoBehaviour
 	}
 	
 	Wheel SetupWheel(Transform _WheelTransform, bool _IsFrontWheel)
-	{
+	{	
 		GameObject Go = new GameObject(_WheelTransform.name + " Collider");
 		Go.transform.position = _WheelTransform.position;
 		Go.transform.parent = transform;
@@ -170,24 +203,48 @@ public class Train : MonoBehaviour
 		}
 	}
 	
+	void SetupTestBoxcar()
+	{
+		Vector3 vPositionOffset = new Vector3(0, 0, -33.0f);
+		
+		vPositionOffset = transform.rotation * vPositionOffset;
+		Vector3 vPosition = transform.position + vPositionOffset;
+		
+		Object BoxObj =  Network.Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation, 0);
+			
+		// We're just playing a single player game.
+		if(!BoxObj)
+		{
+			BoxObj = Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation);
+		}
+		
+		GameObject networkBoxGO = ((Transform) BoxObj).gameObject;
+		
+		// Setup the follow script
+		FollowObject followScript = networkBoxGO.GetComponent<FollowObject>();
+		followScript.target = m_TrainLatchTransform;
+		followScript.distance = 20;
+		
+	}
+	
 	/***************************************************************************************************/
 	/*										Update Functions 									  	   */
 	/***************************************************************************************************/
 	
 	void Update() 
 	{
-		if (!mine)
+		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
+		
+		ProcessWheelGraphics(RelativeVelocity);
+		
+		if (!mine)	// only client updates their own train
 		{
 			return;	
 		}
 		
-		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
-		
 		ProcessInput();
 		
 		ProcessIfFlipped();
-		
-		ProcessWheelGraphics(RelativeVelocity);
 	
 		ProcessGear(RelativeVelocity);
 	}
@@ -197,6 +254,11 @@ public class Train : MonoBehaviour
 		if(transform.localEulerAngles.z > 80 && transform.localEulerAngles.z < 280)
 		{
 			m_ResetTimer += Time.deltaTime;
+			
+			foreach(Wheel w in m_Wheels)
+			{
+				w.m_Collider.enabled = false;
+			}
 		}
 		else
 		{
@@ -205,6 +267,13 @@ public class Train : MonoBehaviour
 		
 		if(m_ResetTimer > m_ResetTime)
 		{
+			Debug.Log("Flipping Train!");
+			
+			foreach(Wheel w in m_Wheels)
+			{
+				w.m_Collider.enabled = true;
+			}
+			
 			FlipCar();
 		}
 	}
@@ -317,7 +386,7 @@ public class Train : MonoBehaviour
 	
 	void FixedUpdate()
 	{	
-		if (!mine)
+		if (!mine)	// only client updates their own train
 		{
 			return;	
 		}
@@ -541,6 +610,7 @@ public class Train : MonoBehaviour
 	}
 	
 	// Public
+	public Color		m_PlayerColor			= Color.blue;
 	public float 		m_MaximumVelocity 		= 20.0f;
 	public float 		m_MaximumTurn			= 15f;
 	public float 		m_MinimumTurn			= 10f;
@@ -566,6 +636,9 @@ public class Train : MonoBehaviour
 	public Vector3 		m_AirDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
 	
 	public float 		m_Throttle			= 0.0f;
+	
+	public Transform	m_TrainBoxCarTransform;
+	public Transform	m_TrainLatchTransform;
 		
 	// Protected
 		
