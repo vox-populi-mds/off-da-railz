@@ -5,7 +5,8 @@ public class Game : MonoBehaviour
 {
 	public Transform train;
 	public Transform cameras;
-	
+	public Transform userInterface;
+	public Transform[] levelObstacles = new Transform[10];
 	
 	void Start()
 	{
@@ -30,7 +31,13 @@ public class Game : MonoBehaviour
 		
 		Instantiate(cameras, Vector3.zero, Quaternion.identity);
 		
-
+		// Instantiate UI
+		Instantiate(userInterface, Vector3.zero, Quaternion.identity);
+		
+		// Instantiate Obstacles
+		foreach (Transform obstacle in levelObstacles) {
+			Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
+		}
 	}
 
 	void Update()
