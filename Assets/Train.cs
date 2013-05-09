@@ -223,7 +223,26 @@ public class Train : MonoBehaviour
 		// Setup the follow script
 		FollowObject followScript = networkBoxGO.GetComponent<FollowObject>();
 		followScript.target = m_TrainLatchTransform;
-		followScript.distance = 20;
+		followScript.distance = 2;
+		followScript.NumWaypoints = 5;
+			
+		//Create second carriage
+		
+		Object BoxObj2 =  Network.Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation, 0);
+			
+		// We're just playing a single player game.
+		if(!BoxObj2)
+		{
+			BoxObj2 = Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation);
+		}
+		
+		GameObject networkBoxGO2 = ((Transform) BoxObj2).gameObject;
+		
+		// Setup the follow script
+		FollowObject followScript2 = networkBoxGO2.GetComponent<FollowObject>();
+		followScript2.target = networkBoxGO.transform;
+		followScript2.distance = 5;
+		followScript2.NumWaypoints = 5; 
 		
 	}
 	

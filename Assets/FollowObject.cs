@@ -6,7 +6,7 @@ public class FollowObject : MonoBehaviour {
 
 public Transform target;
 public float distance = 1.0f;
-public float rotationDamping = 4.0f;
+public float rotationDamping = 15.0f;
 public int NumWaypoints = 10;	
 public bool DebugMode = false;
 protected GameObject[] DummyWaypoints;
@@ -69,7 +69,7 @@ protected GameObject[] DummyWaypoints;
 		currentRotation = LerpToRotation(transform.eulerAngles, DummyWaypoints[NumWaypoints - 1].transform.eulerAngles);	
 	
 		transform.position = DummyWaypoints[NumWaypoints - 1].transform.position;
-		transform.position -= currentRotation * Vector3.forward * 15;
+		transform.position -= currentRotation * Vector3.forward * 10;
 		
 		transform.LookAt (DummyWaypoints[NumWaypoints - 1].transform.position);		
 	}
