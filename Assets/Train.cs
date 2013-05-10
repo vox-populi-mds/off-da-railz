@@ -201,25 +201,6 @@ public class Train : MonoBehaviour
 		}
 	}
 	
-		followScript.NumWaypoints = 5;
-			
-		//Create second carriage
-		
-		Object BoxObj2 =  Network.Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation, 0);
-			
-		// We're just playing a single player game.
-		if(!BoxObj2)
-		{
-			BoxObj2 = Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation);
-		}
-		
-		GameObject networkBoxGO2 = ((Transform) BoxObj2).gameObject;
-		
-		// Setup the follow script
-		FollowObject followScript2 = networkBoxGO2.GetComponent<FollowObject>();
-		followScript2.target = networkBoxGO.transform;
-		followScript2.distance = 6;
-		followScript2.NumWaypoints = 5; 
 	/***************************************************************************************************/
 	/*										Update Functions 									  	   */
 	/***************************************************************************************************/
