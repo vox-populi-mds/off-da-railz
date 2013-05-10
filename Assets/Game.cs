@@ -31,7 +31,7 @@ public class Game : MonoBehaviour
 		Instantiate(cameras, Vector3.zero, Quaternion.identity);
 		
 		// Instantiate UI
-		Instantiate(userInterface, Vector3.zero, Quaternion.identity);
+		GameObject ui = Instantiate(userInterface, Vector3.zero, Quaternion.identity);
 		
 		// Instantiate Obstacles
 		foreach (Transform obstacle in levelObstacles) {

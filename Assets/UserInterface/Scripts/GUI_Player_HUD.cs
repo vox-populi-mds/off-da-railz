@@ -3,7 +3,7 @@ using System.Collections;
 
 public class GUI_Player_HUD : MonoBehaviour {
 	
-	public Texture2D textureCarridges;
+	public Texture2D[] textureCarridges = new Texture2D[3];
 	public int numberOfCarridges;
 	
 	private bool isMenu = false;
@@ -26,7 +26,7 @@ public class GUI_Player_HUD : MonoBehaviour {
 		
 		for (int i = 0; i < numberOfCarridges; ++i)
 		{
-			GUI.DrawTexture(new Rect (Screen.width - i * 100, 0, 100, 100), textureCarridges);
+			GUI.DrawTexture(new Rect (Screen.width - i * 100, 0, 100, 100), textureCarridges[0]);
 			//GUI.Box(new Rect (Screen.width - i * 100, 0, 100, 50), i.ToString());
 		}
 			
