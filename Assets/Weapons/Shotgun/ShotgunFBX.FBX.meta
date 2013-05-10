@@ -1,14 +1,18 @@
 fileFormatVersion: 2
-guid: 5744f8d3d070b2a4db54f8f7c5e600d8
+guid: 790dc0f2942093348a8fb2e1bde739ef
 ModelImporter:
   serializedVersion: 15
   fileIDToRecycleName:
-    100000: //RootNode
-    400000: //RootNode
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: wt1frame
+    100000: Mesh_0390
+    100002: //RootNode
+    400000: Mesh_0390
+    400002: //RootNode
+    2300000: Mesh_0390
+    3300000: Mesh_0390
+    4300000: Mesh_0390
+    7400000: Take 001
     9500000: //RootNode
+    11100000: //RootNode
   materials:
     importMaterials: 1
     materialName: 0
@@ -25,7 +29,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 10
+    globalScale: 1
     meshCompression: 0
     addColliders: 0
     swapUVChannels: 0
@@ -57,5 +61,5 @@ ModelImporter:
     rootMotionBoneName: 
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   additionalBone: 1
-  animationType: 2
+  animationType: 1
   userData: 

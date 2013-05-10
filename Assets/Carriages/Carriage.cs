@@ -12,29 +12,28 @@ public class CarriageWheel
 
 public class Carriage : MonoBehaviour 
 {
-	public GameObject m_PowerupOrWeapon;
+	public GameObject 			m_PowerupOrWeapon;
 	
-	public Transform[] m_WheelTransforms;
+	public Transform[] 			m_WheelTransforms;
 	
-	public float		m_StucturalIntegrity	= 100.0f;
-	public float	 	m_SuspensionRange 		= 0.5f;
-	public float 		m_SuspensionDamper 		= 0.0f;
-	public float 		m_SuspensionSpring 		= 0.0f;
+	public float				m_StucturalIntegrity	= 100.0f;
+	public float	 			m_SuspensionRange 		= 0.5f;
+	public float 				m_SuspensionDamper 		= 0.0f;
+	public float 				m_SuspensionSpring 		= 0.0f;
 	
-	public Vector3 		m_GroundDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
-	public Vector3 		m_AirDragMultiplier = new Vector3(0.0f, 0.0f, 1.0f);
+	public Vector3 				m_GroundDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
+	public Vector3 				m_AirDragMultiplier = new Vector3(0.0f, 0.0f, 1.0f);
 	
 	private bool 				m_IsOnGround = false;
 	private	float				m_GroundedTime = 0.0f;
 	
-	private CarriageWheel[] 	m_Wheels;
+	private CarriageWheel[] 		m_Wheels;
 	private float 				m_WheelRadius;
-	private WheelFrictionCurve 	m_WheelFrictionCurve;
+	private WheelFrictionCurve 		m_WheelFrictionCurve;
 	private Transform			m_Train;
 	private bool 				m_Dying = false;
-	
 	private Vector3 			m_BackSplinePosition;
-	private Vector3				m_FrontSplinePosition;
+	private Vector3				m_FrontSplinePositio;	
 	
 	private Vector3				m_midPointSpinePosition;
 	
@@ -269,8 +268,34 @@ public class Carriage : MonoBehaviour
 		m_FrontSplinePosition = _v3Position;
 	}
 	
+	void OnCollisionEnter(Collision CollsionInfo){
+		TrainCarriages PlayerTrainCarrages;
+		FollowObject TrainFollowTarget;
+		Health CarriageHealth;
+		
+		TrainFollowTarget = this.GetComponent<FollowObject>();
+		
+		if (CollsionInfo.gameObject.tag == "Train"){
+			PlayerTrainCarrages = CollsionInfo.gameObject.GetComponent<TrainCarriages>();
+			
+			if (TrainFollowTarget.HasTarget()){
+				DestoryTrain();
+			}else{
+				PlayerTrainCarrages.AddCarriage(this);
+			}
+		}
+	}		
+	
+	void OnParticleCollision(){
+		
+	}
+		
+	void DestoryTrain(){
+		this.renderer.enabled = false;
+	}
+	
 	public void SetSplineRotation(Quaternion _qRotation)
 	{
 		m_SplineRotation = _qRotation;
-	}
+	}	
 }
