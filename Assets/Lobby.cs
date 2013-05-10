@@ -4,6 +4,12 @@ using System.Collections.Generic;
 
 public class Lobby : MonoBehaviour
 {	
+	float m_abovePlayerListBoxHeight;
+	
+	float m_aboveServerBoxHeight;
+	
+	float m_aboveServerListBoxHeight;
+	
 	float m_boxPadding;
 	
 	bool m_connected;
@@ -15,6 +21,10 @@ public class Lobby : MonoBehaviour
 	float m_lastPlayerNameUpdateTime;
 	
 	float m_listBoxHeight;
+	
+	float m_listBoxWidth;
+	
+	float m_listBoxWidthInternal;
 	
 	float m_oneLineBoxHeight;
 	
@@ -41,14 +51,16 @@ public class Lobby : MonoBehaviour
 		m_boxPadding = 5.0f;
 		m_gapSize = 10.0f;
 		m_oneLineBoxHeight = 31.0f;
+		m_aboveServerBoxHeight = m_gapSize * 2.0f + m_oneLineBoxHeight;
+		m_aboveServerListBoxHeight = m_gapSize * 3.0f + m_oneLineBoxHeight * 2.0f;
 		
 		MasterServer.RequestHostList(GAME_TYPE);
 	}
 	
 	void DrawPlayerListBox()
 	{
-		GUI.Box(new Rect(m_gapSize, 345.0f, Screen.width - 2.0f * m_gapSize, m_listBoxHeight), "");
-		GUILayout.BeginArea(new Rect(m_gapSize + m_boxPadding, m_listBoxHeight, Screen.width - 2.0f * m_gapSize - 2.0f * m_boxPadding, m_listBoxHeight - 5.0f));
+		GUI.Box(new Rect(m_gapSize, m_abovePlayerListBoxHeight, m_listBoxWidth, m_listBoxHeight), "");
+		GUILayout.BeginArea(new Rect(m_gapSize + m_boxPadding, m_abovePlayerListBoxHeight + m_boxPadding, m_listBoxWidthInternal, m_listBoxHeight - 2.0f * m_boxPadding));
 		if (m_connected)
 		{			
 			foreach (string otherPlayerName in m_playerNames.Values)
@@ -89,8 +101,8 @@ public class Lobby : MonoBehaviour
 	
 	void DrawReadyGoBox()
 	{
-		GUI.Box(new Rect(Screen.width - 210.0f, Screen.height - 40.0f, 200.0f, 30.0f), "");
-		GUILayout.BeginArea(new Rect(Screen.width - 205.0f, Screen.height - 35.0f, 190.0f, 25.0f));
+		GUI.Box(new Rect(Screen.width - 200.0f - m_gapSize, Screen.height - m_oneLineBoxHeight - m_gapSize, 200.0f, m_oneLineBoxHeight), "");
+		GUILayout.BeginArea(new Rect(Screen.width - 200.0f - m_gapSize + m_boxPadding, Screen.height - m_oneLineBoxHeight - m_gapSize + m_boxPadding, 200.0f - 2.0f * m_boxPadding, m_oneLineBoxHeight - 2.0f * m_boxPadding));
 		GUILayout.BeginHorizontal();
 		if (m_connected)
 		{
@@ -129,8 +141,8 @@ public class Lobby : MonoBehaviour
 	
 	void DrawServerBox()
 	{
-		GUI.Box(new Rect(10.0f, 55.0f, 600.0f, 30.0f), "");
-		GUILayout.BeginArea(new Rect(15.0f, 60.0f, 590.0f, 25.0f));
+		GUI.Box(new Rect(m_gapSize, m_aboveServerBoxHeight, 600.0f, m_oneLineBoxHeight), "");
+		GUILayout.BeginArea(new Rect(m_gapSize + m_boxPadding, m_aboveServerBoxHeight + m_boxPadding, 600.0f - 2.0f * m_boxPadding, m_oneLineBoxHeight - 2.0f * m_boxPadding));
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("Server Name");
 		m_serverName = GUILayout.TextField(m_serverName);
@@ -165,8 +177,8 @@ public class Lobby : MonoBehaviour
 	
 	void DrawServerListBox()
 	{
-		GUI.Box(new Rect(10.0f, 95.0f, Screen.width - 20.0f, m_listBoxHeight), "");
-		GUILayout.BeginArea(new Rect(15.0f, 100.0f, Screen.width - 30.0f, m_listBoxHeight - 5.0f));
+		GUI.Box(new Rect(m_gapSize, m_aboveServerListBoxHeight, Screen.width - 20.0f, m_listBoxHeight), "");
+		GUILayout.BeginArea(new Rect(m_gapSize + m_boxPadding, m_aboveServerListBoxHeight + m_boxPadding, Screen.width - 30.0f, m_listBoxHeight - 5.0f));
 		if (GUILayout.Button("Refresh Server List"))
 		{
 			MasterServer.RequestHostList(GAME_TYPE);
@@ -233,9 +245,12 @@ public class Lobby : MonoBehaviour
 	
 	void OnGUI()
 	{
-		float boxesHeight = 10.0f * 6.0f;
-		float gapsHeight = 30.0f * 3.0f;
-		m_listBoxHeight = (Screen.height - boxesHeight - gapsHeight) / 2.0f;
+		float gapsHeight = m_gapSize * 6.0f;
+		float oneLineBoxesHeight = m_oneLineBoxHeight * 3.0f;
+		m_listBoxHeight = (Screen.height - oneLineBoxesHeight - gapsHeight) / 2.0f;
+		m_listBoxWidth = Screen.width - 2.0f * m_gapSize;
+		m_listBoxWidthInternal = m_listBoxWidth - 2.0f * m_boxPadding;
+		m_abovePlayerListBoxHeight = m_gapSize * 4.0f + m_oneLineBoxHeight * 2.0f + m_listBoxHeight;
 
 		DrawPlayerListBox();
 		DrawPlayerNameBox();
