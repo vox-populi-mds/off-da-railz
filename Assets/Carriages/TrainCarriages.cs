@@ -18,12 +18,7 @@ public class TrainCarriages : MonoBehaviour {
 	
 	Carriage GetActiveCarriage() 
 	{
-		return m_listCarriages[m_ActiveCarriage];
-	}
-	
-	int GetActiveCarriageIndex() 
-	{
-		return m_ActiveCarriage;		
+		return m_ActiveCarriage;
 	}
 	
 	int AddCarriage(Carriage _carriage) {
@@ -35,43 +30,50 @@ public class TrainCarriages : MonoBehaviour {
 	
 	void RemCarriage(Carriage _carriage) 
 	{
-		if (!m_listCarriages.Find(_carriage)) 
+		int iCarNum = m_listCarriages.Count;
+		
+		if ((!m_listCarriages.Contains(_carriage)) || iCarNum == 0) 
 		{
 			// attempting to remove carriage that does not exist
 			return;
 		}
 		
-		var markedForDeletion = _carriage;
-				
+		int index = m_listCarriages.IndexOf(_carriage) ;
+						
 		if (_carriage == m_ActiveCarriage)
 		{
-			m_listCarriages.FindIndex(_carriage);
 			
-			Destroy(m_ActiveCarriage);
-			
-			m_ActiveCarriage = null;
-			m_listCarriages.RemoveAt(_carriageIndex);
-					
-			if (_carriageIndex != 0) 
+			if ( index > 0 )
 			{
-				// If active carriage was last in the list, select the carriage before it
-				m_listCarriages.RemoveAt (_carriageIndex);
-				m_ActiveCarriage --;
-				return;
+					m_ActiveCarriage = m_listCarriages[index-1];			
 			}
-			
+			else
+			{
+				m_ActiveCarriage = null;
+			}
 		}
+				
+		m_listCarriages.Remove(_carriage);
+		
+		Destroy (_carriage);
+		
+		iCarNum = m_listCarriages.Count;
+		
+		/*if (index >= iCarNum)
+		{
+			for (; index < m_listCarriages.Count
+		}*/
 	}
 	
 	// Use this for initialization
 	void Start() {
 		m_listCarriages = new List<Carriage>();
-		m_ActiveCarriage = -1;
+		m_ActiveCarriage = null;
 	}
 	
 	// Update is called once per frame
 	void Update() {
-		if (m_listCarriages.Count > 1) 
+		/*if (m_listCarriages.Count > 1) 
 		{
 			if (Input.GetKeyDown(KeyCode.E))
 			{
@@ -95,7 +97,7 @@ public class TrainCarriages : MonoBehaviour {
 					m_ActiveCarriage = m_listCarriages.Count-1;
 				}
 			}
-		}
+		}*/
 	}
 	
 		
