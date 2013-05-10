@@ -1,40 +1,22 @@
 using UnityEngine;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
 public class Lobby : MonoBehaviour
 {	
-	private class NetworkPlayerComparer : IEqualityComparer<NetworkPlayer>
-	{
-		public bool Equals(NetworkPlayer a, NetworkPlayer b)
-		{
-			return a.ipAddress == b.ipAddress && a.port == b.port;
-		}
-		
-		public int GetHashCode(NetworkPlayer player)
-		{
-			int hashCode = 0;
-			
-			if (player.ipAddress.Length != 0)
-			{
-				string[] ipComponents = player.ipAddress.Split('.');
-				foreach (string ipComponent in ipComponents)
-				{
-					hashCode += Convert.ToInt32(ipComponent);
-				}
-			}
-			hashCode += player.port;
-			
-			return hashCode;
-		}
-	}
+	float m_boxPadding;
 	
 	bool m_connected;
 	
-	static string GAME_TYPE = "VoxPopuli::OffDaRails";
+	static string GAME_TYPE = "VoxPopuli::OffDaRailz";
+	
+	float m_gapSize;
 	
 	float m_lastPlayerNameUpdateTime;
+	
+	float m_listBoxHeight;
+	
+	float m_oneLineBoxHeight;
 	
 	string m_playerName;
 	
@@ -56,13 +38,17 @@ public class Lobby : MonoBehaviour
 	
 	void Awake()
 	{
+		m_boxPadding = 5.0f;
+		m_gapSize = 10.0f;
+		m_oneLineBoxHeight = 31.0f;
+		
 		MasterServer.RequestHostList(GAME_TYPE);
 	}
 	
 	void DrawPlayerListBox()
 	{
-		GUI.Box(new Rect(10.0f, 345.0f, 830.0f, 240.0f), "");
-		GUILayout.BeginArea(new Rect(15.0f, 350.0f, 820.0f, 235.0f));
+		GUI.Box(new Rect(m_gapSize, 345.0f, Screen.width - 2.0f * m_gapSize, m_listBoxHeight), "");
+		GUILayout.BeginArea(new Rect(m_gapSize + m_boxPadding, m_listBoxHeight, Screen.width - 2.0f * m_gapSize - 2.0f * m_boxPadding, m_listBoxHeight - 5.0f));
 		if (m_connected)
 		{			
 			foreach (string otherPlayerName in m_playerNames.Values)
@@ -77,8 +63,8 @@ public class Lobby : MonoBehaviour
 	
 	void DrawPlayerNameBox()
 	{
-		GUI.Box(new Rect(10.0f, 15.0f, 300.0f, 30.0f), "");
-		GUILayout.BeginArea(new Rect(15.0f, 20.0f, 290.0f, 25.0f));
+		GUI.Box(new Rect(m_gapSize, m_gapSize, 300.0f, m_oneLineBoxHeight), "");
+		GUILayout.BeginArea(new Rect(m_gapSize + m_boxPadding, m_gapSize + m_boxPadding, 300.0f - 2.0f * m_boxPadding, m_oneLineBoxHeight - 2.0f * m_boxPadding));
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("Your Name");
 		string tempPlayerName = GUILayout.TextField(m_playerName);
@@ -103,8 +89,8 @@ public class Lobby : MonoBehaviour
 	
 	void DrawReadyGoBox()
 	{
-		GUI.Box(new Rect(640.0f, 595.0f, 200.0f, 30.0f), "");
-		GUILayout.BeginArea(new Rect(645.0f, 600.0f, 185.0f, 25.0f));
+		GUI.Box(new Rect(Screen.width - 210.0f, Screen.height - 40.0f, 200.0f, 30.0f), "");
+		GUILayout.BeginArea(new Rect(Screen.width - 205.0f, Screen.height - 35.0f, 190.0f, 25.0f));
 		GUILayout.BeginHorizontal();
 		if (m_connected)
 		{
@@ -179,8 +165,8 @@ public class Lobby : MonoBehaviour
 	
 	void DrawServerListBox()
 	{
-		GUI.Box(new Rect(10.0f, 95.0f, 830.0f, 240.0f), "");
-		GUILayout.BeginArea(new Rect(15.0f, 100.0f, 820.0f, 235.0f));
+		GUI.Box(new Rect(10.0f, 95.0f, Screen.width - 20.0f, m_listBoxHeight), "");
+		GUILayout.BeginArea(new Rect(15.0f, 100.0f, Screen.width - 30.0f, m_listBoxHeight - 5.0f));
 		if (GUILayout.Button("Refresh Server List"))
 		{
 			MasterServer.RequestHostList(GAME_TYPE);
@@ -247,6 +233,10 @@ public class Lobby : MonoBehaviour
 	
 	void OnGUI()
 	{
+		float boxesHeight = 10.0f * 6.0f;
+		float gapsHeight = 30.0f * 3.0f;
+		m_listBoxHeight = (Screen.height - boxesHeight - gapsHeight) / 2.0f;
+
 		DrawPlayerListBox();
 		DrawPlayerNameBox();
 		DrawReadyGoBox();
