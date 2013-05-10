@@ -2,7 +2,9 @@ fileFormatVersion: 2
 guid: ca5c47590aaf35d4c8fdd436071751b4
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - cube: {fileID: 400000, guid: e090bf9251ffbfd4eb9436e557cda298, type: 3}
+  - tunnel: {fileID: 400000, guid: 98af4ba240aba7d4081b533bf191b6f1, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
