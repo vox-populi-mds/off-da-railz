@@ -44,8 +44,6 @@ public class Train : MonoBehaviour
 			
 			SetupGears();
 			
-			SetupTestBoxcar();
-			
 			SetupPlayerMarker();
 		
 			m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
@@ -203,27 +201,6 @@ public class Train : MonoBehaviour
 		}
 	}
 	
-	void SetupTestBoxcar()
-	{
-		Vector3 vPositionOffset = new Vector3(0, 0, -33.0f);
-		
-		vPositionOffset = transform.rotation * vPositionOffset;
-		Vector3 vPosition = transform.position + vPositionOffset;
-		
-		Object BoxObj =  Network.Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation, 0);
-			
-		// We're just playing a single player game.
-		if(!BoxObj)
-		{
-			BoxObj = Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation);
-		}
-		
-		GameObject networkBoxGO = ((Transform) BoxObj).gameObject;
-		
-		// Setup the follow script
-		FollowObject followScript = networkBoxGO.GetComponent<FollowObject>();
-		followScript.target = m_TrainLatchTransform;
-		followScript.distance = 3;
 		followScript.NumWaypoints = 5;
 			
 		//Create second carriage
@@ -243,9 +220,6 @@ public class Train : MonoBehaviour
 		followScript2.target = networkBoxGO.transform;
 		followScript2.distance = 6;
 		followScript2.NumWaypoints = 5; 
-		
-	}
-	
 	/***************************************************************************************************/
 	/*										Update Functions 									  	   */
 	/***************************************************************************************************/
@@ -656,7 +630,6 @@ public class Train : MonoBehaviour
 	
 	public float 		m_Throttle			= 0.0f;
 	
-	public Transform	m_TrainBoxCarTransform;
 	public Transform	m_TrainLatchTransform;
 		
 	// Protected

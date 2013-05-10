@@ -8,9 +8,12 @@ public enum ECarriageType {
 	Gatling,
 };*/
 
+
+
 public class TrainCarriages : MonoBehaviour {
 	private List<Carriage> 	m_listCarriages;
 	private Carriage		m_ActiveCarriage;
+	public Transform		m_TrainBoxCarTransform;
 	
 	int GetNumberOfCarrages(){
 		return (m_listCarriages.Count);
@@ -69,6 +72,8 @@ public class TrainCarriages : MonoBehaviour {
 	void Start() {
 		m_listCarriages = new List<Carriage>();
 		m_ActiveCarriage = null;
+		
+		SetupTestBoxcar();
 	}
 	
 	// Update is called once per frame
@@ -100,5 +105,69 @@ public class TrainCarriages : MonoBehaviour {
 		}*/
 	}
 	
+	void SetupTestBoxcar()
+	{
+		Vector3 vPositionOffset = new Vector3(0, 0, -33.0f);
+		
+		vPositionOffset = transform.rotation * vPositionOffset;
+		Vector3 vPosition = transform.position + vPositionOffset;
+		
+		Object BoxObj =  Network.Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation, 0);
+			
+		// We're just playing a single player game.
+		if(!BoxObj)
+		{
+			BoxObj = Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation);
+		}
+		
+		GameObject networkBoxGO = ((Transform) BoxObj).gameObject;
+		
+		// Setup the follow script
+		//FollowObject followScript = networkBoxGO.GetComponent<FollowObject>();
+		//followScript.target = LatchTransform;
+		//followScript.distance = 1;
+		
+		HingeJoint joint = networkBoxGO.AddComponent<HingeJoint>();
+		joint.connectedBody = GetComponent<Rigidbody>();
+		
+		JointLimits jl = new JointLimits();
+		jl.min = -45;
+		jl.max = 45;
+		joint.limits = jl;
+		
+		joint.useLimits = true;
+		
+		joint.axis = Vector3.up;
+		joint.anchor = networkBoxGO.transform.FindChild("FrontLatch").transform.localPosition;
+		
+		vPositionOffset.z = -30;
+		vPositionOffset = networkBoxGO.transform.rotation * vPositionOffset;
+		vPosition = networkBoxGO.transform.position + vPositionOffset;
+		
+		Object BoxObj2 =  Network.Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation, 0);
+			
+		// We're just playing a single player game.
+		if(!BoxObj2)
+		{
+			BoxObj2 = Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation);
+		}
+		
+		GameObject networkBoxGO2 = ((Transform) BoxObj2).gameObject;
+		
+		// Setup the follow script
+		//FollowObject followScript = networkBoxGO.GetComponent<FollowObject>();
+		//followScript.target = LatchTransform;
+		//followScript.distance = 1;
+		
+		HingeJoint joint2 = networkBoxGO2.AddComponent<HingeJoint>();
+		joint2.connectedBody = networkBoxGO.GetComponent<Rigidbody>();
+		
+		joint2.limits = jl;
+		
+		joint2.useLimits = true;
+		
+		joint2.axis = Vector3.up;
+		joint2.anchor = networkBoxGO2.transform.FindChild("FrontLatch").transform.localPosition;
+	}
 		
 }
