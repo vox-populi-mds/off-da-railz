@@ -6,7 +6,7 @@ public class FollowObject : MonoBehaviour {
 
 public Transform target;
 public float distance = 1.0f;
-public float rotationDamping = 15.0f;
+public float rotationDamping = 25.0f;
 public int NumWaypoints = 10;	
 public bool DebugMode = false;
 protected GameObject[] DummyWaypoints;
@@ -94,6 +94,18 @@ protected GameObject[] DummyWaypoints;
 		
 		Quaternion currentRotation = Quaternion.Euler (currentRotationAngleX, currentRotationAngleY, currentRotationAngleZ);
 		return(currentRotation);
+	}
+	
+	bool HasTarget()
+	{
+		if (!target)
+		{
+			return (false);
+		}
+		else
+		{
+			return(true);
+		}
 	}
 }
 

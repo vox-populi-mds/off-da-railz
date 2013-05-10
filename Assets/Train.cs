@@ -223,7 +223,7 @@ public class Train : MonoBehaviour
 		// Setup the follow script
 		FollowObject followScript = networkBoxGO.GetComponent<FollowObject>();
 		followScript.target = m_TrainLatchTransform;
-		followScript.distance = 2;
+		followScript.distance = 3;
 		followScript.NumWaypoints = 5;
 			
 		//Create second carriage
@@ -241,7 +241,7 @@ public class Train : MonoBehaviour
 		// Setup the follow script
 		FollowObject followScript2 = networkBoxGO2.GetComponent<FollowObject>();
 		followScript2.target = networkBoxGO.transform;
-		followScript2.distance = 5;
+		followScript2.distance = 6;
 		followScript2.NumWaypoints = 5; 
 		
 	}
