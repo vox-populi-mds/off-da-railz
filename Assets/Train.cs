@@ -49,6 +49,11 @@ public class Train : MonoBehaviour
 			m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
 		}
 		
+		DisableDebugWheelRendering();
+	}
+	
+	void DisableDebugWheelRendering()
+	{
 		foreach(Transform t in m_FrontWheels)	// disable debug wheel rendering
 		{
 			MeshRenderer Mr = t.FindChild("Wheel").GetComponent<MeshRenderer>();
