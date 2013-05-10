@@ -16,13 +16,6 @@ public class GUI_Player_HUD : MonoBehaviour {
 	}
 	
 	void OnGUI() {
-		// Some simple labels
-		//GUI.DrawTexture(new Rect(Screen.width - 100,0,100,50), textureCarridges);
-		
-		if (!textureCarridges)
-		{
-			Debug.LogError("Assign a Texture in the inspector.");
-		}	
 		
 		for (int i = 0; i < numberOfCarridges; ++i)
 		{
