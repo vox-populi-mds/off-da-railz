@@ -10,28 +10,26 @@ public enum ECarriageType {
 
 
 
-public class TrainCarriages : MonoBehaviour {
-	private List<Carriage> 	m_listCarriages;
-	private Carriage		m_ActiveCarriage;
-	public Transform		m_TrainBoxCarTransform;
-	
-	int GetNumberOfCarrages(){
+public class TrainCarriages : MonoBehaviour 
+{
+	int GetNumberOfCarrages()
+	{
 		return (m_listCarriages.Count);
 	}
 	
-	Carriage GetActiveCarriage() 
+	Transform GetActiveCarriage() 
 	{
 		return m_ActiveCarriage;
 	}
 	
-	int AddCarriage(Carriage _carriage) {
-		
+	int AddCarriage(Transform _carriage) 
+	{
 		m_listCarriages.Add(_carriage);
 		
 		return(0);
 	}
 	
-	void RemCarriage(Carriage _carriage) 
+	void RemCarriage(Transform _carriage) 
 	{
 		int iCarNum = m_listCarriages.Count;
 		
@@ -68,16 +66,40 @@ public class TrainCarriages : MonoBehaviour {
 		}*/
 	}
 	
+	void CreateNewWaypoint(Vector3 _Position, Quaternion _Rotation)
+	{
+		GameObject newWaypoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+		newWaypoint.transform.position = transform.FindChild("BackLatch").transform.position;
+		newWaypoint.transform.rotation = transform.FindChild("BackLatch").transform.rotation;
+		Destroy(newWaypoint.collider);
+		
+		m_listWaypoints.Add(newWaypoint.transform);
+	}
+	
 	// Use this for initialization
-	void Start() {
-		m_listCarriages = new List<Carriage>();
+	void Start() 
+	{
+		if(!GetComponent<Train>().IsMine())
+		{
+			return;
+		}
+		
+		m_listCarriages = new List<Transform>();
+		m_listWaypoints = new List<Transform>();
 		m_ActiveCarriage = null;
 		
+		// Set up some test carriages
 		SetupTestBoxcar();
 	}
 	
 	// Update is called once per frame
-	void Update() {
+	void Update() 
+	{
+		if(!GetComponent<Train>().IsMine())
+		{
+			return;
+		}
+		
 		/*if (m_listCarriages.Count > 1) 
 		{
 			if (Input.GetKeyDown(KeyCode.E))
@@ -103,71 +125,100 @@ public class TrainCarriages : MonoBehaviour {
 				}
 			}
 		}*/
+		
+		// Make a new waypoint every 60 meters the train travels
+		m_AccumulatedDistance += Vector3.Distance(transform.position, m_LastPosition);
+		m_LastPosition = transform.position;
+		
+		if(m_AccumulatedDistance > 10.0f)
+		{
+			CreateNewWaypoint(transform.position, transform.rotation);
+		
+			Debug.Log(m_AccumulatedDistance);
+			m_AccumulatedDistance = 0;
+		}
+		
+		foreach(Transform t in m_listCarriages)
+		{
+			//t.GetComponent<Carriage>().SetForcePostion();
+		}
 	}
 	
 	void SetupTestBoxcar()
-	{
-		Vector3 vPositionOffset = new Vector3(0, 0, -33.0f);
+	{	
+		Transform frontBodyTransform = transform;
 		
-		vPositionOffset = transform.rotation * vPositionOffset;
-		Vector3 vPosition = transform.position + vPositionOffset;
-		
-		Object BoxObj =  Network.Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation, 0);
-			
-		// We're just playing a single player game.
-		if(!BoxObj)
+		for(int i = 0; i < 1; ++i)
 		{
-			BoxObj = Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation);
-		}
-		
-		GameObject networkBoxGO = ((Transform) BoxObj).gameObject;
-		
-		// Setup the follow script
-		//FollowObject followScript = networkBoxGO.GetComponent<FollowObject>();
-		//followScript.target = LatchTransform;
-		//followScript.distance = 1;
-		
-		HingeJoint joint = networkBoxGO.AddComponent<HingeJoint>();
-		joint.connectedBody = GetComponent<Rigidbody>();
-		
-		JointLimits jl = new JointLimits();
-		jl.min = -45;
-		jl.max = 45;
-		joint.limits = jl;
-		
-		joint.useLimits = true;
-		
-		joint.axis = Vector3.up;
-		joint.anchor = networkBoxGO.transform.FindChild("FrontLatch").transform.localPosition;
-		
-		vPositionOffset.z = -30;
-		vPositionOffset = networkBoxGO.transform.rotation * vPositionOffset;
-		vPosition = networkBoxGO.transform.position + vPositionOffset;
-		
-		Object BoxObj2 =  Network.Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation, 0);
+			Object BoxObj = new Object();
+			if(Network.isClient || Network.isServer)
+			{
+				BoxObj = Network.Instantiate(m_TrainBoxCarTransform, Vector3.zero, Quaternion.identity, 0);
+			}	
+			else 
+			{
+				BoxObj = Instantiate(m_TrainBoxCarTransform);
+			}
 			
-		// We're just playing a single player game.
-		if(!BoxObj2)
-		{
-			BoxObj2 = Instantiate(m_TrainBoxCarTransform, vPosition, transform.rotation);
+			GameObject CarriageGO = ((Transform) BoxObj).gameObject;
+			
+			Vector3 vPosition = frontBodyTransform.FindChild("BackLatch").transform.position - 
+								(frontBodyTransform.rotation * CarriageGO.transform.FindChild("FrontLatch").transform.localPosition);
+			
+			CarriageGO.transform.position = vPosition;
+			CarriageGO.transform.rotation = transform.rotation;
+			
+			ConfigurableJoint joint = CarriageGO.AddComponent<ConfigurableJoint>();
+			joint.connectedBody = frontBodyTransform.rigidbody;
+			
+			SoftJointLimit sjlXlow = new SoftJointLimit();
+			sjlXlow.limit = -m_CarriageAngularFreedom.x;
+			//sjlXlow.spring = 10000.0f * rigidbody.mass;
+			
+			SoftJointLimit sjlXhigh = new SoftJointLimit();
+			sjlXhigh.limit = m_CarriageAngularFreedom.x;
+			//sjlXlow.spring = 10000.0f * rigidbody.mass;
+			
+			SoftJointLimit sjlY = new SoftJointLimit();
+			sjlY.limit = m_CarriageAngularFreedom.y;
+			//sjlY.spring = 10000.0f * rigidbody.mass;
+			
+			SoftJointLimit sjlZ = new SoftJointLimit();
+			sjlZ.limit = m_CarriageAngularFreedom.z;
+			
+			SoftJointLimit sjlMotion = new SoftJointLimit();
+			sjlMotion.limit = m_CarriageMovementFreedom;
+			
+			joint.lowAngularXLimit = sjlXlow;
+			joint.highAngularXLimit = sjlXhigh;
+			joint.angularYLimit = sjlY;
+			joint.angularZLimit = sjlZ;
+			joint.linearLimit = sjlMotion;
+			
+			joint.xMotion = ConfigurableJointMotion.Locked;
+			joint.yMotion = ConfigurableJointMotion.Limited;
+			joint.zMotion = ConfigurableJointMotion.Locked;
+			
+			joint.angularZMotion = ConfigurableJointMotion.Limited;
+			joint.angularYMotion = ConfigurableJointMotion.Limited;
+			joint.angularXMotion = ConfigurableJointMotion.Limited;
+			
+			joint.anchor = CarriageGO.transform.FindChild("FrontLatch").transform.localPosition;
+			
+			m_listCarriages.Add(CarriageGO.transform);
+			
+			frontBodyTransform = CarriageGO.transform;
 		}
-		
-		GameObject networkBoxGO2 = ((Transform) BoxObj2).gameObject;
-		
-		// Setup the follow script
-		//FollowObject followScript = networkBoxGO.GetComponent<FollowObject>();
-		//followScript.target = LatchTransform;
-		//followScript.distance = 1;
-		
-		HingeJoint joint2 = networkBoxGO2.AddComponent<HingeJoint>();
-		joint2.connectedBody = networkBoxGO.GetComponent<Rigidbody>();
-		
-		joint2.limits = jl;
-		
-		joint2.useLimits = true;
-		
-		joint2.axis = Vector3.up;
-		joint2.anchor = networkBoxGO2.transform.FindChild("FrontLatch").transform.localPosition;
 	}
-		
+	
+	private List<Transform> 	m_listCarriages;
+	private Transform			m_ActiveCarriage;
+	
+	float 						m_AccumulatedDistance;
+	Vector3						m_LastPosition;
+	List<Transform>				m_listWaypoints;
+	
+	public Transform		m_TrainBoxCarTransform;
+	public Vector3			m_CarriageAngularFreedom = new Vector3(10.0f, 45.0f, 0.5f);
+	public float 			m_CarriageMovementFreedom = 0.25f;
 }

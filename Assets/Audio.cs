@@ -15,12 +15,12 @@ public class Audio : Singleton<Audio>
         Debug.Log("AudioManager Initialising");
         try 
 		{
-            transform.parent = GameObject.FindGameObjectWithTag("MainCamera").transform;
+            transform.parent = GameObject.Find("The Game").transform;
             transform.localPosition = new Vector3(0, 0, 0);
         } 
 		catch 
 		{
-            Debug.Log("Unable to find main camera to put audiomanager");
+            Debug.Log("Unable to find Game to put audiomanager");
         }
 		
 		m_activeAudio = new List<ClipInfo>();

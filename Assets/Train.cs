@@ -45,21 +45,19 @@ public class Train : MonoBehaviour
 			SetupGears();
 			
 			SetupPlayerMarker();
-		
-			m_InitialDragMultiplierX = m_GroundDragMultiplier.x;
 		}
 		
-		DisableDebugWheelRendering();
+		//DisableDebugWheelRendering();
 	}
 	
 	void DisableDebugWheelRendering()
 	{
-		foreach(Transform t in m_FrontWheels)	// disable debug wheel rendering
+		foreach(Transform t in m_FrontWheels)
 		{
 			MeshRenderer Mr = t.FindChild("Wheel").GetComponent<MeshRenderer>();
 			Mr.enabled = false;
 		}
-		foreach(Transform t in m_RearWheels)	// disable debug wheel rendering
+		foreach(Transform t in m_RearWheels)
 		{
 			MeshRenderer Mr = t.FindChild("Wheel").GetComponent<MeshRenderer>();
 			Mr.enabled = false;
@@ -68,24 +66,10 @@ public class Train : MonoBehaviour
 	
 	void SetupPlayerMarker()
 	{
-		GameObject marker = GameObject.Find("PlayerMarker");
-		//int iID = int.Parse(networkView.owner.guid);
+		GameObject marker = transform.FindChild("PlayerMarker").gameObject;
+	
 		Light light = marker.GetComponent<Light>();
-		
 		light.color = m_PlayerColor;
-		//print("Player ID = " + iID);
-		
-		/*switch (iID)
-		{
-		case 0:
-			light.color = Color.yellow;
-			break;
-			
-		case 1:
-			light.color = m_PlayerColor;
-			break;
-		}*/
-		
 	}
 	
 	void SetupWheelColliders()
@@ -111,11 +95,6 @@ public class Train : MonoBehaviour
 	void SetupWheelFrictionCurve()
 	{
 		m_WheelFrictionCurve = new WheelFrictionCurve();
-		m_WheelFrictionCurve.extremumSlip = 1;
-		m_WheelFrictionCurve.extremumValue = 50;
-		m_WheelFrictionCurve.asymptoteSlip = 2;
-		m_WheelFrictionCurve.asymptoteValue = 25;
-		m_WheelFrictionCurve.stiffness = 1;
 	}
 	
 	Wheel SetupWheel(Transform _WheelTransform, bool _IsFrontWheel)
@@ -216,44 +195,13 @@ public class Train : MonoBehaviour
 		
 		ProcessWheelGraphics(RelativeVelocity);
 		
-		if (!mine)	// only client updates their own train
+		if(mine)	// Only client updates their input
 		{
-			return;	
-		}
-		
-		ProcessInput();
-		
-		ProcessIfFlipped();
-	
-		ProcessGear(RelativeVelocity);
-	}
-	
-	void ProcessIfFlipped()
-	{
-		if(transform.localEulerAngles.z > 80 && transform.localEulerAngles.z < 280)
-		{
-			m_ResetTimer += Time.deltaTime;
+			ProcessGear(RelativeVelocity);
 			
-			foreach(Wheel w in m_Wheels)
-			{
-				w.m_Collider.enabled = false;
-			}
-		}
-		else
-		{
-			m_ResetTimer = 0;
-		}
+			ProcessInput();
 		
-		if(m_ResetTimer > m_ResetTime)
-		{
-			Debug.Log("Flipping Train!");
-			
-			foreach(Wheel w in m_Wheels)
-			{
-				w.m_Collider.enabled = true;
-			}
-			
-			FlipCar();
+			ProcessIfFlipped();
 		}
 	}
 	
@@ -274,7 +222,7 @@ public class Train : MonoBehaviour
 			// First we get the velocity at the point where the wheel meets the ground, if the wheel is touching the ground
 			if(Wc.GetGroundHit(out Wh))
 			{	
-				//TODO: FIX THIS: w.m_WheelGraphic.localPosition = Wc.transform.up * (m_WheelRadius + Wc.transform.InverseTransformPoint(Wh.point).y);
+				//w.m_WheelGraphic.localPosition = Wc.transform.up * (m_WheelRadius + Wc.transform.InverseTransformPoint(Wh.point).y);
 				w.m_WheelVelo = rigidbody.GetPointVelocity(Wh.point);
 				w.m_GroundSpeed = w.m_WheelGraphic.InverseTransformDirection(w.m_WheelVelo);
 				
@@ -293,16 +241,11 @@ public class Train : MonoBehaviour
 				{
 					w.m_WheelVelo *= 0.9f * (1.0f - m_Throttle);
 				}
-				
-				//if(skidmarks)
-				//{
-				//	w.lastSkidmark = -1.0f;
-				//	sound.Skid(false, 0);
-				//}
 			}
+			
 			// If the wheel is a steer wheel we apply two rotations:
-			// *Rotation around the Steer Column (visualizes the steer direction)
-			// *Rotation that visualizes the speed
+			// Rotation around the Steer Column (visualizes the steer direction)
+			// Rotation that visualizes the speed
 			if(w.m_SteerWheel)
 			{
 				Vector3 Ea = w.m_WheelGraphic.parent.localEulerAngles;
@@ -310,10 +253,9 @@ public class Train : MonoBehaviour
 				w.m_WheelGraphic.parent.localEulerAngles = Ea;
 				w.m_TireGraphic.Rotate(Vector3.right * (w.m_GroundSpeed.z / m_WheelRadius) * Time.deltaTime * Mathf.Rad2Deg);
 			}
-			else if(!m_Handbrake && w.m_DriveWheel)
+			// If the wheel is a drive wheel it only gets the rotation that visualizes speed.
+			else if(w.m_DriveWheel)
 			{
-				// If the wheel is a drive wheel it only gets the rotation that visualizes speed.
-				// If we are hand braking we don't rotate it.
 				w.m_TireGraphic.Rotate(Vector3.right * (w.m_GroundSpeed.z / m_WheelRadius) * Time.deltaTime * Mathf.Rad2Deg);
 			}
 		}
@@ -332,7 +274,7 @@ public class Train : MonoBehaviour
 		}
 	}
 	
-	void FlipCar()
+	void FlipTrain()
 	{
 		transform.rotation = Quaternion.LookRotation(transform.forward);
 		transform.position += Vector3.up * 0.5f;
@@ -347,16 +289,37 @@ public class Train : MonoBehaviour
 		m_Throttle = Input.GetAxis("Vertical");
 		m_Steer = Input.GetAxis("Horizontal");
 		
-		/*if(throttle < 0.0
+		if(m_AutomaticThrottle)
 		{
-			brakeLights.SetFloat("_Intensity", Mathf.Abs(throttle));
+			m_Throttle = 1.0f;
+		}
+	}
+	
+	void ProcessIfFlipped()
+	{
+		if(transform.localEulerAngles.z > 80 && transform.localEulerAngles.z < 280)
+		{
+			m_ResetTimer += Time.deltaTime;
+			
+			foreach(Wheel w in m_Wheels)
+			{
+				w.m_Collider.enabled = false;
+			}
 		}
 		else
 		{
-			brakeLights.SetFloat("_Intensity", 0.0);
-		}*/
+			m_ResetTimer = 0;
+		}
 		
-		//CheckHandbrake();
+		if(m_ResetTimer > m_ResetTime)
+		{	
+			foreach(Wheel w in m_Wheels)
+			{
+				w.m_Collider.enabled = true;
+			}
+			
+			//FlipTrain();
+		}
 	}
 	
 	/***************************************************************************************************/
@@ -370,7 +333,6 @@ public class Train : MonoBehaviour
 			return;	
 		}
 		
-		// Transform rigidbody velocity to local co-ordinate space
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
 		CalculateState();	
@@ -404,7 +366,7 @@ public class Train : MonoBehaviour
 		}
 		
 		Vector3 DragMultiplier = m_GroundDragMultiplier;
-		if(!IsOnGround)
+		if(!IsOnGround) 
 		{
 			DragMultiplier = m_AirDragMultiplier;
 		}
@@ -414,19 +376,9 @@ public class Train : MonoBehaviour
 											-_RelativeVelocity.z * Mathf.Abs(_RelativeVelocity.z) );
 		
 		Vector3 Drag = Vector3.Scale(DragMultiplier, RelativeDrag);
-			
-		if(m_InitialDragMultiplierX > DragMultiplier.x) // Handbrake code
-		{			
-			Drag.x /= (_RelativeVelocity.magnitude / (m_MaximumVelocity / ( 1 + 2 * m_HandbrakeXDragFactor ) ) );
-			Drag.z *= (1.0f + Mathf.Abs(Vector3.Dot(rigidbody.velocity.normalized, transform.forward)));
-			Drag += rigidbody.velocity * Mathf.Clamp01(rigidbody.velocity.magnitude / m_MaximumVelocity);
-		}
-		else // No handbrake
-		{
-			Drag.x *= m_MaximumVelocity / _RelativeVelocity.magnitude;
-		}
+		Drag.x *= m_MaximumVelocity / _RelativeVelocity.magnitude;
 		
-		if(Mathf.Abs(_RelativeVelocity.x) < 5 && !m_Handbrake)
+		if(Mathf.Abs(_RelativeVelocity.x) < 5)
 		{
 			Drag.x = -_RelativeVelocity.x * DragMultiplier.x;
 		}
@@ -438,7 +390,7 @@ public class Train : MonoBehaviour
 	{
 		float SqrVel = _RelativeVelocity.x * _RelativeVelocity.x;
 		
-		// Add extra sideways friction based on the car's turning velocity to avoid slipping
+		// Add extra sideways friction based on the trains's turning velocity to avoid slipping
 		m_WheelFrictionCurve.extremumValue = Mathf.Clamp(300 - SqrVel, 0, 300);
 		m_WheelFrictionCurve.asymptoteValue = Mathf.Clamp(150 - (SqrVel / 2), 0, 150);
 			
@@ -450,12 +402,7 @@ public class Train : MonoBehaviour
 	}
 	
 	void CalculateEnginePower(Vector3 _RelativeVelocity)
-	{
-		if(m_AutomaticThrottle)
-		{
-			m_Throttle = 1.0f;
-		}
-		
+	{	
 		if(m_Throttle == 0)
 		{
 			m_CurrentEnginePower -= Time.deltaTime * 200.0f;
@@ -473,10 +420,6 @@ public class Train : MonoBehaviour
 		if(m_CurrentGear == 0)
 		{
 			m_CurrentEnginePower = Mathf.Clamp(m_CurrentEnginePower, 0, m_EngineForceValues[0]);
-		}
-		else
-		{
-			m_CurrentEnginePower = Mathf.Clamp(m_CurrentEnginePower, m_EngineForceValues[m_CurrentGear - 1], m_EngineForceValues[m_CurrentGear]);
 		}
 	}
 	
@@ -510,14 +453,11 @@ public class Train : MonoBehaviour
 			
 			if(Mathf.Sign(_RelativeVelocity.z) == Mathf.Sign(m_Throttle))
 			{
-				if(!m_Handbrake)
-				{
-					ThrottleForce = Mathf.Sign(m_Throttle) * m_CurrentEnginePower * rigidbody.mass;
-				}
+				ThrottleForce = Mathf.Sign(m_Throttle) * m_CurrentEnginePower * (rigidbody.mass + (1000 * 0));
 			}
 			else
 			{
-				BrakeForce = Mathf.Sign(m_Throttle) * m_EngineForceValues[0] * rigidbody.mass;
+				BrakeForce = Mathf.Sign(m_Throttle) * m_EngineForceValues[0] * (rigidbody.mass + (1000 * 0));
 			}
 			
 			rigidbody.AddForce(transform.forward * Time.deltaTime * (ThrottleForce + BrakeForce));
@@ -535,32 +475,6 @@ public class Train : MonoBehaviour
 			transform.RotateAround(	transform.position + transform.right * TurnRadius * m_Steer, 
 									transform.up, 
 									TurnSpeed * Mathf.Rad2Deg * Time.deltaTime * m_Steer);
-			
-			Vector3 DebugStartPoint = transform.position + transform.right * TurnRadius * m_Steer;
-			Vector3 DebugEndPoint = DebugStartPoint + Vector3.up * 5.0f;
-			
-			Debug.DrawLine(DebugStartPoint, DebugEndPoint, Color.red);
-			
-			if(m_InitialDragMultiplierX > m_GroundDragMultiplier.x) // Handbrake
-			{
-				float RotationDirection = Mathf.Sign(m_Steer); // rotationDirection is -1 or 1 by default, depending on steering
-				if(m_Steer == 0.0f)
-				{
-					if(rigidbody.angularVelocity.y < 1.0f) // If we are not steering and we are handbraking and not rotating fast, we apply a random rotationDirection
-					{
-						RotationDirection = Random.Range(-1.0f, 1.0f);
-					}
-					else
-					{
-						RotationDirection = rigidbody.angularVelocity.y; // If we are rotating fast we are applying that rotation to the car
-					}
-				}
-				
-				// Finally we apply this rotation around a point between the cars front wheels.
-				transform.RotateAround( transform.TransformPoint( (	m_FrontWheels[0].localPosition + m_FrontWheels[1].localPosition) * 0.5f), 
-																	transform.up, 
-																	rigidbody.velocity.magnitude * Mathf.Clamp01(1 - rigidbody.velocity.magnitude / m_MaximumVelocity) * RotationDirection * Time.deltaTime * 2.0f);
-			}
 		}
 	}
 	
@@ -593,7 +507,7 @@ public class Train : MonoBehaviour
 	public float 		m_MaximumVelocity 		= 20.0f;
 	public float 		m_MaximumTurn			= 15f;
 	public float 		m_MinimumTurn			= 10f;
-	public int 			m_NumberOfGears 		= 2;
+	public int 			m_NumberOfGears 		= 1;
 	public bool			m_AutomaticThrottle		= true;
 	
 	public Transform[] 	m_FrontWheels;
@@ -634,12 +548,6 @@ public class Train : MonoBehaviour
 	
 	int 				m_CurrentGear;
 	float 				m_CurrentEnginePower = 0.0f;
-	
-	bool 				m_Handbrake  		= false;
-	float 				m_HandbrakeXDragFactor = 0.5f;
-	float 				m_InitialDragMultiplierX = 10.0f;
-	float 				m_HandbrakeTime = 0.0f;
-	float 				m_HandbrakeTimer = 1.0f;
 	
 	bool 				m_CanSteer;
 	bool 				m_CanDrive;

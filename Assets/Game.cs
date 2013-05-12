@@ -12,19 +12,20 @@ public class Game : MonoBehaviour
 		// Disable cursor visibility
 		Screen.showCursor = false;
 		
-		Object networkTrainObject = Network.Instantiate(train, new Vector3(0.0f, 3.712008f, 0.0f), Quaternion.identity, 0);
-		if (networkTrainObject != null)
+		Object BoxObj = new Object();
+		if(Network.isClient || Network.isServer)
 		{
-			
+			Object networkTrainObject = Network.Instantiate(train, new Vector3(Random.Range(-300.0f, 300.0f), 5.0f, Random.Range(-300.0f, 300.0f)), Quaternion.identity, 0);
+
 			GameObject trainObject = ((Transform) networkTrainObject).gameObject;
 			if (trainObject.GetComponent<NetworkView>().isMine)
 			{
 				trainObject.GetComponent<Train>().SetMine(true);
 			}
 		}
-		else // We're just playing a single player game.
+		else 
 		{
-			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(0.0f, 3.712008f, 0.0f), Quaternion.identity)).gameObject;
+			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(Random.Range(-300.0f, 300.0f), 5.0f, Random.Range(-300.0f, 300.0f)), Quaternion.identity)).gameObject;
 			trainObject.GetComponent<Train>().SetMine(true);
 		}
 		
@@ -35,7 +36,7 @@ public class Game : MonoBehaviour
 		
 		// Instantiate Obstacles
 		foreach (Transform obstacle in levelObstacles) {
-			Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
+			//Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
 		}
 	}
 
