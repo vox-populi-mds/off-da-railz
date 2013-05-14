@@ -12,58 +12,68 @@ public enum ECarriageType {
 
 public class TrainCarriages : MonoBehaviour 
 {
-	int GetNumberOfCarrages()
+	int GetNumberOfCarriages()
 	{
 		return (m_listCarriages.Count);
 	}
 	
-	Transform GetActiveCarriage() 
+	Carriage GetActiveCarriage() 
 	{
 		return m_ActiveCarriage;
 	}
 	
-	int AddCarriage(Transform _carriage) 
+	bool AddCarriage(Carriage _carriage) 
 	{
-		m_listCarriages.Add(_carriage);
-		
-		return(0);
+		if (m_listCarriages.Count < MAX_CARRIAGES)
+		{
+			m_listCarriages.Add(_carriage);
+			
+			_carriage.GetComponent<FollowObject>().target = m_listCarriages[m_listCarriages.Count].transform.FindChild("FrontLatch").transform;			
+			
+			//_carriage.SetEngine(self);
+			
+			return true;
+		}
+		// over capacity!
+		return false;
 	}
 	
-	void RemCarriage(Transform _carriage) 
+	void RemCarriage(Carriage _carriage) 
 	{
-		int iCarNum = m_listCarriages.Count;
-		
-		if ((!m_listCarriages.Contains(_carriage)) || iCarNum == 0) 
+		if ((!m_listCarriages.Contains(_carriage)) || m_listCarriages.Count == 0) 
 		{
 			// attempting to remove carriage that does not exist
 			return;
 		}
 		
-		int index = m_listCarriages.IndexOf(_carriage) ;
+		int remCarIndex = m_listCarriages.IndexOf(_carriage); // index of carriage to remove
 						
+		
+		// if attempting to remove the active carriage
 		if (_carriage == m_ActiveCarriage)
-		{
-			
-			if ( index > 0 )
+		{			
+			if ( remCarIndex > 0 ) // if removed carriage is not first carriage
 			{
-					m_ActiveCarriage = m_listCarriages[index-1];			
+					m_ActiveCarriage = m_listCarriages[remCarIndex-1];	// move active carriage back 1 index
 			}
 			else
 			{
-				m_ActiveCarriage = null;
+				m_ActiveCarriage = null; // otherwise, there are no more carriages
 			}
 		}
 				
 		m_listCarriages.Remove(_carriage);
 		
 		Destroy (_carriage);
-		
-		iCarNum = m_listCarriages.Count;
-		
-		/*if (index >= iCarNum)
+				
+		if (remCarIndex >= m_listCarriages.Count) // if there are carriages 'after' the attacked carriage
 		{
-			for (; index < m_listCarriages.Count
-		}*/
+			while (remCarIndex < m_listCarriages.Count) // loop through, remove all of them from the list and make them 'loose'
+			{
+				m_listCarriages[remCarIndex].GetComponent<FollowObject>().target = null;
+				m_listCarriages.RemoveAt(remCarIndex);
+			}
+		}
 	}
 	
 	void CreateNewWaypoint(Vector3 _Position, Quaternion _Rotation)
@@ -84,7 +94,7 @@ public class TrainCarriages : MonoBehaviour
 			return;
 		}
 		
-		m_listCarriages = new List<Transform>();
+		m_listCarriages = new List<Carriage>();
 		m_listWaypoints = new List<Transform>();
 		m_ActiveCarriage = null;
 		
@@ -100,31 +110,34 @@ public class TrainCarriages : MonoBehaviour
 			return;
 		}
 		
-		/*if (m_listCarriages.Count > 1) 
+		if (m_listCarriages.Count > 1) 
 		{
-			if (Input.GetKeyDown(KeyCode.E))
+			if (Input.GetKeyDown(KeyCode.E) || Input.GetAxis("Mouse ScrollWheel")>0)
 			{
-				if (m_listCarriages.Count > m_ActiveCarriage + 1)
+				int index = m_listCarriages.IndexOf(m_ActiveCarriage);
+				
+				if (m_listCarriages.Count > index + 1)
 				{
-					m_ActiveCarriage++;
+					m_ActiveCarriage = m_listCarriages[index+1];
 				}			
 				else
 				{
-					m_ActiveCarriage = 0;
+					m_ActiveCarriage = m_listCarriages[0];
 				}
-			}
-			if (Input.GetKeyDown(KeyCode.Q))
+			} else
+			if (Input.GetKeyDown(KeyCode.Q) || Input.GetAxis("Mouse ScrollWheel")<0)
 			{
-				if (m_ActiveCarriage > 0)
+				int index = m_listCarriages.IndexOf(m_ActiveCarriage);
+				if (index > 0)
 				{
-					m_ActiveCarriage--;
+					m_ActiveCarriage = m_listCarriages[index-1];
 				}
 				else
 				{
-					m_ActiveCarriage = m_listCarriages.Count-1;
+					m_ActiveCarriage = m_listCarriages[m_listCarriages.Count-1];
 				}
 			}
-		}*/
+		}
 		
 		// Make a new waypoint every 60 meters the train travels
 		m_AccumulatedDistance += Vector3.Distance(transform.position, m_LastPosition);
@@ -138,10 +151,6 @@ public class TrainCarriages : MonoBehaviour
 			m_AccumulatedDistance = 0;
 		}
 		
-		foreach(Transform t in m_listCarriages)
-		{
-			//t.GetComponent<Carriage>().SetForcePostion();
-		}
 	}
 	
 	void SetupTestBoxcar()
@@ -205,14 +214,14 @@ public class TrainCarriages : MonoBehaviour
 			
 			joint.anchor = CarriageGO.transform.FindChild("FrontLatch").transform.localPosition;
 			
-			m_listCarriages.Add(CarriageGO.transform);
+			//m_listCarriages.Add(CarriageGO.transform);
 			
 			frontBodyTransform = CarriageGO.transform;
 		}
 	}
 	
-	private List<Transform> 	m_listCarriages;
-	private Transform			m_ActiveCarriage;
+	private List<Carriage> 		m_listCarriages;
+	private Carriage			m_ActiveCarriage;
 	
 	float 						m_AccumulatedDistance;
 	Vector3						m_LastPosition;
@@ -221,4 +230,5 @@ public class TrainCarriages : MonoBehaviour
 	public Transform		m_TrainBoxCarTransform;
 	public Vector3			m_CarriageAngularFreedom = new Vector3(10.0f, 45.0f, 0.5f);
 	public float 			m_CarriageMovementFreedom = 0.25f;
+	public const uint		MAX_CARRIAGES = 10;
 }
