@@ -30,7 +30,7 @@ public class TrainCarriages : MonoBehaviour
 			
 			_carriage.GetComponent<FollowObject>().target = m_listCarriages[m_listCarriages.Count].transform.FindChild("FrontLatch").transform;			
 			
-			//_carriage.SetEngine(self);
+			_carriage.SetTrain(transform);
 			
 			return true;
 		}
@@ -63,6 +63,8 @@ public class TrainCarriages : MonoBehaviour
 		}
 				
 		m_listCarriages.Remove(_carriage);
+		
+		//_carriage.Explode();
 		
 		Destroy (_carriage);
 				

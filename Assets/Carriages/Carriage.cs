@@ -16,6 +16,7 @@ public class Carriage : MonoBehaviour
 	
 	public Transform[] m_WheelTransforms;
 	
+	public float		m_StucturalIntegrity	= 100.0f;
 	public float	 	m_SuspensionRange 		= 0.5f;
 	public float 		m_SuspensionDamper 		= 0.0f;
 	public float 		m_SuspensionSpring 		= 0.0f;
@@ -26,6 +27,8 @@ public class Carriage : MonoBehaviour
 	private CarriageWheel[] 	m_Wheels;
 	private float 				m_WheelRadius;
 	private WheelFrictionCurve 	m_WheelFrictionCurve;
+	private Transform			m_Train;
+	private bool 				m_Dying = false;
 	
 	// Use this for initialization
 	void Start () 
@@ -41,6 +44,21 @@ public class Carriage : MonoBehaviour
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
 		ProcessWheelGraphics(RelativeVelocity);
+		
+		Mesh i;
+		if (GetComponent<MeshFilter>() != null)
+		i = GetComponent<MeshFilter>().mesh;
+		
+		if (!m_Dying)
+		{
+			//if (m_StucturalIntegrity < 50)
+			{		
+				m_Dying = true;
+
+				GetComponent<MeshFilter>().mesh = Instantiate(Resources.Load ("train_boxwreck")) as Mesh;
+
+			}
+		}
 	}
 	
 	void FixedUpdate()
@@ -62,6 +80,11 @@ public class Carriage : MonoBehaviour
 		}
 	}
 	
+	public void SetTrain(Transform _train)
+	{
+		m_Train = _train;
+	}
+	
 	void SetupWheelColliders()
 	{
 		m_Wheels = new CarriageWheel[m_WheelTransforms.Length];
@@ -74,6 +97,11 @@ public class Carriage : MonoBehaviour
 			m_Wheels[wheelCount] = SetupWheel(t);
 			wheelCount++;
 		}
+	}
+	
+	void Damage(float _damage)
+	{
+		m_StucturalIntegrity -= _damage;
 	}
 	
 	CarriageWheel SetupWheel(Transform _WheelTransform)
