@@ -205,13 +205,16 @@ public class Lobby : MonoBehaviour
 			GUILayout.FlexibleSpace();
 			if (!Network.isServer)
 			{
-				if (Network.connections.Length == 1 && Network.connections[0].ipAddress == host.ip[0])
+				if (Network.connections.Length == 1)
 				{
-					if (GUILayout.Button("Disconnect"))
+					if (Network.connections[0].ipAddress == host.ip[0])
 					{
-						Network.Disconnect();
-						m_playerNames.Clear();
-						m_connected = false;
+						if (GUILayout.Button("Disconnect"))
+						{
+							Network.Disconnect();
+							m_playerNames.Clear();
+							m_connected = false;
+						}
 					}
 				}
 				else
