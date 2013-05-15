@@ -313,11 +313,11 @@ public class TrainCarriages : MonoBehaviour
 			// Create the first waypoint required on the end of the last carriage.
 			if(i == m_listCarriages.Count - 1)
 			{
-				Vector3 lastWaypoint = m_listCarriages[m_listCarriages.Count - 1].FindChild("BackLatch").transform.position;
+				Vector3 lastWaypoint = m_listCarriages[m_listCarriages.Count - 1].transform.FindChild("BackLatch").transform.position;
 				CreateNewWaypoint(lastWaypoint);
 			}
 			
-			CreateNewWaypoint(m_listCarriages[i].FindChild("FrontLatch").transform.position);
+			CreateNewWaypoint(m_listCarriages[i].transform.FindChild("FrontLatch").transform.position);
 		}
 	}
 	
