@@ -28,7 +28,7 @@ public class TrainCarriages : MonoBehaviour
 		{
 			m_listCarriages.Add(_carriage);
 			
-			_carriage.GetComponent<FollowObject>().target = m_listCarriages[m_listCarriages.Count].transform.FindChild("FrontLatch").transform;			
+			//_carriage.GetComponent<FollowObject>().target = m_listCarriages[m_listCarriages.Count].transform.FindChild("FrontLatch").transform;			
 			
 			_carriage.SetTrain(transform);
 			
@@ -152,9 +152,9 @@ public class TrainCarriages : MonoBehaviour
 	
 		ProcessCarriagesSpline();
 		
-		PlayerHUD hud = GameObject.Find ("The Game").GetComponent<Game>().userInterface.GetComponent<PlayerHUD>();
-		hud.NumberOfCarridges = 10;
-		print ("Hurry up and fix the m_listCarriages.Count to work ffs");
+		//PlayerHUD hud = GameObject.Find ("The Game").GetComponent<Game>().userInterface.GetComponent<PlayerHUD>();
+		//hud.NumberOfCarridges = 10;
+		//print ("Hurry up and fix the m_listCarriages.Count to work ffs");
 	}
 	
 	void CleanOldWaypoints()
@@ -306,7 +306,7 @@ public class TrainCarriages : MonoBehaviour
 			
 			joint.anchor = CarriageGO.transform.FindChild("FrontLatch").transform.localPosition;
 			
-			//m_listCarriages.Add(CarriageGO.transform);
+			AddCarriage(CarriageGO.GetComponent<Carriage>());
 			
 			frontBodyTransform = CarriageGO.transform;
 		}

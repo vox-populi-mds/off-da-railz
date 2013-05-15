@@ -110,7 +110,7 @@ public class Carriage : MonoBehaviour
 		Vector3 v3ForceDirection = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
 		v3ForceDirection.y = 0;
 		
-		rigidbody.AddForce(v3ForceDirection * rigidbody.mass * 10, ForceMode.Force);
+		rigidbody.AddForce(v3ForceDirection * rigidbody.mass * 20.0f, ForceMode.Force);
 	}
 	
 	void DisableDebugWheelRendering()
