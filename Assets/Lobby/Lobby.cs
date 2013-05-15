@@ -197,11 +197,9 @@ public class Lobby : MonoBehaviour
 	
 	public void UpdatePlayerName(string playerName)
 	{
-		if (Network.isServer)
-		{
-			m_me.Name = playerName;
-		}
-		else if (m_connected)
+		m_me.Name = playerName;
+
+		if (!Network.isServer && m_connected)
 		{
 			networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player, playerName);
 		}

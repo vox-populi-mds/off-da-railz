@@ -78,13 +78,11 @@ public class LobbyGUI : MonoBehaviour
 			{
 				GUILayout.Label("Ready!");
 			}
-			else
+			else if (GUILayout.Button("Ready!"))
 			{
-				if (GUILayout.Button("Ready!"))
-				{
-					GetComponent<Lobby>().PlayerReady();
-				}
+				GetComponent<Lobby>().PlayerReady();
 			}
+			
 			if (Network.isServer && Players.Get().AllReady())
 			{
 				GetComponent<Lobby>().GO();
