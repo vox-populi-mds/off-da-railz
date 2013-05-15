@@ -1,9 +1,7 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
-public class Lobby : MonoBehaviour
-{	
+public class LobbyGUI : MonoBehaviour
+{
 	float m_abovePlayerListBoxHeight;
 	
 	float m_aboveServerBoxHeight;
@@ -12,13 +10,7 @@ public class Lobby : MonoBehaviour
 	
 	float m_boxPadding;
 	
-	bool m_connected;
-	
-	static string GAME_TYPE = "VoxPopuli::OffDaRailz";
-	
 	float m_gapSize;
-	
-	float m_lastPlayerNameUpdateTime;
 	
 	float m_listBoxHeight;
 	
@@ -26,34 +18,17 @@ public class Lobby : MonoBehaviour
 	
 	float m_listBoxWidthInternal;
 	
-	Player m_me;
-	
 	float m_oneLineBoxHeight;
-	
-	Players m_players;
-	
-	public Transform m_playersPrefab;
-	
-	static int PORT = 25002;
-	
-	System.Random m_random;
 	
 	string m_serverDescription;
 	
 	string m_serverName;
 	
-	//public Transform m_trainPrefab;
-	
-	Lobby()
+	void Awake()
 	{
 		m_boxPadding = 5.0f;
 		m_gapSize = 10.0f;
-		m_me = new Player();
-		m_me.Me = true;
-		m_me.Name = "John Doe";
-		m_me.Ready = false;
 		m_oneLineBoxHeight = 31.0f;
-		m_random = new System.Random();
 		m_serverDescription = "Thy train shall be wreckethed.";
 		m_serverName = "Train wreck!";
 		
@@ -61,27 +36,13 @@ public class Lobby : MonoBehaviour
 		m_aboveServerListBoxHeight = m_gapSize * 3.0f + m_oneLineBoxHeight * 2.0f;
 	}
 	
-	void Awake()
-	{
-		Application.runInBackground = true;
-		
-		MasterServer.RequestHostList(GAME_TYPE);
-		
-		m_lastPlayerNameUpdateTime = Time.timeSinceLevelLoad;
-		m_me.NetworkPlayer = Network.player;
-		m_players = ((Transform) Instantiate(m_playersPrefab, Vector3.zero, Quaternion.identity)).gameObject.GetComponent<Players>();
-		m_players.Add(m_me);
-		
-		DontDestroyOnLoad(m_players.gameObject);
-	}
-	
 	void DrawPlayerListBox()
 	{
 		GUI.Box(new Rect(m_gapSize, m_abovePlayerListBoxHeight, m_listBoxWidth, m_listBoxHeight), "");
 		GUILayout.BeginArea(new Rect(m_gapSize + m_boxPadding, m_abovePlayerListBoxHeight + m_boxPadding, m_listBoxWidthInternal, m_listBoxHeight - 2.0f * m_boxPadding));
-		if (m_connected)
+		if (GetComponent<Lobby>().IsConnected())
 		{			
-			foreach (Player player in m_players.GetAll())
+			foreach (Player player in Players.Get().GetAll())
 			{
 				GUILayout.BeginHorizontal();
 				GUILayout.Label(player.Name);
@@ -97,21 +58,10 @@ public class Lobby : MonoBehaviour
 		GUILayout.BeginArea(new Rect(m_gapSize + m_boxPadding, m_gapSize + m_boxPadding, 300.0f - 2.0f * m_boxPadding, m_oneLineBoxHeight - 2.0f * m_boxPadding));
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("Your Name");
-		string tempPlayerName = GUILayout.TextField(m_me.Name);
-		if (tempPlayerName != m_me.Name)
+		string tempPlayerName = GUILayout.TextField(Players.Get().GetMe().Name);
+		if (tempPlayerName != Players.Get().GetMe().Name)
 		{
-			m_me.Name = tempPlayerName;
-			if (m_connected)
-			{
-				if (Network.isServer)
-				{
-					OnUpdatePlayerName(Network.player, m_me.Name);
-				}
-				else
-				{
-					networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player, m_me.Name);
-				}
-			}
+			GetComponent<Lobby>().UpdatePlayerName(tempPlayerName);
 		}
 		GUILayout.EndHorizontal();
 		GUILayout.EndArea();
@@ -122,9 +72,9 @@ public class Lobby : MonoBehaviour
 		GUI.Box(new Rect(Screen.width - 200.0f - m_gapSize, Screen.height - m_oneLineBoxHeight - m_gapSize, 200.0f, m_oneLineBoxHeight), "");
 		GUILayout.BeginArea(new Rect(Screen.width - 200.0f - m_gapSize + m_boxPadding, Screen.height - m_oneLineBoxHeight - m_gapSize + m_boxPadding, 200.0f - 2.0f * m_boxPadding, m_oneLineBoxHeight - 2.0f * m_boxPadding));
 		GUILayout.BeginHorizontal();
-		if (m_connected)
+		if (GetComponent<Lobby>().IsConnected())
 		{
-			if (m_me.Ready)
+			if (Players.Get().GetMe().Ready)
 			{
 				GUILayout.Label("Ready!");
 			}
@@ -132,25 +82,12 @@ public class Lobby : MonoBehaviour
 			{
 				if (GUILayout.Button("Ready!"))
 				{
-					m_me.Ready = true;
-	
-					if (Network.isServer)
-					{
-						m_me.Ready = true;
-					}
-					else
-					{
-						networkView.RPC("OnPlayerReady", RPCMode.Server);
-					}
+					GetComponent<Lobby>().PlayerReady();
 				}
 			}
-			if (Network.isServer && m_players.AllReady())
+			if (Network.isServer && Players.Get().AllReady())
 			{
-				if (GUILayout.Button("GO!"))
-				{
-					networkView.RPC("OnGO", RPCMode.Others);
-					OnGO();
-				}
+				GetComponent<Lobby>().GO();
 			}
 		}
 		GUILayout.EndHorizontal();
@@ -166,28 +103,18 @@ public class Lobby : MonoBehaviour
 		m_serverName = GUILayout.TextField(m_serverName);
 		GUILayout.Label("Description");
 		m_serverDescription = GUILayout.TextField(m_serverDescription, 50);
-		if (!m_connected)
+		if (!GetComponent<Lobby>().IsConnected())
 		{
 			if (GUILayout.Button("Start Server"))
 			{
-				// Use NAT punchthrough if no public IP present
-				Network.InitializeServer(32, PORT, !Network.HavePublicAddress());
-				MasterServer.RegisterHost(GAME_TYPE, m_serverName, m_serverDescription);
-				m_me.NetworkPlayer = Network.player;
-				OnUpdatePlayerName(Network.player, m_me.Name);
-				m_me.Ready = false;
-				//Network.Instantiate(m_trainPrefab, new Vector3(0.0f, 15.0f, 30.0f), new Quaternion(0.0f, m_random.Next(0, 7), 0.0f, 1.0f), 0);
-				m_connected = true;
+				GetComponent<Lobby>().StartServer(m_serverName, m_serverDescription);
 			}
 		}
 		else if (Network.isServer)
 		{
 			if (GUILayout.Button("Stop Server"))
 			{
-				Network.Disconnect();
-				MasterServer.UnregisterHost();
-				MasterServer.RequestHostList(GAME_TYPE);
-				m_connected = false;
+				GetComponent<Lobby>().StopServer();
 			}
 		}
 		GUILayout.EndHorizontal();
@@ -200,10 +127,10 @@ public class Lobby : MonoBehaviour
 		GUILayout.BeginArea(new Rect(m_gapSize + m_boxPadding, m_aboveServerListBoxHeight + m_boxPadding, Screen.width - 30.0f, m_listBoxHeight - 5.0f));
 		if (GUILayout.Button("Refresh Server List"))
 		{
-			MasterServer.RequestHostList(GAME_TYPE);
+			GetComponent<Lobby>().UpdateHostList();
 		}
 		
-		HostData[] hosts = MasterServer.PollHostList();
+		HostData[] hosts = GetComponent<Lobby>().GetHostList();
 		foreach (HostData host in hosts)
 		{
 			GUILayout.BeginHorizontal();
@@ -224,15 +151,15 @@ public class Lobby : MonoBehaviour
 			GUILayout.FlexibleSpace();
 			if (!Network.isServer)
 			{
+				// If we are connected to a server, there will be 1 connection.
 				if (Network.connections.Length == 1)
 				{
+					// If this host is the server we are currently connected to.
 					if (Network.connections[0].ipAddress == host.ip[0])
 					{
 						if (GUILayout.Button("Disconnect"))
 						{
-							Network.Disconnect();
-							m_players.RemoveOthers();
-							m_connected = false;
+							GetComponent<Lobby>().Disconnect();
 						}
 					}
 				}
@@ -240,29 +167,13 @@ public class Lobby : MonoBehaviour
 				{
 					if (GUILayout.Button("Connect"))
 					{
-						// Connect to HostData struct, internally the correct method is used (GUID when using NAT).
-						if (Network.Connect(host) == NetworkConnectionError.NoError)
-						{
-							m_me.Ready = false;
-							//Network.Instantiate(m_trainPrefab, new Vector3(0.0f, 15.0f, 30.0f), new Quaternion(0.0f, m_random.Next(0, 7), 0.0f, 1.0f), 0);
-							m_connected = true;
-						}
-						else
-						{
-							MasterServer.RequestHostList(GAME_TYPE);
-						}
+						GetComponent<Lobby>().Connect(host);
 					}
 				}
 			}
 			GUILayout.EndHorizontal();
 		}
 		GUILayout.EndArea();
-	}
-	
-	[RPC]
-	void OnGO()
-	{
-		Application.LoadLevel("Level0");
 	}
 	
 	void OnGUI()
@@ -279,64 +190,5 @@ public class Lobby : MonoBehaviour
 		DrawReadyGoBox();
 		DrawServerBox();
 		DrawServerListBox();
-	}
-	
-	void OnPlayerConnected(NetworkPlayer networkPlayer)
-	{
-		Player player = new Player();
-		player.NetworkPlayer = networkPlayer;
-		m_players.Add(player);
-		networkView.RPC("OnRequestPlayerName", networkPlayer);
-	}
-	
-	void OnPlayerDisconnected(NetworkPlayer networkPlayer)
-	{
-		m_players.Remove(networkPlayer);
-	}
-	
-	[RPC]
-	void OnPlayerReady(NetworkMessageInfo info)
-	{
-		m_players.Get(info.sender).Ready = true;
-	}
-	
-	[RPC]
-	void OnRequestPlayerName()
-	{
-		networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player, m_me.Name);
-	}
-	
-	[RPC]
-	void OnUpdatePlayerName(NetworkPlayer networkPlayer, string playerName)
-	{
-		// For clients this may be the first time a player has been seen.
-		if (m_players.Get(networkPlayer) == null)
-		{
-			Player player = new Player();
-			player.Name = playerName;
-			player.NetworkPlayer = networkPlayer;
-			m_players.Add(player);
-		}
-		else
-		{
-			m_players.Get(networkPlayer).Name = playerName;
-		}
-	}
-	
-	void Start()
-	{
-	}
-	
-	void Update()
-	{
-		if (Network.isServer && Time.timeSinceLevelLoad - m_lastPlayerNameUpdateTime > 1.0f)
-		{
-			m_lastPlayerNameUpdateTime = Time.timeSinceLevelLoad;
-			
-			foreach (Player player in m_players.GetAll())
-			{
-				networkView.RPC("OnUpdatePlayerName", RPCMode.Others, player.NetworkPlayer, player.Name);
-			}
-		}
 	}
 }
