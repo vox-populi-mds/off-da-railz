@@ -391,8 +391,8 @@ public class Train : MonoBehaviour
 		float SqrVel = _RelativeVelocity.x * _RelativeVelocity.x;
 		
 		// Add extra sideways friction based on the trains's turning velocity to avoid slipping
-		m_WheelFrictionCurve.extremumValue = Mathf.Clamp(300 - SqrVel, 0, 300);
-		m_WheelFrictionCurve.asymptoteValue = Mathf.Clamp(150 - (SqrVel / 2), 0, 150);
+		m_WheelFrictionCurve.extremumValue = Mathf.Clamp(30000 - SqrVel, 0, 30000);
+		m_WheelFrictionCurve.asymptoteValue = Mathf.Clamp(15000 - (SqrVel / 2), 0, 15000);
 			
 		foreach(Wheel w in m_Wheels)
 		{
@@ -453,11 +453,11 @@ public class Train : MonoBehaviour
 			
 			if(Mathf.Sign(_RelativeVelocity.z) == Mathf.Sign(m_Throttle))
 			{
-				ThrottleForce = Mathf.Sign(m_Throttle) * m_CurrentEnginePower * (rigidbody.mass + (1000 * 0));
+				ThrottleForce = Mathf.Sign(m_Throttle) * m_CurrentEnginePower * (rigidbody.mass);
 			}
 			else
 			{
-				BrakeForce = Mathf.Sign(m_Throttle) * m_EngineForceValues[0] * (rigidbody.mass + (1000 * 0));
+				BrakeForce = Mathf.Sign(m_Throttle) * m_EngineForceValues[0] * (rigidbody.mass);
 			}
 			
 			rigidbody.AddForce(transform.forward * Time.deltaTime * (ThrottleForce + BrakeForce));

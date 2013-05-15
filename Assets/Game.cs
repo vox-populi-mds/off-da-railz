@@ -72,7 +72,7 @@ public class Game : MonoBehaviour
 		}
 		else 
 		{
-			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(Random.Range(-300.0f, 300.0f), 5.0f, Random.Range(-300.0f, 300.0f)), Quaternion.identity)).gameObject;
+			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(300.0f, 5.0f, 0.0f), Quaternion.identity)).gameObject;
 			trainObject.GetComponent<Train>().SetMine(true);
 		}
 		

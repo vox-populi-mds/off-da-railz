@@ -78,14 +78,18 @@ public class TrainCarriages : MonoBehaviour
 		}
 	}
 	
-	void CreateNewWaypoint(Vector3 _Position, Quaternion _Rotation)
+	void CreateNewWaypoint(Vector3 _Position)
 	{
 		GameObject newWaypoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-		newWaypoint.transform.position = transform.FindChild("BackLatch").transform.position;
-		newWaypoint.transform.rotation = transform.FindChild("BackLatch").transform.rotation;
+		newWaypoint.transform.rotation = m_LatchTransform.rotation;
+		newWaypoint.transform.position = _Position;
 		Destroy(newWaypoint.collider);
 		
 		m_listWaypoints.Add(newWaypoint.transform);
+		
+		m_LastPosition = newWaypoint.transform.position;
+		
+		m_DistanceFromLastWaypoint = 0;
 	}
 	
 	// Use this for initialization
@@ -99,9 +103,10 @@ public class TrainCarriages : MonoBehaviour
 		m_listCarriages = new List<Carriage>();
 		m_listWaypoints = new List<Transform>();
 		m_ActiveCarriage = null;
+		m_LatchTransform = transform.FindChild("BackLatch").transform;
+		m_CarriageLength = 30.0f;
 		
-		// Set up some test carriages
-		SetupTestBoxcar();
+		SetupTestBoxcars();
 	}
 	
 	// Update is called once per frame
@@ -141,25 +146,106 @@ public class TrainCarriages : MonoBehaviour
 			}
 		}
 		
-		// Make a new waypoint every 60 meters the train travels
-		m_AccumulatedDistance += Vector3.Distance(transform.position, m_LastPosition);
-		m_LastPosition = transform.position;
+		CleanOldWaypoints();
 		
-		if(m_AccumulatedDistance > 10.0f)
-		{
-			CreateNewWaypoint(transform.position, transform.rotation);
-		
-			Debug.Log(m_AccumulatedDistance);
-			m_AccumulatedDistance = 0;
-		}
-		
+		ProcessWaypointCreation();
+	
+		ProcessCarriagesSpline();
 	}
 	
-	void SetupTestBoxcar()
+	void CleanOldWaypoints()
+	{
+		// Keep a few extra on incase a new carriage is added.
+		if(m_listWaypoints.Count > m_listCarriages.Count + 5)
+		{
+			Destroy(m_listWaypoints[0].gameObject);
+			
+			m_listWaypoints.RemoveAt(0);
+		}
+	}
+	
+	void ProcessWaypointCreation()
+	{
+		// Make a new waypoint every carriage length in meters the train travels.
+		Vector3 v3Position = (m_LatchTransform.position + (m_LatchTransform.rotation * new Vector3(0.0f, 0.0f, 30.0f)));
+		Vector3 v3Displacement = m_LastPosition - v3Position;
+		
+		m_DistanceFromLastWaypoint = v3Displacement.magnitude;
+		if(m_DistanceFromLastWaypoint > m_CarriageLength)
+		{
+			Vector3 Direction = -v3Displacement;
+			Direction.Normalize();
+			
+			CreateNewWaypoint(m_LastPosition + Direction * 30.0f);
+		}
+	}
+	
+	void ProcessCarriagesSpline()
+	{
+		GameObject SplineInterpolator = new GameObject();
+		SplineInterpolator interp = (SplineInterpolator)SplineInterpolator.AddComponent(typeof(SplineInterpolator)); 
+		SetupSplineInterpolator(interp, m_listWaypoints.ToArray());
+		interp.StartInterpolation(null, null, null, false, eWrapMode.ONCE);
+		
+		Vector3 prevPos = m_listWaypoints[0].position;
+		for (int c = 1; c != 100; ++c)
+		{
+			float currTime = c * 1.0f / 100.0f;
+			Vector3 currPos = interp.GetHermiteAtTime(currTime);
+			float mag = (currPos-prevPos).magnitude * 2;
+			Color color = new Color(mag, 0, 0, 1);
+			Debug.DrawLine(prevPos, currPos, color);
+			
+			prevPos = currPos;	
+		}
+		
+		DestroyImmediate(SplineInterpolator);
+		
+		for(int i = 0; i < m_listCarriages.Count; ++i)
+		{
+			float stepPerWaypoint = 1.0f / (m_listWaypoints.Count - 1);
+			
+			float timeBack = 1.0f - (((1.0f + ((i + 1) * 1.0f)) - (m_DistanceFromLastWaypoint/m_CarriageLength)) * stepPerWaypoint);
+			Vector3 carriageBackPos = interp.GetHermiteAtTime(timeBack);
+			
+			Carriage carriageScript = m_listCarriages[i].GetComponent<Carriage>();
+			
+			if(i != 0)
+			{
+				carriageScript.SetFrontSplinePostion(m_listCarriages[i - 1].GetComponent<Carriage>().GetBackSplinePosition());
+			}
+			else
+			{
+				carriageScript.SetFrontSplinePostion(m_LatchTransform.position);
+			}
+			
+			carriageScript.SetBackSplinePosition(carriageBackPos);
+			
+			//float times = 1.0f - (((1.0f + ((i + 0.5f) * 1.0f)) - (m_DistanceFromLastWaypoint/CarriageLength)) * stepPerWaypoint);
+			//Quaternion carriageRot = interp.GetRotationAtTime(times);
+			
+			//carriageScript.SetSplineRotation(carriageRot);
+		}
+	}
+	
+	void SetupSplineInterpolator(SplineInterpolator interp, Transform[] trans)
+	{
+		interp.Reset();
+
+		float stepPerWaypoint = 1.0f / (trans.Length - 1);
+
+		int c;
+		for (c = 0; c < trans.Length; c++)
+		{
+			interp.AddPoint("Waypoint", trans[c].position, trans[c].rotation, stepPerWaypoint * c, 0.0f, new Vector2(0, 1));
+		}
+	}
+	
+	void SetupTestBoxcars()
 	{	
 		Transform frontBodyTransform = transform;
 		
-		for(int i = 0; i < 1; ++i)
+		for(int i = 0; i < 10; ++i)
 		{
 			Object BoxObj = new Object();
 			if(Network.isClient || Network.isServer)
@@ -184,15 +270,15 @@ public class TrainCarriages : MonoBehaviour
 			
 			SoftJointLimit sjlXlow = new SoftJointLimit();
 			sjlXlow.limit = -m_CarriageAngularFreedom.x;
-			//sjlXlow.spring = 10000.0f * rigidbody.mass;
+			//sjlXlow.spring = 1000.0f * rigidbody.mass;
 			
 			SoftJointLimit sjlXhigh = new SoftJointLimit();
 			sjlXhigh.limit = m_CarriageAngularFreedom.x;
-			//sjlXlow.spring = 10000.0f * rigidbody.mass;
+			//sjlXlow.spring = 1000.0f * rigidbody.mass;
 			
 			SoftJointLimit sjlY = new SoftJointLimit();
 			sjlY.limit = m_CarriageAngularFreedom.y;
-			//sjlY.spring = 10000.0f * rigidbody.mass;
+			//sjlY.spring = 1000.0f * rigidbody.mass;
 			
 			SoftJointLimit sjlZ = new SoftJointLimit();
 			sjlZ.limit = m_CarriageAngularFreedom.z;
@@ -220,12 +306,29 @@ public class TrainCarriages : MonoBehaviour
 			
 			frontBodyTransform = CarriageGO.transform;
 		}
+		
+		// Create the required waypoints
+		for(int i = m_listCarriages.Count - 1; i >= 0; --i)
+		{
+			// Create the first waypoint required on the end of the last carriage.
+			if(i == m_listCarriages.Count - 1)
+			{
+				Vector3 lastWaypoint = m_listCarriages[m_listCarriages.Count - 1].FindChild("BackLatch").transform.position;
+				CreateNewWaypoint(lastWaypoint);
+			}
+			
+			CreateNewWaypoint(m_listCarriages[i].FindChild("FrontLatch").transform.position);
+		}
 	}
 	
 	private List<Carriage> 		m_listCarriages;
 	private Carriage			m_ActiveCarriage;
+	private Transform			m_LatchTransform;
 	
-	float 						m_AccumulatedDistance;
+	SplineInterpolator			m_SplineInterp;
+	float 						m_DistanceFromLastWaypoint;
+	float 						m_CarriageLength;
+	
 	Vector3						m_LastPosition;
 	List<Transform>				m_listWaypoints;
 	

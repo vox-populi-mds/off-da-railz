@@ -24,26 +24,41 @@ public class Carriage : MonoBehaviour
 	public Vector3 		m_GroundDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
 	public Vector3 		m_AirDragMultiplier = new Vector3(0.0f, 0.0f, 1.0f);
 	
+	private bool 				m_IsOnGround = false;
+	private	float				m_GroundedTime = 0.0f;
+	
 	private CarriageWheel[] 	m_Wheels;
 	private float 				m_WheelRadius;
 	private WheelFrictionCurve 	m_WheelFrictionCurve;
 	private Transform			m_Train;
 	private bool 				m_Dying = false;
 	
+	private Vector3 			m_BackSplinePosition;
+	private Vector3				m_FrontSplinePosition;
+	
+	private Vector3				m_midPointSpinePosition;
+	
+	private Quaternion			m_SplineRotation;
+	
 	// Use this for initialization
 	void Start () 
 	{
 		SetupWheelColliders();
+		
+		Vector3 v3NewCenter = (transform.FindChild("FrontLatch").transform.localPosition + transform.FindChild("BackLatch").transform.localPosition) * 0.5f;
+		rigidbody.centerOfMass = v3NewCenter;
 			
 		//DisableDebugWheelRendering();
 	}
 	
 	// Update is called once per frame
-	void Update () 
+	void Update() 
 	{	
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
 		ProcessWheelGraphics(RelativeVelocity);
+		
+		ProcessDebugInfo();
 		
 		Mesh i;
 		if (GetComponent<MeshFilter>() != null)
@@ -61,6 +76,17 @@ public class Carriage : MonoBehaviour
 		}
 	}
 	
+	void ProcessDebugInfo()
+	{
+		if(m_BackSplinePosition.magnitude == 0.0f || m_FrontSplinePosition.magnitude == 0.0f)
+		{
+			return;
+		}
+		
+		Debug.DrawLine(rigidbody.worldCenterOfMass, m_midPointSpinePosition, Color.yellow);
+	}
+
+	
 	void FixedUpdate()
 	{	
 		// Transform rigidbody velocity to local co-ordinate space
@@ -69,6 +95,23 @@ public class Carriage : MonoBehaviour
 		ProcessFriction(RelativeVelocity);
 		
 		ProcessDrag(RelativeVelocity);
+		
+		ProcessSplineForces();	
+	}
+	
+	void ProcessSplineForces()
+	{
+		if(m_BackSplinePosition.magnitude == 0.0f || m_FrontSplinePosition.magnitude == 0.0f)
+		{
+			return;
+		}
+		
+		m_midPointSpinePosition = (m_BackSplinePosition + m_FrontSplinePosition) * 0.5f;
+		
+		Vector3 v3ForceDirection = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
+		v3ForceDirection.y = 0;
+		
+		rigidbody.AddForce(v3ForceDirection * rigidbody.mass * 10, ForceMode.Force);
 	}
 	
 	void DisableDebugWheelRendering()
@@ -135,11 +178,6 @@ public class Carriage : MonoBehaviour
 	void SetupWheelFrictionCurve()
 	{
 		m_WheelFrictionCurve = new WheelFrictionCurve();
-		//m_WheelFrictionCurve.extremumSlip = 1;
-		//m_WheelFrictionCurve.extremumValue = 50;
-		//m_WheelFrictionCurve.asymptoteSlip = 2;
-		//m_WheelFrictionCurve.asymptoteValue = 25;
-		//m_WheelFrictionCurve.stiffness = 1;
 	}
 	
 	void ProcessWheelGraphics(Vector3 _RelativeVelocity)
@@ -168,27 +206,19 @@ public class Carriage : MonoBehaviour
 	}
 	
 	void ProcessFriction(Vector3 _RelativeVelocity)
-	{
-		//float SqrVel = _RelativeVelocity.x * _RelativeVelocity.x;
-		
-		// Add extra sideways friction based on the car's turning velocity to avoid slipping
-		m_WheelFrictionCurve.extremumSlip = 1000;
-		m_WheelFrictionCurve.extremumValue = 10000;
-		m_WheelFrictionCurve.asymptoteSlip = 2000;
-		m_WheelFrictionCurve.asymptoteValue = 90000;
-		m_WheelFrictionCurve.stiffness = 1;
-			
+	{	
 		foreach(CarriageWheel w in m_Wheels)
 		{
 			w.m_Collider.sidewaysFriction = m_WheelFrictionCurve;
-			//w.m_Collider.forwardFriction = m_WheelFrictionCurve;
+			w.m_Collider.forwardFriction = m_WheelFrictionCurve;
 		}
 	}
 	
 	void ProcessDrag(Vector3 _RelativeVelocity)
 	{
 		// Only apply the drag if the train is on the ground
-		bool IsOnGround = false;
+		m_IsOnGround = false;
+		m_GroundedTime += Time.deltaTime;
 		foreach(CarriageWheel w in m_Wheels)
 		{
 			WheelCollider Wc = w.m_Collider;
@@ -197,13 +227,14 @@ public class Carriage : MonoBehaviour
 			// First we get the velocity at the point where the wheel meets the ground, if the wheel is touching the ground
 			if(Wc.GetGroundHit(out Wh))
 			{	
-				IsOnGround = true;
+				m_IsOnGround = true;
+				m_GroundedTime = 0.0f;
 				break;
 			}
 		}
 		
 		Vector3 DragMultiplier = m_GroundDragMultiplier;
-		if(!IsOnGround) 
+		if(!m_IsOnGround) 
 		{
 			DragMultiplier = m_AirDragMultiplier;
 		}
@@ -221,5 +252,25 @@ public class Carriage : MonoBehaviour
 		}
 			
 		rigidbody.AddForce(transform.TransformDirection(Drag) * rigidbody.mass * Time.deltaTime);
+	}
+	
+	public void SetBackSplinePosition(Vector3 _v3Position)
+	{
+		m_BackSplinePosition = _v3Position;
+	}
+	
+	public Vector3 GetBackSplinePosition()
+	{
+		return(m_BackSplinePosition);
+	}
+	
+	public void SetFrontSplinePostion(Vector3 _v3Position)
+	{
+		m_FrontSplinePosition = _v3Position;
+	}
+	
+	public void SetSplineRotation(Quaternion _qRotation)
+	{
+		m_SplineRotation = _qRotation;
 	}
 }
