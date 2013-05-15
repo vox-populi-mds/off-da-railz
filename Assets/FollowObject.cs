@@ -96,7 +96,7 @@ protected GameObject[] DummyWaypoints;
 		return(currentRotation);
 	}
 	
-	bool HasTarget()
+	public bool HasTarget()
 	{
 		if (!target)
 		{

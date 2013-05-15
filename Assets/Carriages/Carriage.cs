@@ -27,13 +27,13 @@ public class Carriage : MonoBehaviour
 	private bool 				m_IsOnGround = false;
 	private	float				m_GroundedTime = 0.0f;
 	
-	private CarriageWheel[] 		m_Wheels;
+	private CarriageWheel[] 	m_Wheels;
 	private float 				m_WheelRadius;
-	private WheelFrictionCurve 		m_WheelFrictionCurve;
+	private WheelFrictionCurve 	m_WheelFrictionCurve;
 	private Transform			m_Train;
 	private bool 				m_Dying = false;
 	private Vector3 			m_BackSplinePosition;
-	private Vector3				m_FrontSplinePositio;	
+	private Vector3				m_FrontSplinePosition;	
 	
 	private Vector3				m_midPointSpinePosition;
 	
@@ -53,15 +53,15 @@ public class Carriage : MonoBehaviour
 	// Update is called once per frame
 	void Update() 
 	{	
+		//Mesh i;
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
 		ProcessWheelGraphics(RelativeVelocity);
 		
 		ProcessDebugInfo();
 		
-		Mesh i;
 		if (GetComponent<MeshFilter>() != null)
-		i = GetComponent<MeshFilter>().mesh;
+		//i = GetComponent<MeshFilter>().mesh;
 		
 		if (!m_Dying)
 		{
@@ -268,15 +268,14 @@ public class Carriage : MonoBehaviour
 		m_FrontSplinePosition = _v3Position;
 	}
 	
-	void OnCollisionEnter(Collision CollsionInfo){
+	void OnCollisionEnter(Collision CollisionInfo){
 		TrainCarriages PlayerTrainCarrages;
 		FollowObject TrainFollowTarget;
-		Health CarriageHealth;
 		
 		TrainFollowTarget = this.GetComponent<FollowObject>();
 		
-		if (CollsionInfo.gameObject.tag == "Train"){
-			PlayerTrainCarrages = CollsionInfo.gameObject.GetComponent<TrainCarriages>();
+		if (CollisionInfo.gameObject.tag == "Train"){
+			PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
 			
 			if (TrainFollowTarget.HasTarget()){
 				DestoryTrain();
@@ -285,10 +284,6 @@ public class Carriage : MonoBehaviour
 			}
 		}
 	}		
-	
-	void OnParticleCollision(){
-		
-	}
 		
 	void DestoryTrain(){
 		this.renderer.enabled = false;

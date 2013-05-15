@@ -22,7 +22,7 @@ public class TrainCarriages : MonoBehaviour
 		return m_ActiveCarriage;
 	}
 	
-	bool AddCarriage(Carriage _carriage) 
+	public bool AddCarriage(Carriage _carriage) 
 	{
 		if (m_listCarriages.Count < MAX_CARRIAGES)
 		{

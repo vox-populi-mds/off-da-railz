@@ -18,6 +18,10 @@ namespace OffTheRailz{
 				m_fHealth -= fDamage;				
 			}
 		}
+		
+		void OnParticleCollision(){
+		
+		}		
 	
 		public void OnDeath(){
 		
