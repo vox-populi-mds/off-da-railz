@@ -1,14 +1,20 @@
 using UnityEngine;
 using System.Collections;
 
-public class GUI_Player_HUD : MonoBehaviour {
+public class PlayerHUD : MonoBehaviour {
 	
 	public Texture2D[] textureCarridges = new Texture2D[3];
-	public int numberOfCarridges;
+	int numberOfCarridges;
 	
 	private bool isMenu = false;
 	private float menuBoxSize = 200;
 	private float menuButtonIndent = 50;
+	
+	public int NumberOfCarridges
+	{
+		get{ return numberOfCarridges; }
+		set{ numberOfCarridges = value; }
+	}
 	
 	// Use this for initialization
 	void Start () {

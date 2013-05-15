@@ -151,6 +151,10 @@ public class TrainCarriages : MonoBehaviour
 		ProcessWaypointCreation();
 	
 		ProcessCarriagesSpline();
+		
+		PlayerHUD hud = GameObject.Find ("The Game").GetComponent<Game>().userInterface.GetComponent<PlayerHUD>();
+		hud.NumberOfCarridges = 10;
+		print ("Hurry up and fix the m_listCarriages.Count to work ffs");
 	}
 	
 	void CleanOldWaypoints()
