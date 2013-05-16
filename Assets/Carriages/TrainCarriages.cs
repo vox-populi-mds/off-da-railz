@@ -325,6 +325,11 @@ public class TrainCarriages : MonoBehaviour
 		}
 	}
 	
+	public int GetNumCarriages()
+	{
+		return(m_listCarriages.Count);
+	}
+	
 	private List<Carriage> 		m_listCarriages;
 	private Carriage			m_ActiveCarriage;
 	private Transform			m_LatchTransform;

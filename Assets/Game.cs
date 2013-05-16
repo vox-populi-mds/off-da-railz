@@ -13,7 +13,7 @@ public class Game : MonoBehaviour
 	
 	float m_roundStartTime;
 
-	public float m_roundTimeLimit;
+	public float m_roundTimeLimit = 90;
 	
 	void Awake()
 	{

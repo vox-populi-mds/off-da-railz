@@ -502,6 +502,22 @@ public class Train : MonoBehaviour
 		}
 	}
 	
+	void onCollisionEnter(Collision _collision)
+	{
+		foreach(ContactPoint Contact in _collision)
+		{
+			if(Contact.otherCollider.name == "Thingy")
+			{
+				Destroy(Contact.otherCollider);
+			}
+		}
+	}
+	
+	public float GetSpeed()
+	{
+		return(rigidbody.velocity.magnitude);		
+	}
+	
 	// Public
 	public Color		m_PlayerColor			= Color.blue;
 	public float 		m_MaximumVelocity 		= 20.0f;
