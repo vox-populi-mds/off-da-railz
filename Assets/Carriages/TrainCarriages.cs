@@ -107,7 +107,7 @@ public class TrainCarriages : MonoBehaviour
 		m_LatchTransform = transform.FindChild("BackLatch").transform;
 		m_CarriageLength = 30.0f;
 		
-		//SetupTestBoxcars();
+		SetupTestBoxcars();
 		
 		SetupInitialWaypoints();
 	}
@@ -309,7 +309,7 @@ public class TrainCarriages : MonoBehaviour
 	{	
 		Transform frontBodyTransform = transform;
 		
-		for(int i = 0; i < 0; ++i)
+		for(int i = 1; i < 5; ++i)
 		{
 			Object BoxObj = new Object();
 			if(Network.isClient || Network.isServer)
@@ -323,7 +323,7 @@ public class TrainCarriages : MonoBehaviour
 			
 			GameObject CarriageGO = ((Transform) BoxObj).gameObject;
 			
-			Vector3 vPosition = transform.position + new Vector3(i * 10.0f, 0.0f, 0.0f);
+			Vector3 vPosition = transform.position + new Vector3(i * -100.0f, 0.0f, 0.0f);
 			
 			//Vector3 vPosition = frontBodyTransform.FindChild("BackLatch").transform.position - 
 			//					(frontBodyTransform.rotation * CarriageGO.transform.FindChild("FrontLatch").transform.localPosition);
@@ -333,7 +333,7 @@ public class TrainCarriages : MonoBehaviour
 			
 			//CreateJointBetweenCarriages(CarriageGO.transform, frontBodyTransform);
 			
-			AddCarriage(CarriageGO.GetComponent<Carriage>());
+			//AddCarriage(CarriageGO.GetComponent<Carriage>());
 			
 			//frontBodyTransform = CarriageGO.transform;
 		}
@@ -343,27 +343,29 @@ public class TrainCarriages : MonoBehaviour
 	{
 		// Move the back carriage to the right place.
 		Vector3 backLatchFront = _ConnectTo.FindChild("BackLatch").transform.position;
-		Vector3 newBackCarriagePosition = backLatchFront - _ConnectFrom.rotation * _ConnectFrom.FindChild("FrontLatch").localPosition;
+		Vector3 newBackCarriagePosition = backLatchFront - _ConnectTo.rotation * _ConnectFrom.FindChild("FrontLatch").localPosition;
 		
 		_ConnectFrom.position = newBackCarriagePosition;
+		_ConnectFrom.rotation = _ConnectTo.rotation;
 		
 		ConfigurableJoint joint = _ConnectFrom.gameObject.AddComponent<ConfigurableJoint>();
 		joint.connectedBody = _ConnectTo.rigidbody;
 		
 		SoftJointLimit sjlXlow = new SoftJointLimit();
 		sjlXlow.limit = -m_CarriageAngularFreedom.x;
-		//sjlXlow.spring = 1000.0f * rigidbody.mass;
+		sjlXlow.spring = 1000.0f * rigidbody.mass;
 		
 		SoftJointLimit sjlXhigh = new SoftJointLimit();
 		sjlXhigh.limit = m_CarriageAngularFreedom.x;
-		//sjlXlow.spring = 1000.0f * rigidbody.mass;
+		sjlXlow.spring = 1000.0f * rigidbody.mass;
 		
 		SoftJointLimit sjlY = new SoftJointLimit();
 		sjlY.limit = m_CarriageAngularFreedom.y;
-		//sjlY.spring = 1000.0f * rigidbody.mass;
+		sjlY.spring = 1000.0f * rigidbody.mass;
 		
 		SoftJointLimit sjlZ = new SoftJointLimit();
 		sjlZ.limit = m_CarriageAngularFreedom.z;
+		sjlZ.spring = 1000.0f * rigidbody.mass;
 		
 		SoftJointLimit sjlMotion = new SoftJointLimit();
 		sjlMotion.limit = m_CarriageMovementFreedom;

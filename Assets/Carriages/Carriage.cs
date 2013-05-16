@@ -131,16 +131,16 @@ public class Carriage : MonoBehaviour
 			Vector3 v3Force = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
 			v3Force.y = 0;
 			
-			rigidbody.AddForce(v3Force * rigidbody.mass * 200.0f, ForceMode.Force);
+			rigidbody.AddForce(v3Force * rigidbody.mass * 10.0f, ForceMode.Force);
 		}
 		else if(m_ConnectionState  == ConnectionState.CONNECTED_VIA_SPLINE)
 		{
 			Vector3 v3Force = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
 				
-			rigidbody.AddForce(v3Force * rigidbody.mass * 50.0f, ForceMode.Force);
+			rigidbody.AddForce(v3Force * rigidbody.mass * 20.0f, ForceMode.Force);
 			rigidbody.transform.rotation = m_SplineRotation;
 			
-			if(v3Force.magnitude < 1.0f)
+			if(v3Force.magnitude < 5.0f)
 			{
 				m_ConnectionState = ConnectionState.CONNECTION_AWAITING_JOINT;
 			}
@@ -318,7 +318,7 @@ public class Carriage : MonoBehaviour
 		return(m_ConnectionState);
 	}
 	
-		void OnCollisionEnter(Collision CollisionInfo){
+	void OnCollisionEnter(Collision CollisionInfo){
 		TrainCarriages PlayerTrainCarrages;
 		FollowObject TrainFollowTarget;
 		TrainFollowTarget = this.GetComponent<FollowObject>();
@@ -328,11 +328,7 @@ public class Carriage : MonoBehaviour
 			if (m_Train == null){
 				PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
 			
-				if (TrainFollowTarget.HasTarget()){
-					DestroyTrain();
-				}else{
-					PlayerTrainCarrages.AddCarriage(this);
-				}
+				PlayerTrainCarrages.AddCarriage(this);
 			}else{
 				//CarriageHealth = GetComponent<Health>();
 				
