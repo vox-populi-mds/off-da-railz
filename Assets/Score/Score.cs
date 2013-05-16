@@ -44,7 +44,7 @@ public class Score : MonoBehaviour
 			GUILayout.Label(player.Score.ToString());
 			GUILayout.Space(3);
 			//GUILayout.Label(player.NetworkPlayer.ipAddress);
-			GUILayout.Label(player.ping.time.ToString());
+			GUILayout.Label(player.pinger.time.ToString());
 			GUILayout.EndHorizontal();
 		}
 		GUILayout.EndArea();	
