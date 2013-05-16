@@ -25,11 +25,11 @@ public class Shoot : MonoBehaviour{
 		m_fReloadingTime = 0.0f;
 		
 		if (m_ShootSound == null){
-			m_ShootSound = Resources.Load("FireShotgun.mp3") as AudioClip;
+			m_ShootSound = Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/FireShotgun.mp3", typeof(AudioClip)) as AudioClip;
 		}
 		
 		if (m_ReloadSound == null){
-			m_ReloadSound = Resources.Load("ReloadShotgun.mp3") as AudioClip;
+			m_ReloadSound = Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/ReloadShotgun.mp3", typeof(AudioClip)) as AudioClip;
 		}
 	}
 	

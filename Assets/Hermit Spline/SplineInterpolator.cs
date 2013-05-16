@@ -261,8 +261,8 @@ public class SplineInterpolator : MonoBehaviour
 	
 	void SetInput()
 	{
-		if (mNodes.Count < 2)
-			throw new System.Exception("Invalid number of points");
+		//if (mNodes.Count < 2)
+			//throw new System.Exception("Invalid number of points");
 
 		if (mRotations)
 		{

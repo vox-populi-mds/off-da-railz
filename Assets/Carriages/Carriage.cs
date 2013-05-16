@@ -13,7 +13,8 @@ public class CarriageWheel
 
 public class Carriage : MonoBehaviour 
 {
-	public GameObject 			m_PowerupOrWeapon;
+	//private GameObject 			m_ObjectWeaponPowerUp;
+	private GameObject			m_PowerupOrWeapon;
 	
 	public Transform[] 			m_WheelTransforms;
 	
@@ -58,6 +59,9 @@ public class Carriage : MonoBehaviour
 		Vector3 v3NewCenter = (transform.FindChild("FrontLatch").transform.localPosition + transform.FindChild("BackLatch").transform.localPosition) * 0.5f;
 		rigidbody.centerOfMass = v3NewCenter;
 			
+		m_Train = null;
+		// test the weapons
+		m_PowerupOrWeapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Shotgun.prefab", typeof(GameObject))) as GameObject;
 		//DisableDebugWheelRendering();
 	}
 	
@@ -317,16 +321,17 @@ public class Carriage : MonoBehaviour
 		void OnCollisionEnter(Collision CollisionInfo){
 		TrainCarriages PlayerTrainCarrages;
 		FollowObject TrainFollowTarget;
-		
 		TrainFollowTarget = this.GetComponent<FollowObject>();
 		
-		if (CollisionInfo.gameObject.tag == "Train"){
-			PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
+		if (m_Train == null){
+			if (CollisionInfo.gameObject.name == "Train(Clone)"){
+				PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
 			
-			if (TrainFollowTarget.HasTarget()){
-				DestroyTrain();
-			}else{
-				PlayerTrainCarrages.AddCarriage(this);
+				if (TrainFollowTarget.HasTarget()){
+					DestoryTrain();
+				}else{
+					PlayerTrainCarrages.AddCarriage(this);
+				}
 			}
 		}
 	}		
