@@ -1,30 +1,31 @@
 using UnityEngine;
 using System.Collections;
 
-namespace OffTheRailz{
 	public class Health : MonoBehaviour {
-		public static float m_fDefaultHealth;
+		public static float m_fDefaultHealth = 100.0f;
 		protected float m_fHealth = m_fDefaultHealth;
 	
 		public float GetHealth(){
-			return (m_fDefaultHealth);	
+			return (m_fHealth);	
 		}
 
 		public void SetDamage(float fDamage){		
 			if (0 >= m_fHealth){
-				m_fHealth = 0.0f;
 				OnDeath();
 			}else{
 				m_fHealth -= fDamage;				
 			}
-		}
+		}	
 		
-		void OnParticleCollision(){
+		public void OnParticleCollision(GameObject CollidedWith){
+			float fValue = 0.0f;
+			
+			
+			fValue += 1.0f;
+		}				
 		
-		}		
-	
 		public void OnDeath(){
-		
+			m_fHealth = 0.0f;		
 		}
 	
 		public void OnBirth(){
@@ -33,7 +34,7 @@ namespace OffTheRailz{
 	
 		// Use this for initialization
 		void Start () {
-	
+			m_fHealth = 100.0f;	
 		}
 	
 		// Update is called once per frame
@@ -41,4 +42,3 @@ namespace OffTheRailz{
 	
 		}	
 	}
-}

@@ -1,12 +1,13 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
-public class Players : MonoBehaviour
+public class Players
 {
+	static Players instance;
+	
 	List<Player> m_players;
 	
-	Players()
+	private Players()
 	{
 		m_players = new List<Player>();
 	}
@@ -29,6 +30,17 @@ public class Players : MonoBehaviour
 		return true;
 	}
 	
+	public void PingAll()
+	{
+		foreach (Player player in m_players)
+		{
+			if (player.ping.isDone)
+			{
+				player.ping = new Ping(player.NetworkPlayer.ipAddress);
+			}
+		}
+	}
+	
 	public void Clear()
 	{
 		m_players.Clear();
@@ -49,7 +61,12 @@ public class Players : MonoBehaviour
 	
 	public static Players Get()
 	{
-		return GameObject.Find("Players(Clone)").GetComponent<Players>();
+		if (instance == null)
+		{
+			instance = new Players();
+		}
+		
+		return instance;
 	}
 	
 	public List<Player> GetAll()
@@ -92,13 +109,5 @@ public class Players : MonoBehaviour
 				m_players.Remove(player);
 			}
 		}
-	}
-	
-	void Start()
-	{
-	}
-	
-	void Update()
-	{
 	}
 }

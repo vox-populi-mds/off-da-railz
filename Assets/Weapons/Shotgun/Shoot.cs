@@ -25,11 +25,11 @@ public class Shoot : MonoBehaviour{
 		m_fReloadingTime = 0.0f;
 		
 		if (m_ShootSound == null){
-			m_ShootSound = Resources.Load("FireShotgun.mp3") as AudioClip;
+			m_ShootSound = Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/FireShotgun.mp3", typeof(AudioClip)) as AudioClip;
 		}
 		
 		if (m_ReloadSound == null){
-			m_ReloadSound = Resources.Load("ReloadShotgun.mp3") as AudioClip;
+			m_ReloadSound = Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/ReloadShotgun.mp3", typeof(AudioClip)) as AudioClip;
 		}
 	}
 	
@@ -40,6 +40,7 @@ public class Shoot : MonoBehaviour{
 		if (m_iMagazineBullets > 0){
 			if (Input.GetMouseButtonDown(0) && !m_RenderBullets.isPlaying){
 				m_ShootSource = Audio.GetInstance.Play(m_ShootSound, m_RenderBullets.transform, 1.0f, false);	
+				--m_iMagazineBullets;
 				m_RenderBullets.Play();
 			}
 
@@ -47,10 +48,9 @@ public class Shoot : MonoBehaviour{
 			m_iMagazineBullets = m_iMagazineCapacity;	
 			m_fReloadingTime = 0.0f;
 			m_bPlayingSound = true;
-			Audio.GetInstance.StopSound(m_ReloadSource);
 		}else{
 			if (m_bPlayingSound == false){
-				m_ReloadSource = Audio.GetInstance.Play(m_ReloadSound, m_RenderBullets.transform, 1.0f, true);
+				m_ReloadSource = Audio.GetInstance.Play(m_ReloadSound, m_RenderBullets.transform, 1.0f, false);
 				m_bPlayingSound = true;
 			}
 			

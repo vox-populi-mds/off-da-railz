@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using OffTheRailz;
 
 public class CarriageWheel
 {
@@ -12,11 +13,12 @@ public class CarriageWheel
 
 public class Carriage : MonoBehaviour 
 {
-	public GameObject 			m_PowerupOrWeapon;
+	//private GameObject 			m_ObjectWeaponPowerUp;
+	private GameObject			m_PowerupOrWeapon;
 	
 	public Transform[] 			m_WheelTransforms;
 	
-	public float				m_StucturalIntegrity	= 100.0f;
+	//public float				m_StucturalIntegrity	= 100.0f;
 	public float	 			m_SuspensionRange 		= 0.5f;
 	public float 				m_SuspensionDamper 		= 0.0f;
 	public float 				m_SuspensionSpring 		= 0.0f;
@@ -30,14 +32,24 @@ public class Carriage : MonoBehaviour
 	private CarriageWheel[] 	m_Wheels;
 	private float 				m_WheelRadius;
 	private WheelFrictionCurve 	m_WheelFrictionCurve;
+	
 	private Transform			m_Train;
 	private bool 				m_Dying = false;
+	
+	private ConnectionState		m_ConnectionState;
+	
 	private Vector3 			m_BackSplinePosition;
 	private Vector3				m_FrontSplinePosition;	
-	
 	private Vector3				m_midPointSpinePosition;
-	
 	private Quaternion			m_SplineRotation;
+	
+	public enum ConnectionState
+	{
+		NOT_CONNECTED,
+		CONNECTED_VIA_JOINT,
+		CONNECTED_VIA_SPLINE,
+		CONNECTION_AWAITING_JOINT,
+	}
 	
 	// Use this for initialization
 	void Start () 
@@ -47,7 +59,10 @@ public class Carriage : MonoBehaviour
 		Vector3 v3NewCenter = (transform.FindChild("FrontLatch").transform.localPosition + transform.FindChild("BackLatch").transform.localPosition) * 0.5f;
 		rigidbody.centerOfMass = v3NewCenter;
 			
+		// test the weapons
+		m_PowerupOrWeapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/Shotgun.prefab", typeof(GameObject))) as GameObject;
 		//DisableDebugWheelRendering();
+		m_Train = null;
 	}
 	
 	// Update is called once per frame
@@ -60,18 +75,20 @@ public class Carriage : MonoBehaviour
 		
 		ProcessDebugInfo();
 		
-		if (GetComponent<MeshFilter>() != null)
-		//i = GetComponent<MeshFilter>().mesh;
+		GetComponent<Health>().SetDamage(Time.deltaTime);
 		
 		if (!m_Dying)
 		{
-			//if (m_StucturalIntegrity < 50)
+			if (GetComponent<Health>().GetHealth() < 50)
 			{		
-				m_Dying = true;
 
-				GetComponent<MeshFilter>().mesh = Instantiate(Resources.Load ("train_boxwreck")) as Mesh;
+				Dying();
 
 			}
+		}
+		if (GetComponent<Health>().GetHealth() <= 0)
+		{
+			DestroyTrain();
 		}
 	}
 	
@@ -95,22 +112,39 @@ public class Carriage : MonoBehaviour
 		
 		ProcessDrag(RelativeVelocity);
 		
-		ProcessSplineForces();	
+		ProcessSplineAndJointForces();	
 	}
 	
-	void ProcessSplineForces()
+	void ProcessSplineAndJointForces()
 	{
-		if(m_BackSplinePosition.magnitude == 0.0f || m_FrontSplinePosition.magnitude == 0.0f)
+		// Only process if there is a connection.
+		if(m_ConnectionState == ConnectionState.NOT_CONNECTED)
 		{
 			return;
 		}
 		
 		m_midPointSpinePosition = (m_BackSplinePosition + m_FrontSplinePosition) * 0.5f;
 		
-		Vector3 v3ForceDirection = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
-		v3ForceDirection.y = 0;
-		
-		rigidbody.AddForce(v3ForceDirection * rigidbody.mass * 20.0f, ForceMode.Force);
+		// Move the carriage to the right position if it is close enough
+		if(m_ConnectionState == ConnectionState.CONNECTED_VIA_JOINT)
+		{
+			Vector3 v3Force = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
+			v3Force.y = 0;
+			
+			rigidbody.AddForce(v3Force * rigidbody.mass * 200.0f, ForceMode.Force);
+		}
+		else if(m_ConnectionState  == ConnectionState.CONNECTED_VIA_SPLINE)
+		{
+			Vector3 v3Force = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
+				
+			rigidbody.AddForce(v3Force * rigidbody.mass * 50.0f, ForceMode.Force);
+			rigidbody.transform.rotation = m_SplineRotation;
+			
+			if(v3Force.magnitude < 1.0f)
+			{
+				m_ConnectionState = ConnectionState.CONNECTION_AWAITING_JOINT;
+			}
+		}
 	}
 	
 	void DisableDebugWheelRendering()
@@ -143,7 +177,8 @@ public class Carriage : MonoBehaviour
 	
 	void Damage(float _damage)
 	{
-		m_StucturalIntegrity -= _damage;
+		GetComponent<Health>().SetDamage(_damage);
+		//m_StucturalIntegrity -= _damage;
 	}
 	
 	CarriageWheel SetupWheel(Transform _WheelTransform)
@@ -268,29 +303,57 @@ public class Carriage : MonoBehaviour
 		m_FrontSplinePosition = _v3Position;
 	}
 	
-	void OnCollisionEnter(Collision CollisionInfo){
-		TrainCarriages PlayerTrainCarrages;
-		FollowObject TrainFollowTarget;
-		
-		TrainFollowTarget = this.GetComponent<FollowObject>();
-		
-		if (CollisionInfo.gameObject.tag == "Train"){
-			PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
-			
-			if (TrainFollowTarget.HasTarget()){
-				DestoryTrain();
-			}else{
-				PlayerTrainCarrages.AddCarriage(this);
-			}
-		}
-	}		
-		
-	void DestoryTrain(){
-		this.renderer.enabled = false;
-	}
-	
 	public void SetSplineRotation(Quaternion _qRotation)
 	{
 		m_SplineRotation = _qRotation;
 	}	
+	
+	public void SetConnectionState(ConnectionState _State)
+	{
+		m_ConnectionState = _State;
+	}
+	
+	public ConnectionState GetConnectionState()
+	{
+		return(m_ConnectionState);
+	}
+	
+		void OnCollisionEnter(Collision CollisionInfo){
+		TrainCarriages PlayerTrainCarrages;
+		FollowObject TrainFollowTarget;
+		TrainFollowTarget = this.GetComponent<FollowObject>();
+		//Health CarriageHealth;
+		
+		if (CollisionInfo.gameObject.name == "Train(Clone)"){
+			if (m_Train == null){
+				PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
+			
+				if (TrainFollowTarget.HasTarget()){
+					DestroyTrain();
+				}else{
+					PlayerTrainCarrages.AddCarriage(this);
+				}
+			}else{
+				//CarriageHealth = GetComponent<Health>();
+				
+				//if (CarriageHealth != null){
+					//CarriageHealth.OnDeath();
+				//}
+			}
+		}
+	}		
+	
+	void Dying()
+	{
+		m_Dying = true;
+		
+       	GameObject meshy = Instantiate(Resources.LoadAssetAtPath("Assets/Carriages/train_boxwreck.obj", typeof(GameObject))) as GameObject;
+		
+		GetComponentInChildren<MeshFilter>().mesh = meshy.GetComponentInChildren<MeshFilter>().mesh;
+	}
+	
+	void DestroyTrain(){
+		this.renderer.enabled = false;
+	}
+	
 }
