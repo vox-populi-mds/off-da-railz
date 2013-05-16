@@ -22,15 +22,6 @@ public class Lobby : MonoBehaviour
 	
 	//public Transform m_trainPrefab;
 	
-	Lobby()
-	{
-		m_me = new Player();
-		m_me.Me = true;
-		m_me.Name = "John Doe";
-		m_me.Ready = false;
-		m_random = new System.Random();
-	}
-	
 	void Awake()
 	{
 		Application.runInBackground = true;
@@ -38,11 +29,14 @@ public class Lobby : MonoBehaviour
 		MasterServer.RequestHostList(GAME_TYPE);
 		
 		m_lastPlayerNameUpdateTime = Time.timeSinceLevelLoad;
-		m_me.NetworkPlayer = Network.player;
-		m_players = ((Transform) Instantiate(m_playersPrefab, Vector3.zero, Quaternion.identity)).gameObject.GetComponent<Players>();
+		m_me = new Player();
+		m_me.Me = true;
+		m_me.Name = "John Doe";
+		m_me.Ready = false;
+		m_players = Players.Get();
 		m_players.Add(m_me);
-		
-		DontDestroyOnLoad(m_players.gameObject);
+		m_random = new System.Random();
+		m_me.NetworkPlayer = Network.player;
 	}
 	
 	public void Connect(HostData host)
@@ -74,11 +68,8 @@ public class Lobby : MonoBehaviour
 	
 	public void GO()
 	{
-		if (GUILayout.Button("GO!"))
-		{
-			networkView.RPC("OnGO", RPCMode.Others);
-			OnGO();
-		}
+		networkView.RPC("OnGO", RPCMode.Others);
+		OnGO();
 	}
 	
 	public bool IsConnected()

@@ -20,6 +20,25 @@ public class Game : MonoBehaviour
 		m_roundStartTime = -1.0f;
 	}
 	
+	void CreateTrain()
+	{
+		if(Network.isClient || Network.isServer)
+		{
+			Object networkTrainObject = Network.Instantiate(train, new Vector3(Random.Range(-300.0f, 300.0f), 5.0f, Random.Range(-300.0f, 300.0f)), Quaternion.identity, 0);
+
+			GameObject trainObject = ((Transform) networkTrainObject).gameObject;
+			if (trainObject.GetComponent<NetworkView>().isMine)
+			{
+				trainObject.GetComponent<Train>().SetMine(true);
+			}
+		}
+		else 
+		{
+			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(300.0f, 5.0f, 0.0f), Quaternion.identity)).gameObject;
+			trainObject.GetComponent<Train>().SetMine(true);
+		}
+	}
+	
 	void OnGUI()
 	{
 		if(m_roundStartTime == -1.0f)
@@ -44,7 +63,7 @@ public class Game : MonoBehaviour
 				}
 			}
 		}
-		else if ( Time.timeSinceLevelLoad - m_roundStartTime > m_roundTimeLimit)
+		else if (Time.timeSinceLevelLoad - m_roundStartTime > m_roundTimeLimit)
 		{
 			GUI.Label(new Rect(10, 10, 100, 20), "Round Finished!");
 		}
@@ -58,23 +77,9 @@ public class Game : MonoBehaviour
 	{
 		// Disable cursor visibility
 		Screen.showCursor = false;
+		Session.Get().StartRound();
 		
-		Object BoxObj = new Object();
-		if(Network.isClient || Network.isServer)
-		{
-			Object networkTrainObject = Network.Instantiate(train, new Vector3(Random.Range(-300.0f, 300.0f), 5.0f, Random.Range(-300.0f, 300.0f)), Quaternion.identity, 0);
-
-			GameObject trainObject = ((Transform) networkTrainObject).gameObject;
-			if (trainObject.GetComponent<NetworkView>().isMine)
-			{
-				trainObject.GetComponent<Train>().SetMine(true);
-			}
-		}
-		else 
-		{
-			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(300.0f, 5.0f, 0.0f), Quaternion.identity)).gameObject;
-			trainObject.GetComponent<Train>().SetMine(true);
-		}
+		CreateTrain();
 		
 		Instantiate(cameras, Vector3.zero, Quaternion.identity);
 		
@@ -89,15 +94,9 @@ public class Game : MonoBehaviour
 
 	void Update()
 	{
-		/*if (Input.GetKey(KeyCode.Escape))
+		if (Time.timeSinceLevelLoad - m_roundStartTime > m_roundTimeLimit + 3.0f)
 		{
-			Application.Quit();
-			Debug.Break();
-		}*/
-		
-		if (Time.timeSinceLevelLoad > m_roundTimeLimit)
-		{
-			
+			Application.LoadLevel("Score");
 		}
 	}
 }
