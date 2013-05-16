@@ -309,7 +309,7 @@ public class TrainCarriages : MonoBehaviour
 	{	
 		Transform frontBodyTransform = transform;
 		
-		if(!Network.isServer())
+		if(!Network.isServer)
 		{
 			return;
 		}
