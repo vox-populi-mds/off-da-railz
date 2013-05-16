@@ -309,6 +309,11 @@ public class TrainCarriages : MonoBehaviour
 	{	
 		Transform frontBodyTransform = transform;
 		
+		if(!Network.isServer())
+		{
+			return;
+		}
+		
 		for(int i = 1; i < 5; ++i)
 		{
 			Object BoxObj = new Object();
