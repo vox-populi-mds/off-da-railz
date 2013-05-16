@@ -5,6 +5,8 @@ using System.Collections;
 
 public class Score : MonoBehaviour
 {
+	Ping m_Ping;
+	
 	float m_aboveScoreBoxHeight;
 	
 	float m_boxWidth;
@@ -38,8 +40,11 @@ public class Score : MonoBehaviour
 		{
 			GUILayout.BeginHorizontal();
 			GUILayout.Label(player.Name);
-			GUILayout.Space(5);
+			GUILayout.Space(3);
 			GUILayout.Label(player.Score.ToString());
+			GUILayout.Space(3);
+			//GUILayout.Label(player.NetworkPlayer.ipAddress);
+			GUILayout.Label(player.ping.time.ToString());
 			GUILayout.EndHorizontal();
 		}
 		GUILayout.EndArea();	
@@ -59,7 +64,7 @@ public class Score : MonoBehaviour
 	}
 	
 	void Start()
-	{
+	{ 
 	}
 	
 	void Update()
@@ -69,5 +74,6 @@ public class Score : MonoBehaviour
 			GUIConstants.ONE_LINE_BOX_HEIGHT;
 		
 		m_nextRoundCountdown -= Time.deltaTime;
+		Players.Get().PingAll();
 	}
 }

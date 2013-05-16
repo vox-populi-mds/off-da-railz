@@ -30,6 +30,17 @@ public class Players
 		return true;
 	}
 	
+	public void PingAll()
+	{
+		foreach (Player player in m_players)
+		{
+			if (player.ping.isDone)
+			{
+				player.ping = new Ping(player.NetworkPlayer.ipAddress);
+			}
+		}
+	}
+	
 	public void Clear()
 	{
 		m_players.Clear();

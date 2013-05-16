@@ -3,6 +3,12 @@ using System;
 
 public class Player
 {
+	public Ping ping
+	{
+		get;
+		set;
+	}
+	
 	public bool Me
 	{
 		get;
@@ -39,5 +45,6 @@ public class Player
 		Name = "Unknown";
 		Ready = false;
 		Score = 0;
+		ping = new Ping(NetworkPlayer.ipAddress);
 	}
 }

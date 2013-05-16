@@ -346,11 +346,8 @@ public class Carriage : MonoBehaviour
 	void Dying()
 	{
 		m_Dying = true;
-		Vector3 newScale = Vector3.one;
 		
        	GameObject meshy = Instantiate(Resources.LoadAssetAtPath("Assets/Carriages/train_boxwreck.obj", typeof(GameObject))) as GameObject;
-
-       	newScale = new Vector3(0.15f, 0.15f, 0.15f);
 		
 		GetComponentInChildren<MeshFilter>().mesh = meshy.GetComponentInChildren<MeshFilter>().mesh;
 	}
