@@ -34,7 +34,8 @@ public class Game : MonoBehaviour
 		}
 		else 
 		{
-			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(300.0f, 5.0f, 0.0f), Quaternion.identity)).gameObject;
+			//GameObject trainObject = ((Transform) Instantiate(train, new Vector3(300.0f, 5.0f, 0.0f), Quaternion.identity)).gameObject;
+			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(635.0f, 20.0f, -556.0f), Quaternion.identity)).gameObject;
 			trainObject.GetComponent<Train>().SetMine(true);
 		}
 	}
@@ -87,9 +88,10 @@ public class Game : MonoBehaviour
 		// Instantiate UI
 		GameObject ui = ((Transform) Instantiate(userInterface, Vector3.zero, Quaternion.identity)).gameObject;
 		
+		
 		// Instantiate Obstacles
 		foreach (Transform obstacle in levelObstacles) {
-			//Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
+			Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
 		}
 	}
 

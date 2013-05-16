@@ -180,9 +180,8 @@ public class TrainCarriages : MonoBehaviour
 		
 		ProcessNewCarriagesConnection();
 		
-		//PlayerHUD hud = GameObject.Find ("The Game").GetComponent<Game>().userInterface.GetComponent<PlayerHUD>();
-		//hud.NumberOfCarridges = 10;
-		//print ("Hurry up and fix the m_listCarriages.Count to work ffs");
+		PlayerHUD hud = GameObject.Find ("The Game").GetComponent<Game>().userInterface.GetComponent<PlayerHUD>();
+		hud.NumberOfCarridges = GetNumberOfCarriages();
 	}
 	
 	void CleanOldWaypoints()
