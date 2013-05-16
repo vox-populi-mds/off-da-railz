@@ -34,9 +34,10 @@ public class Players
 	{
 		foreach (Player player in m_players)
 		{
-			if (player.ping.isDone)
+			if (player.pinger.isDone)
 			{
-				player.ping = new Ping(player.NetworkPlayer.ipAddress);
+				player.lastPing = player.pinger.time;
+				player.pinger = new Ping(player.NetworkPlayer.ipAddress);
 			}
 		}
 	}
