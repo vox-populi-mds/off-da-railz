@@ -60,7 +60,7 @@ public class Carriage : MonoBehaviour
 		rigidbody.centerOfMass = v3NewCenter;
 			
 		// test the weapons
-		m_PowerupOrWeapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/Shotgun.prefab", typeof(GameObject))) as GameObject;
+		//m_PowerupOrWeapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/Shotgun.prefab", typeof(GameObject))) as GameObject;
 		//DisableDebugWheelRendering();
 		m_Train = null;
 	}
@@ -68,27 +68,29 @@ public class Carriage : MonoBehaviour
 	// Update is called once per frame
 	void Update() 
 	{	
-		//Mesh i;
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
 		ProcessWheelGraphics(RelativeVelocity);
 		
-		ProcessDebugInfo();
-		
-		GetComponent<Health>().SetDamage(Time.deltaTime);
-		
-		if (!m_Dying)
+		if(Network.isServer)
 		{
-			if (GetComponent<Health>().GetHealth() < 50)
-			{		
-
-				Dying();
-
+			ProcessDebugInfo();
+			
+			GetComponent<Health>().SetDamage(Time.deltaTime);
+			
+			if (!m_Dying)
+			{
+				if (GetComponent<Health>().GetHealth() < 50)
+				{		
+	
+					Dying();
+	
+				}
 			}
-		}
-		if (GetComponent<Health>().GetHealth() <= 0)
-		{
-			DestroyTrain();
+			if (GetComponent<Health>().GetHealth() <= 0)
+			{
+				DestroyTrain();
+			}
 		}
 	}
 	
@@ -105,6 +107,11 @@ public class Carriage : MonoBehaviour
 	
 	void FixedUpdate()
 	{	
+		if(!Network.isServer)
+		{
+			return;
+		}
+		
 		// Transform rigidbody velocity to local co-ordinate space
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
@@ -318,18 +325,25 @@ public class Carriage : MonoBehaviour
 		return(m_ConnectionState);
 	}
 	
-	void OnCollisionEnter(Collision CollisionInfo){
+	void OnCollisionEnter(Collision CollisionInfo)
+	{	
+		if(!Network.isServer)
+		{
+			return;
+		}
+		
 		TrainCarriages PlayerTrainCarrages;
-		FollowObject TrainFollowTarget;
-		TrainFollowTarget = this.GetComponent<FollowObject>();
 		//Health CarriageHealth;
 		
-		if (CollisionInfo.gameObject.name == "Train(Clone)"){
-			if (m_Train == null){
+		if (CollisionInfo.gameObject.name == "Train(Clone)")
+		{
+			if (m_Train == null)
+			{
 				PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
-			
 				PlayerTrainCarrages.AddCarriage(this);
-			}else{
+			}
+			else
+			{
 				//CarriageHealth = GetComponent<Health>();
 				
 				//if (CarriageHealth != null){

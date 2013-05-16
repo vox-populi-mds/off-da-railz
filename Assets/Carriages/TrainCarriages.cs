@@ -95,7 +95,7 @@ public class TrainCarriages : MonoBehaviour
 	// Use this for initialization
 	void Start() 
 	{
-		if(!GetComponent<Train>().IsMine())
+		if(!Network.isServer)
 		{
 			return;
 		}
@@ -138,7 +138,7 @@ public class TrainCarriages : MonoBehaviour
 	// Update is called once per frame
 	void Update() 
 	{
-		if(!GetComponent<Train>().IsMine())
+		if(!Network.isServer)
 		{
 			return;
 		}
@@ -308,11 +308,6 @@ public class TrainCarriages : MonoBehaviour
 	void SetupTestBoxcars()
 	{	
 		Transform frontBodyTransform = transform;
-		
-		if(!Network.isServer)
-		{
-			return;
-		}
 		
 		for(int i = 1; i < 5; ++i)
 		{

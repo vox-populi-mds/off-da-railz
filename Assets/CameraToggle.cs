@@ -68,7 +68,7 @@ public class CameraToggle : MonoBehaviour {
 			SpeedScale = Speed * 2 / MaxSpeed;			
 		}
 		
-		float newFOV = SpeedScale * 100;
+		float newFOV = SpeedScale * 75;
 		if(newFOV > 60)
 		{
 			newFOV = Mathf.Lerp(Cameras[cameraIndex].fov, newFOV, Time.deltaTime);

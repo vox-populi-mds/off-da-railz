@@ -36,13 +36,16 @@ public class Train : MonoBehaviour
 	
 	void Start() 
 	{	
-		SetupWheelColliders();
-			
-		SetupCenterOfMass();
-			
-		SetupGears();
-			
-		SetupPlayerMarker();
+		if(mine)
+		{
+			SetupWheelColliders();
+				
+			SetupCenterOfMass();
+				
+			SetupGears();
+				
+			SetupPlayerMarker();
+		}
 		
 		//DisableDebugWheelRendering();
 	}
@@ -188,10 +191,12 @@ public class Train : MonoBehaviour
 	{
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
-		ProcessWheelGraphics(RelativeVelocity);
+		ProcessAnimation(RelativeVelocity);
 		
 		if(mine)
 		{
+			ProcessWheelGraphics(RelativeVelocity);
+			
 			ProcessGear(RelativeVelocity);
 			
 			ProcessInput();
@@ -200,15 +205,18 @@ public class Train : MonoBehaviour
 		}
 	}
 	
-	void ProcessWheelGraphics(Vector3 _RelativeVelocity)
-	{		
+	void ProcessAnimation(Vector3 _RelativeVelocity)
+	{
 		Animation DriveAnimation = GetComponentInChildren<Animation>();
 		
 		float CurrentSpeed = _RelativeVelocity.z;
 		float SpeedScale = CurrentSpeed / 10.0f;
 		
 		DriveAnimation.animation["Drive"].speed = SpeedScale;
-		
+	}
+	
+	void ProcessWheelGraphics(Vector3 _RelativeVelocity)
+	{		
 		foreach(Wheel w in m_Wheels)
 		{
 			WheelCollider Wc = w.m_Collider;
@@ -321,24 +329,22 @@ public class Train : MonoBehaviour
 	
 	void FixedUpdate()
 	{	
-		if (!mine)	// only client updates their own train
+		if (mine)	// only client updates their own train
 		{
-			return;	
+			Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
+		
+			CalculateState();	
+			
+			ProcessFriction(RelativeVelocity);
+			
+			ProcessDrag(RelativeVelocity);
+			
+			CalculateEnginePower(RelativeVelocity);
+			
+			ApplyThrottle(m_CanDrive, RelativeVelocity);
+			
+			ApplySteering(m_CanSteer, RelativeVelocity);
 		}
-		
-		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
-		
-		CalculateState();	
-		
-		ProcessFriction(RelativeVelocity);
-		
-		ProcessDrag(RelativeVelocity);
-		
-		CalculateEnginePower(RelativeVelocity);
-		
-		ApplyThrottle(m_CanDrive, RelativeVelocity);
-		
-		ApplySteering(m_CanSteer, RelativeVelocity);
 	}
 	
 	void ProcessDrag(Vector3 _RelativeVelocity)
@@ -361,7 +367,12 @@ public class Train : MonoBehaviour
 		Vector3 DragMultiplier = m_GroundDragMultiplier;
 		if(!IsOnGround) 
 		{
+			rigidbody.angularDrag = 0.0f;
 			DragMultiplier = m_AirDragMultiplier;
+		}
+		else
+		{
+			rigidbody.angularDrag = 1.0f;
 		}
 		
 		Vector3 RelativeDrag = new Vector3(	-_RelativeVelocity.x * Mathf.Abs(_RelativeVelocity.x), 
@@ -468,6 +479,14 @@ public class Train : MonoBehaviour
 			transform.RotateAround(	transform.position + transform.right * TurnRadius * m_Steer, 
 									transform.up, 
 									TurnSpeed * Mathf.Rad2Deg * Time.deltaTime * m_Steer);
+			
+			/*float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
+			float MinMaxTurn = EvaluateSpeedToTurn(rigidbody.velocity.magnitude);
+			float TurnSpeed = Mathf.Clamp(_RelativeVelocity.z / TurnRadius, -MinMaxTurn / 10.0f, MinMaxTurn / 10.0f);
+			
+			rigidbody.angularVelocity = new Vector3(rigidbody.angularVelocity.x, 
+													rigidbody.angularVelocity.y + (TurnSpeed * m_Steer * Time.deltaTime), 
+													rigidbody.angularVelocity.z);*/
 		}
 	}
 	
