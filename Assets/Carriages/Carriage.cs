@@ -30,14 +30,24 @@ public class Carriage : MonoBehaviour
 	private CarriageWheel[] 	m_Wheels;
 	private float 				m_WheelRadius;
 	private WheelFrictionCurve 	m_WheelFrictionCurve;
+	
 	private Transform			m_Train;
 	private bool 				m_Dying = false;
+	
+	private ConnectionState		m_ConnectionState;
+	
 	private Vector3 			m_BackSplinePosition;
 	private Vector3				m_FrontSplinePosition;	
-	
 	private Vector3				m_midPointSpinePosition;
-	
 	private Quaternion			m_SplineRotation;
+	
+	public enum ConnectionState
+	{
+		NOT_CONNECTED,
+		CONNECTED_VIA_JOINT,
+		CONNECTED_VIA_SPLINE,
+		CONNECTION_AWAITING_JOINT,
+	}
 	
 	// Use this for initialization
 	void Start () 
@@ -95,22 +105,39 @@ public class Carriage : MonoBehaviour
 		
 		ProcessDrag(RelativeVelocity);
 		
-		ProcessSplineForces();	
+		ProcessSplineAndJointForces();	
 	}
 	
-	void ProcessSplineForces()
+	void ProcessSplineAndJointForces()
 	{
-		if(m_BackSplinePosition.magnitude == 0.0f || m_FrontSplinePosition.magnitude == 0.0f)
+		// Only process if there is a connection.
+		if(m_ConnectionState == ConnectionState.NOT_CONNECTED)
 		{
 			return;
 		}
 		
 		m_midPointSpinePosition = (m_BackSplinePosition + m_FrontSplinePosition) * 0.5f;
 		
-		Vector3 v3ForceDirection = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
-		v3ForceDirection.y = 0;
-		
-		rigidbody.AddForce(v3ForceDirection * rigidbody.mass * 20.0f, ForceMode.Force);
+		// Move the carriage to the right position if it is close enough
+		if(m_ConnectionState == ConnectionState.CONNECTED_VIA_JOINT)
+		{
+			Vector3 v3Force = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
+			v3Force.y = 0;
+			
+			rigidbody.AddForce(v3Force * rigidbody.mass * 200.0f, ForceMode.Force);
+		}
+		else if(m_ConnectionState  == ConnectionState.CONNECTED_VIA_SPLINE)
+		{
+			Vector3 v3Force = m_midPointSpinePosition - rigidbody.worldCenterOfMass;
+				
+			rigidbody.AddForce(v3Force * rigidbody.mass * 50.0f, ForceMode.Force);
+			rigidbody.transform.rotation = m_SplineRotation;
+			
+			if(v3Force.magnitude < 1.0f)
+			{
+				m_ConnectionState = ConnectionState.CONNECTION_AWAITING_JOINT;
+			}
+		}
 	}
 	
 	void DisableDebugWheelRendering()
@@ -268,7 +295,22 @@ public class Carriage : MonoBehaviour
 		m_FrontSplinePosition = _v3Position;
 	}
 	
-	void OnCollisionEnter(Collision CollisionInfo){
+	public void SetSplineRotation(Quaternion _qRotation)
+	{
+		m_SplineRotation = _qRotation;
+	}	
+	
+	public void SetConnectionState(ConnectionState _State)
+	{
+		m_ConnectionState = _State;
+	}
+	
+	public ConnectionState GetConnectionState()
+	{
+		return(m_ConnectionState);
+	}
+	
+		void OnCollisionEnter(Collision CollisionInfo){
 		TrainCarriages PlayerTrainCarrages;
 		FollowObject TrainFollowTarget;
 		
@@ -289,8 +331,4 @@ public class Carriage : MonoBehaviour
 		this.renderer.enabled = false;
 	}
 	
-	public void SetSplineRotation(Quaternion _qRotation)
-	{
-		m_SplineRotation = _qRotation;
-	}	
 }
