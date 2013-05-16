@@ -80,6 +80,8 @@ public class Lobby : MonoBehaviour
 	[RPC]
 	void OnGO()
 	{
+		Session.Get().StartGame();
+		Session.Get().SetRoundCount(3);
 		Application.LoadLevel("Level0");
 	}
 	

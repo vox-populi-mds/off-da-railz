@@ -45,7 +45,7 @@ public class Game : MonoBehaviour
 		{
 			if (Time.timeSinceLevelLoad < m_roundStartDelay)
 			{
-					GUI.Label(new Rect(10, 10, 50, 20), "Round 1");
+					GUI.Label(new Rect(10, 10, 50, 20), "Round " + Session.Get().GetRound());
 			}
 			else
 			{

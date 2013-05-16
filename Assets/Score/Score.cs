@@ -1,5 +1,3 @@
-// Scott Emery
-
 using UnityEngine;
 using System.Collections;
 
@@ -23,9 +21,26 @@ public class Score : MonoBehaviour
 	
 	void DrawCountdownBox()
 	{
+		string countdownText = "";
+		if (Session.Get().GetRound() < Session.Get().GetRoundCount())
+		{
+			countdownText = "Next Round Starting in " + (int) m_nextRoundCountdown;
+		}
+		
 		GUI.Box(new Rect(GUIConstants.GAP_SIZE, Screen.height - GUIConstants.GAP_SIZE -
 			GUIConstants.ONE_LINE_BOX_HEIGHT, m_boxWidth, GUIConstants.ONE_LINE_BOX_HEIGHT),
-			"Next Round Starting in " + (int) m_nextRoundCountdown);
+			countdownText);
+		
+		GUILayout.BeginArea(new Rect(Screen.width - GUIConstants.GAP_SIZE - GUIConstants.BOX_PADDING - 200.0f,
+			Screen.height - GUIConstants.GAP_SIZE - GUIConstants.ONE_LINE_BOX_HEIGHT + GUIConstants.BOX_PADDING,
+			200.0f, GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
+		
+		if (GUILayout.Button("Leave Game"))
+		{
+			Application.Quit();
+		}
+		
+		GUILayout.EndArea();
 	}
 	
 	void DrawScoreBox()
@@ -47,6 +62,7 @@ public class Score : MonoBehaviour
 			GUILayout.Label(player.pinger.time.ToString());
 			GUILayout.EndHorizontal();
 		}
+		
 		GUILayout.EndArea();	
 	}
 	
@@ -73,7 +89,16 @@ public class Score : MonoBehaviour
 		m_scoreBoxHeight = Screen.height - m_aboveScoreBoxHeight - GUIConstants.GAP_SIZE_DOUBLE -
 			GUIConstants.ONE_LINE_BOX_HEIGHT;
 		
-		m_nextRoundCountdown -= Time.deltaTime;
 		Players.Get().PingAll();
+		
+		if (Session.Get().GetRound() < Session.Get().GetRoundCount())
+		{
+			m_nextRoundCountdown -= Time.deltaTime;
+
+			if (m_nextRoundCountdown < 0.0f)
+			{
+				Application.LoadLevel("Level0");
+			}
+		}
 	}
 }
