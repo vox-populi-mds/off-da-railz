@@ -329,7 +329,7 @@ public class Carriage : MonoBehaviour
 				PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
 			
 				if (TrainFollowTarget.HasTarget()){
-					DestoryTrain();
+					DestroyTrain();
 				}else{
 					PlayerTrainCarrages.AddCarriage(this);
 				}

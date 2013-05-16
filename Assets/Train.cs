@@ -36,16 +36,13 @@ public class Train : MonoBehaviour
 	
 	void Start() 
 	{	
-		if(mine)
-		{	
-			SetupWheelColliders();
+		SetupWheelColliders();
 			
-			SetupCenterOfMass();
+		SetupCenterOfMass();
 			
-			SetupGears();
+		SetupGears();
 			
-			SetupPlayerMarker();
-		}
+		SetupPlayerMarker();
 		
 		//DisableDebugWheelRendering();
 	}
@@ -193,7 +190,7 @@ public class Train : MonoBehaviour
 		
 		ProcessWheelGraphics(RelativeVelocity);
 		
-		if(mine)	// Only client updates their input
+		if(mine)
 		{
 			ProcessGear(RelativeVelocity);
 			

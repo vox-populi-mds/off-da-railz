@@ -80,6 +80,7 @@ public class Game : MonoBehaviour
 		Session.Get().StartRound();
 		
 		CreateTrain();
+		Network.sendRate = 100;
 		
 		Instantiate(cameras, Vector3.zero, Quaternion.identity);
 		
