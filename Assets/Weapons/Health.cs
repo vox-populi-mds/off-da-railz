@@ -3,11 +3,11 @@ using System.Collections;
 
 namespace OffTheRailz{
 	public class Health : MonoBehaviour {
-		public static float m_fDefaultHealth;
+		public static float m_fDefaultHealth = 100.0f;
 		protected float m_fHealth = m_fDefaultHealth;
 	
 		public float GetHealth(){
-			return (m_fDefaultHealth);	
+			return (m_fHealth);	
 		}
 
 		public void SetDamage(float fDamage){		
@@ -33,7 +33,7 @@ namespace OffTheRailz{
 	
 		// Use this for initialization
 		void Start () {
-	
+			m_fHealth = 100.0f;	
 		}
 	
 		// Update is called once per frame

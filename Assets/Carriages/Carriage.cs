@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using OffTheRailz;
 
 public class CarriageWheel
 {
@@ -16,7 +17,7 @@ public class Carriage : MonoBehaviour
 	
 	public Transform[] 			m_WheelTransforms;
 	
-	public float				m_StucturalIntegrity	= 100.0f;
+	//public float				m_StucturalIntegrity	= 100.0f;
 	public float	 			m_SuspensionRange 		= 0.5f;
 	public float 				m_SuspensionDamper 		= 0.0f;
 	public float 				m_SuspensionSpring 		= 0.0f;
@@ -70,18 +71,20 @@ public class Carriage : MonoBehaviour
 		
 		ProcessDebugInfo();
 		
-		if (GetComponent<MeshFilter>() != null)
-		//i = GetComponent<MeshFilter>().mesh;
+		GetComponent<Health>().SetDamage(Time.deltaTime);
 		
 		if (!m_Dying)
 		{
-			//if (m_StucturalIntegrity < 50)
+			if (GetComponent<Health>().GetHealth() < 50)
 			{		
-				m_Dying = true;
 
-				GetComponent<MeshFilter>().mesh = Instantiate(Resources.Load ("train_boxwreck")) as Mesh;
+				Dying();
 
 			}
+		}
+		if (GetComponent<Health>().GetHealth() <= 0)
+		{
+			DestroyTrain();
 		}
 	}
 	
@@ -170,7 +173,8 @@ public class Carriage : MonoBehaviour
 	
 	void Damage(float _damage)
 	{
-		m_StucturalIntegrity -= _damage;
+		GetComponent<Health>().SetDamage(_damage);
+		//m_StucturalIntegrity -= _damage;
 	}
 	
 	CarriageWheel SetupWheel(Transform _WheelTransform)
@@ -320,14 +324,26 @@ public class Carriage : MonoBehaviour
 			PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
 			
 			if (TrainFollowTarget.HasTarget()){
-				DestoryTrain();
+				DestroyTrain();
 			}else{
 				PlayerTrainCarrages.AddCarriage(this);
 			}
 		}
 	}		
+	
+	void Dying()
+	{
+		m_Dying = true;
+		Vector3 newScale = Vector3.one;
 		
-	void DestoryTrain(){
+       	GameObject meshy = Instantiate(Resources.LoadAssetAtPath("Assets/Carriages/train_boxwreck.obj", typeof(GameObject))) as GameObject;
+
+       	newScale = new Vector3(0.15f, 0.15f, 0.15f);
+		
+		GetComponentInChildren<MeshFilter>().mesh = meshy.GetComponentInChildren<MeshFilter>().mesh;
+	}
+	
+	void DestroyTrain(){
 		this.renderer.enabled = false;
 	}
 	
