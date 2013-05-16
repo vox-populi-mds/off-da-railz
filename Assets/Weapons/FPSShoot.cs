@@ -1,8 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using OffTheRailz;
 
-namespace OffTheRailz{
 	public class FPSShoot : MonoBehaviour{
 		public static float m_fRateOfFire = 1.0f;
 		public static int m_iMagazineCapacity = 10;
@@ -29,9 +27,9 @@ namespace OffTheRailz{
 				if (Input.GetMouseButtonDown(0) && (m_fFireTime > m_fRateOfFire)){
 					m_TargetDirection = Camera.current.ScreenPointToRay(Camera.current.ScreenToWorldPoint(vecPosition));
 					
-					if (Physics.Raycast(m_TargetDirection, out m_Hit)){
-						m_Hit.collider.gameObject.GetComponent<OffTheRailz.Health>().SetDamage(m_fDamage);
-					}
+					//if (Physics.Raycast(m_TargetDirection, out m_Hit)){
+					//	m_Hit.collider.gameObject.GetComponent<OffTheRailz.Health>().SetDamage(m_fDamage);
+					//}
 					
 					m_fFireTime = 0.0f;
 				}else{
@@ -45,4 +43,3 @@ namespace OffTheRailz{
 			}
 		}
 	}
-}

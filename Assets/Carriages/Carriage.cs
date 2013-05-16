@@ -59,10 +59,10 @@ public class Carriage : MonoBehaviour
 		Vector3 v3NewCenter = (transform.FindChild("FrontLatch").transform.localPosition + transform.FindChild("BackLatch").transform.localPosition) * 0.5f;
 		rigidbody.centerOfMass = v3NewCenter;
 			
-		m_Train = null;
 		// test the weapons
-		m_PowerupOrWeapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Shotgun.prefab", typeof(GameObject))) as GameObject;
+		m_PowerupOrWeapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/Shotgun.prefab", typeof(GameObject))) as GameObject;
 		//DisableDebugWheelRendering();
+		m_Train = null;
 	}
 	
 	// Update is called once per frame
@@ -322,9 +322,10 @@ public class Carriage : MonoBehaviour
 		TrainCarriages PlayerTrainCarrages;
 		FollowObject TrainFollowTarget;
 		TrainFollowTarget = this.GetComponent<FollowObject>();
+		//Health CarriageHealth;
 		
-		if (m_Train == null){
-			if (CollisionInfo.gameObject.name == "Train(Clone)"){
+		if (CollisionInfo.gameObject.name == "Train(Clone)"){
+			if (m_Train == null){
 				PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
 			
 				if (TrainFollowTarget.HasTarget()){
@@ -332,6 +333,12 @@ public class Carriage : MonoBehaviour
 				}else{
 					PlayerTrainCarrages.AddCarriage(this);
 				}
+			}else{
+				//CarriageHealth = GetComponent<Health>();
+				
+				//if (CarriageHealth != null){
+					//CarriageHealth.OnDeath();
+				//}
 			}
 		}
 	}		
