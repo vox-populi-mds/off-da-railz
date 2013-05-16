@@ -5,6 +5,8 @@ public class Score : MonoBehaviour
 {
 	Ping m_Ping;
 	
+	float m_pingCooldown;
+	
 	float m_aboveScoreBoxHeight;
 	
 	float m_boxWidth;
@@ -59,7 +61,7 @@ public class Score : MonoBehaviour
 			GUILayout.Label(player.Score.ToString());
 			GUILayout.Space(3);
 			//GUILayout.Label(player.NetworkPlayer.ipAddress);
-			GUILayout.Label(player.pinger.time.ToString());
+			GUILayout.Label(player.lastPing.ToString());
 			GUILayout.EndHorizontal();
 		}
 		
@@ -81,16 +83,21 @@ public class Score : MonoBehaviour
 	
 	void Start()
 	{ 
+		m_pingCooldown = 0.0f;
 	}
 	
 	void Update()
 	{
+		m_pingCooldown += Time.deltaTime;
 		m_boxWidth = Screen.width - GUIConstants.GAP_SIZE_DOUBLE;
 		m_scoreBoxHeight = Screen.height - m_aboveScoreBoxHeight - GUIConstants.GAP_SIZE_DOUBLE -
 			GUIConstants.ONE_LINE_BOX_HEIGHT;
 		
-		Players.Get().PingAll();
-		
+		if (m_pingCooldown > 1)
+		{
+			m_pingCooldown = 0;
+			Players.Get().PingAll();
+		}
 		if (Session.Get().GetRound() < Session.Get().GetRoundCount())
 		{
 			m_nextRoundCountdown -= Time.deltaTime;
