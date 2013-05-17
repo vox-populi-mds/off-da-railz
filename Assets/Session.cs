@@ -143,6 +143,11 @@ public class Session
 		return m_leftGame;
 	}
 	
+	public void Quit()
+	{
+		Application.Quit();
+	}
+	
 	public void SetRoundCount(int roundCount)
 	{
 		m_roundCount = roundCount;

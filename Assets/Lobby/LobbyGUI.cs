@@ -4,8 +4,6 @@ public class LobbyGUI : MonoBehaviour
 {
 	const float PLAYER_NAME_BOX_WIDTH = 600.0f;
 	
-	const float READY_GO_BOX_WIDTH = 200.0f;
-	
 	const float SERVER_BOX_WIDTH = 600.0f;
 	
 	float m_abovePlayerListBoxHeight;
@@ -69,37 +67,46 @@ public class LobbyGUI : MonoBehaviour
 	
 	void DrawReadyGoBox()
 	{
-		GUI.Box(new Rect(Screen.width - READY_GO_BOX_WIDTH - GUIConstants.GAP_SIZE, Screen.height -
-			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.GAP_SIZE, READY_GO_BOX_WIDTH,
-			GUIConstants.ONE_LINE_BOX_HEIGHT), "");
+		GUI.Box(new Rect(GUIConstants.GAP_SIZE, Screen.height - GUIConstants.ONE_LINE_BOX_HEIGHT -
+			GUIConstants.GAP_SIZE, m_listBoxWidth, GUIConstants.ONE_LINE_BOX_HEIGHT), "");
 		
-		GUILayout.BeginArea(new Rect(Screen.width - READY_GO_BOX_WIDTH - GUIConstants.GAP_SIZE +
-			GUIConstants.BOX_PADDING, Screen.height - GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.GAP_SIZE +
-			GUIConstants.BOX_PADDING, READY_GO_BOX_WIDTH - GUIConstants.BOX_PADDING_DOUBLE,
-			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
+		GUILayout.BeginArea(new Rect(GUIConstants.GAP_SIZE + GUIConstants.BOX_PADDING, Screen.height -
+			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.GAP_SIZE + GUIConstants.BOX_PADDING,
+			m_listBoxWidthInternal, GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
+		
+		GUILayoutOption widthOption = GUILayout.Width(m_listBoxWidthInternal / 3.0f);
+		GUIStyle labelStyle = GUI.skin.GetStyle("Label");
+    	labelStyle.alignment = TextAnchor.UpperCenter;
 		
 		GUILayout.BeginHorizontal();
+		if (GUILayout.Button("Quit", widthOption))
+		{
+			Session.Get().Quit();
+		}		
 		if (Session.Get().Connected)
 		{
 			if (Players.Get().GetMe().Ready)
 			{
-				GUILayout.Label("Ready!");
+				GUILayout.Label("Ready!", labelStyle, widthOption);
 			}
-			else if (GUILayout.Button("Ready!"))
+			else if (GUILayout.Button("Ready!", widthOption))
 			{
 				GetComponent<Lobby>().PlayerReady();
 			}
 			
 			if (Network.isServer && Players.Get().AllReady())
 			{
-				if (GUILayout.Button("GO!"))
+				if (GUILayout.Button("GO!", widthOption))
 				{
 					GetComponent<Lobby>().GO();
 				}
 			}
 		}
 		GUILayout.EndHorizontal();
-		GUILayout.EndArea();	
+		GUILayout.EndArea();
+		
+		// Revert the label style.
+    	labelStyle.alignment = TextAnchor.UpperLeft;
 	}
 	
 	void DrawServerBox()

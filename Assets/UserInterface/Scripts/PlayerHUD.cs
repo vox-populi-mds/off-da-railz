@@ -82,6 +82,11 @@ public class PlayerHUD : MonoBehaviour
 				Session.Get().LeaveGame();
 			}
 			
+			if (GUILayout.Button("Quit"))
+			{
+				Session.Get().Quit();
+			}
+			
 			GUILayout.EndArea();
 		}
 	}
