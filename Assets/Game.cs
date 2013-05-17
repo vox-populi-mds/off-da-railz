@@ -41,7 +41,7 @@ public class Game : MonoBehaviour
 	{
 		get
 		{
-			return 10.0f;
+			return 90.0f;
 		}
 	}
 	
