@@ -2,11 +2,19 @@ using UnityEngine;
 
 public class LobbyGUI : MonoBehaviour
 {
+	const float PLAYER_NAME_BOX_WIDTH = 600.0f;
+	
+	const float READY_GO_BOX_WIDTH = 200.0f;
+	
+	const float SERVER_BOX_WIDTH = 600.0f;
+	
 	float m_abovePlayerListBoxHeight;
 	
 	float m_aboveServerBoxHeight;
 	
 	float m_aboveServerListBoxHeight;
+	
+	public Font m_font;
 	
 	float m_listBoxHeight;
 	
@@ -48,11 +56,12 @@ public class LobbyGUI : MonoBehaviour
 	
 	void DrawPlayerNameBox()
 	{
-		GUI.Box(new Rect(GUIConstants.GAP_SIZE, GUIConstants.GAP_SIZE, 300.0f, GUIConstants.ONE_LINE_BOX_HEIGHT), "");
+		GUI.Box(new Rect(GUIConstants.GAP_SIZE, GUIConstants.GAP_SIZE, PLAYER_NAME_BOX_WIDTH,
+			GUIConstants.ONE_LINE_BOX_HEIGHT), "");
 		
 		GUILayout.BeginArea(new Rect(GUIConstants.GAP_SIZE + GUIConstants.BOX_PADDING, GUIConstants.GAP_SIZE +
-			GUIConstants.BOX_PADDING, 300.0f - GUIConstants.BOX_PADDING_DOUBLE, GUIConstants.ONE_LINE_BOX_HEIGHT -
-			GUIConstants.BOX_PADDING_DOUBLE));
+			GUIConstants.BOX_PADDING, PLAYER_NAME_BOX_WIDTH - GUIConstants.BOX_PADDING_DOUBLE,
+			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
 		
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("Your Name");
@@ -67,12 +76,14 @@ public class LobbyGUI : MonoBehaviour
 	
 	void DrawReadyGoBox()
 	{
-		GUI.Box(new Rect(Screen.width - 200.0f - GUIConstants.GAP_SIZE, Screen.height - GUIConstants.ONE_LINE_BOX_HEIGHT -
-			GUIConstants.GAP_SIZE, 200.0f, GUIConstants.ONE_LINE_BOX_HEIGHT), "");
+		GUI.Box(new Rect(Screen.width - READY_GO_BOX_WIDTH - GUIConstants.GAP_SIZE, Screen.height -
+			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.GAP_SIZE, READY_GO_BOX_WIDTH,
+			GUIConstants.ONE_LINE_BOX_HEIGHT), "");
 		
-		GUILayout.BeginArea(new Rect(Screen.width - 200.0f - GUIConstants.GAP_SIZE + GUIConstants.BOX_PADDING,
-			Screen.height - GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.GAP_SIZE + GUIConstants.BOX_PADDING, 200.0f -
-			GUIConstants.BOX_PADDING_DOUBLE, GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
+		GUILayout.BeginArea(new Rect(Screen.width - READY_GO_BOX_WIDTH - GUIConstants.GAP_SIZE +
+			GUIConstants.BOX_PADDING, Screen.height - GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.GAP_SIZE +
+			GUIConstants.BOX_PADDING, READY_GO_BOX_WIDTH - GUIConstants.BOX_PADDING_DOUBLE,
+			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
 		
 		GUILayout.BeginHorizontal();
 		if (GetComponent<Lobby>().IsConnected())
@@ -100,11 +111,12 @@ public class LobbyGUI : MonoBehaviour
 	
 	void DrawServerBox()
 	{
-		GUI.Box(new Rect(GUIConstants.GAP_SIZE, m_aboveServerBoxHeight, 600.0f, GUIConstants.ONE_LINE_BOX_HEIGHT), "");
+		GUI.Box(new Rect(GUIConstants.GAP_SIZE, m_aboveServerBoxHeight, m_listBoxWidth,
+			GUIConstants.ONE_LINE_BOX_HEIGHT), "");
 		
 		GUILayout.BeginArea(new Rect(GUIConstants.GAP_SIZE + GUIConstants.BOX_PADDING, m_aboveServerBoxHeight +
-			GUIConstants.BOX_PADDING, 600.0f - GUIConstants.BOX_PADDING_DOUBLE, GUIConstants.ONE_LINE_BOX_HEIGHT -
-			GUIConstants.BOX_PADDING_DOUBLE));
+			GUIConstants.BOX_PADDING, m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE,
+			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
 		
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("Server Name");
@@ -189,6 +201,8 @@ public class LobbyGUI : MonoBehaviour
 	
 	void OnGUI()
 	{
+		GUI.skin.font = m_font;
+		
 		float gapsHeight = GUIConstants.GAP_SIZE * 6.0f;
 		float oneLineBoxesHeight = GUIConstants.ONE_LINE_BOX_HEIGHT * 3.0f;
 		m_listBoxHeight = (Screen.height - oneLineBoxesHeight - gapsHeight) / 2.0f;

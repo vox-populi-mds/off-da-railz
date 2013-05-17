@@ -1,32 +1,72 @@
 using UnityEngine;
+using System;
 using System.Collections;
 
 public class Game : MonoBehaviour
 {
-	const int COUNTDOWN_START = 3;
+	public const int COUNTDOWN_START = 3;
+	
 	public Transform train;
 	public Transform cameras;
 	public Transform userInterface;
 	public Transform[] levelObstacles = new Transform[10];
-
-	public float m_roundStartDelay;
 	
-	float m_roundStartTime;
+	
+	bool m_trainsLinked;
+	
+	public bool RoundStarted
+	{
+		get
+		{
+			return RoundTimeElapsed > 0.0f;
+		}
+	}
+	
+	public float RoundStartTime
+	{
+		get
+		{
+			return 6.0f;
+		}
+	}
+	
+	public float RoundTimeElapsed
+	{
+		get
+		{
+			return Time.timeSinceLevelLoad - RoundStartTime;	
+		}
+	}
 
-	private float m_roundTimeLimit = 90;
+	public float RoundTimeLimit
+	{
+		get
+		{
+			return 90.0f;
+		}
+	}
+	
+	public float RoundTimeRemaining
+	{
+		get
+		{
+			return Math.Min(RoundTimeLimit - RoundTimeElapsed, RoundTimeLimit);	
+		}
+	}
 	
 	void Awake()
 	{
-		m_roundStartTime = -1.0f;
+		m_trainsLinked = false;
 	}
 	
 	void CreateTrain()
 	{
+		GameObject trainObject = null;
+		
 		if(Network.isClient || Network.isServer)
 		{
-			Object networkTrainObject = Network.Instantiate(train, new Vector3(Random.Range(-300.0f, 300.0f), 5.0f, Random.Range(-300.0f, 300.0f)), Quaternion.identity, 0);
-
-			GameObject trainObject = ((Transform) networkTrainObject).gameObject;
+			trainObject = ((Transform) Network.Instantiate(train, new Vector3(UnityEngine.Random.Range(-300.0f, 300.0f),
+				5.0f, UnityEngine.Random.Range(-300.0f, 300.0f)), Quaternion.identity, 0)).gameObject;
 			if (trainObject.GetComponent<NetworkView>().isMine)
 			{
 				trainObject.GetComponent<Train>().SetMine(true);
@@ -34,50 +74,44 @@ public class Game : MonoBehaviour
 		}
 		else 
 		{
-			//GameObject trainObject = ((Transform) Instantiate(train, new Vector3(300.0f, 5.0f, 0.0f), Quaternion.identity)).gameObject;
-			GameObject trainObject = ((Transform) Instantiate(train, new Vector3(635.0f, 20.0f, -556.0f), Quaternion.identity)).gameObject;
+			trainObject = ((Transform) Instantiate(train, new Vector3(635.0f, 20.0f, -556.0f), Quaternion.identity))
+				.gameObject;
 			trainObject.GetComponent<Train>().SetMine(true);
 		}
 	}
 	
-	void OnGUI()
+	void LinkTrains()
 	{
-		if(m_roundStartTime == -1.0f)
+		if (!m_trainsLinked)
 		{
-			if (Time.timeSinceLevelLoad < m_roundStartDelay)
+			bool unlinkedTrainExists = false;
+			foreach (Player player in Players.Get().GetAll())
 			{
-					GUI.Label(new Rect(10, 10, 50, 20), "Round " + Session.Get().GetRound());
+				if (player.Train == null)
+				{
+					GameObject[] trainObjects = GameObject.FindGameObjectsWithTag("Player");
+					foreach (GameObject trainObject in trainObjects)
+					{
+						if (trainObject.networkView.owner == player.NetworkPlayer)
+						{
+							player.Train = trainObject;
+							break;
+						}
+					}
+				
+					if (player.Train == null)
+					{
+						unlinkedTrainExists = true;
+					}
+				}
 			}
-			else
-			{
-				if (Time.timeSinceLevelLoad < m_roundStartDelay + COUNTDOWN_START)
-				{
-					GUI.Label(new Rect(10, 10, 20, 20), ((int) (m_roundStartDelay + COUNTDOWN_START + 1.0f - Time.timeSinceLevelLoad)).ToString());
-				}
-				else if (Time.timeSinceLevelLoad < m_roundStartDelay + COUNTDOWN_START + 1.0f)
-				{
-					GUI.Label(new Rect(10, 10, 50, 20), "GO!");
-				}
-				else
-				{
-					m_roundStartTime = Time.timeSinceLevelLoad;
-				}
-			}
-		}
-		else if (Time.timeSinceLevelLoad - m_roundStartTime > m_roundTimeLimit)
-		{
-			GUI.Label(new Rect(10, 10, 100, 20), "Round Finished!");
-		}
-		else
-		{
-			GUI.Label(new Rect(10, 10, 100, 20), "Round Timer: " + ((int) (m_roundTimeLimit - Time.timeSinceLevelLoad + m_roundStartTime)).ToString());
+			
+			m_trainsLinked = !unlinkedTrainExists;
 		}
 	}
 	
 	void Start()
 	{
-		// Disable cursor visibility
-		Screen.showCursor = false;
 		Session.Get().StartRound();
 		
 		CreateTrain();
@@ -88,7 +122,6 @@ public class Game : MonoBehaviour
 		// Instantiate UI
 		GameObject ui = ((Transform) Instantiate(userInterface, Vector3.zero, Quaternion.identity)).gameObject;
 		
-		
 		// Instantiate Obstacles
 		foreach (Transform obstacle in levelObstacles) {
 			Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
@@ -96,10 +129,21 @@ public class Game : MonoBehaviour
 	}
 
 	void Update()
-	{
-		if (Time.timeSinceLevelLoad - m_roundStartTime > m_roundTimeLimit + 3.0f)
+	{		
+		if (RoundTimeElapsed > RoundTimeLimit)
 		{
+			Session.Get().EndRound();
 			Application.LoadLevel("Score");
+		}
+		
+		LinkTrains();
+		
+		foreach (Player player in Players.Get().GetAll())
+		{
+			if (player.Train != null)
+			{
+				player.RoundScore = player.Train.GetComponent<TrainCarriages>().GetNumCarriages();
+			}
 		}
 	}
 }

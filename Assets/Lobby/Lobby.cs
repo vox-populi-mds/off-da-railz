@@ -18,13 +18,12 @@ public class Lobby : MonoBehaviour
 	
 	static int PORT = 25002;
 	
-	System.Random m_random;
-	
-	//public Transform m_trainPrefab;
-	
 	void Awake()
 	{
 		Application.runInBackground = true;
+		
+		// Enable cursor visibility
+		Screen.showCursor = true;
 		
 		MasterServer.RequestHostList(GAME_TYPE);
 		
@@ -35,7 +34,6 @@ public class Lobby : MonoBehaviour
 		m_me.Ready = false;
 		m_players = Players.Get();
 		m_players.Add(m_me);
-		m_random = new System.Random();
 		m_me.NetworkPlayer = Network.player;
 	}
 	
@@ -45,7 +43,6 @@ public class Lobby : MonoBehaviour
 		if (Network.Connect(host) == NetworkConnectionError.NoError)
 		{
 			m_me.Ready = false;
-			//Network.Instantiate(m_trainPrefab, new Vector3(0.0f, 15.0f, 30.0f), new Quaternion(0.0f, m_random.Next(0, 7), 0.0f, 1.0f), 0);
 			m_connected = true;
 		}
 		else // The host list is probably out of date.
@@ -158,7 +155,6 @@ public class Lobby : MonoBehaviour
 		MasterServer.RegisterHost(GAME_TYPE, name, description);
 		m_me.NetworkPlayer = Network.player;
 		m_me.Ready = false;
-		//Network.Instantiate(m_trainPrefab, new Vector3(0.0f, 15.0f, 30.0f), new Quaternion(0.0f, m_random.Next(0, 7), 0.0f, 1.0f), 0);
 		m_connected = true;
 	}
 	

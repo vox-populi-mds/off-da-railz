@@ -12,11 +12,6 @@ public enum ECarriageType {
 
 public class TrainCarriages : MonoBehaviour 
 {
-	int GetNumberOfCarriages()
-	{
-		return (m_listCarriages.Count);
-	}
-
 	Carriage GetActiveCarriage() 
 	{
 		return m_ActiveCarriage;
@@ -179,9 +174,6 @@ public class TrainCarriages : MonoBehaviour
 		ProcessCarriagesSpline();
 		
 		ProcessNewCarriagesConnection();
-		
-		PlayerHUD hud = GameObject.Find ("The Game").GetComponent<Game>().userInterface.GetComponent<PlayerHUD>();
-		hud.NumberOfCarridges = GetNumberOfCarriages();
 	}
 	
 	void CleanOldWaypoints()

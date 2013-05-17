@@ -8,6 +8,14 @@ public class Session
 	
 	int m_round;
 	
+	public void EndRound()
+	{
+		foreach (Player player in Players.Get().GetAll())
+		{
+			player.Score += player.RoundScore;
+		}	
+	}
+	
 	private Session()
 	{
 		m_round = 0;

@@ -10,5 +10,5 @@ public static class GUIConstants
 	
 	public static int GAP_SIZE_DOUBLE = GAP_SIZE * 2;
 	
-	public static int ONE_LINE_BOX_HEIGHT = 31;
+	public static int ONE_LINE_BOX_HEIGHT = 36;
 }

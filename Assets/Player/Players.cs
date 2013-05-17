@@ -34,11 +34,11 @@ public class Players
 	{
 		foreach (Player player in m_players)
 		{
-			if (player.pinger.isDone)
+			/*if (player.pinger.isDone)
 			{
-				player.lastPing = player.pinger.time;
-				player.pinger = new Ping(player.NetworkPlayer.ipAddress);
-			}
+				player.LastPing = player.Pinger.time;
+				player.Pinger = new Ping(player.NetworkPlayer.ipAddress);
+			}*/
 		}
 	}
 	

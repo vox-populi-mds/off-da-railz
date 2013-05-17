@@ -16,27 +16,26 @@ public class Wheel
 }
 
 public class Train : MonoBehaviour 
-{
-	bool mine;
-	
-	Train()
+{	
+	void Awake()
 	{
-		mine = false;
+		m_game = GameObject.Find("The Game").GetComponent<Game>();
+		m_mine = false;
 	}
 	
 	public bool IsMine()
 	{
-		return mine;
+		return m_mine;
 	}
 	
 	public void SetMine(bool mine)
 	{
-		this.mine = mine;
+		this.m_mine = mine;
 	}
 	
 	void Start() 
 	{	
-		if(mine)
+		if(m_mine)
 		{
 			SetupWheelColliders();
 				
@@ -193,15 +192,18 @@ public class Train : MonoBehaviour
 		
 		ProcessAnimation(RelativeVelocity);
 		
-		if(mine)
+		if(m_mine)
 		{
 			ProcessWheelGraphics(RelativeVelocity);
 			
 			ProcessGear(RelativeVelocity);
 			
-			ProcessInput();
+			if (m_game.RoundStarted)
+			{
+				ProcessInput();
 		
-			ProcessIfFlipped();
+				ProcessIfFlipped();
+			}
 		}
 	}
 	
@@ -329,7 +331,7 @@ public class Train : MonoBehaviour
 	
 	void FixedUpdate()
 	{	
-		if (mine)	// only client updates their own train
+		if (m_mine)	// only client updates their own train
 		{
 			Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
@@ -580,4 +582,7 @@ public class Train : MonoBehaviour
 	bool 				m_CanSteer;
 	bool 				m_CanDrive;
 	
+	Game				m_game;
+	
+	bool				m_mine;
 }
