@@ -8,10 +8,13 @@ public enum ECarriageType {
 	Gatling,
 };*/
 
-
-
 public class TrainCarriages : MonoBehaviour 
 {
+	void Awake()
+	{
+		m_listCarriages = new List<Carriage>();	
+	}
+	
 	Carriage GetActiveCarriage() 
 	{
 		return m_ActiveCarriage;
@@ -95,7 +98,6 @@ public class TrainCarriages : MonoBehaviour
 			return;
 		}
 		
-		m_listCarriages = new List<Carriage>();
 		m_listCarriagesAwaitingConnection = new List<Carriage>();
 		m_listWaypoints = new List<Transform>();
 		m_ActiveCarriage = null;

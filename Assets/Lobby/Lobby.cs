@@ -31,10 +31,11 @@ public class Lobby : MonoBehaviour
 		m_me = new Player();
 		m_me.Me = true;
 		m_me.Name = "John Doe";
+		m_me.NetworkPlayer = Network.player;
 		m_me.Ready = false;
 		m_players = Players.Get();
+		m_players.Clear(); // If we are returning to the lobby, lets get rid of our previous player.
 		m_players.Add(m_me);
-		m_me.NetworkPlayer = Network.player;
 	}
 	
 	public void Connect(HostData host)
@@ -146,6 +147,14 @@ public class Lobby : MonoBehaviour
 	
 	void Start()
 	{
+		if (Network.isServer)
+		{
+			StopServer();
+		}
+		else if (Network.isClient)
+		{
+			Disconnect();
+		}
 	}
 	
 	public void StartServer(string name, string description)

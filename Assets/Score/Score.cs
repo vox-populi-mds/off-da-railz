@@ -40,7 +40,7 @@ public class Score : MonoBehaviour
 		
 		if (GUILayout.Button("Leave Game"))
 		{
-			Application.Quit();
+			Application.LoadLevel("Lobby");
 		}
 		
 		GUILayout.EndArea();

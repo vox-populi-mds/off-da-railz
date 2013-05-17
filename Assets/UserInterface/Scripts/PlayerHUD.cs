@@ -77,7 +77,10 @@ public class PlayerHUD : MonoBehaviour
 				m_menu = false;
 			}
 			
-			GUILayout.Button("Leave Game");
+			if (GUILayout.Button("Leave Game"))
+			{
+				Application.LoadLevel("Lobby");	
+			}
 			
 			GUILayout.EndArea();
 		}
@@ -113,12 +116,12 @@ public class PlayerHUD : MonoBehaviour
 	
 	void Update() 
 	{
-		if (Input.GetKey(KeyCode.Escape) && m_menu)
+		if (Input.GetKeyUp(KeyCode.Escape) && !m_menu)
 		{
 			m_menu = true;
 			Screen.showCursor = true;
 		}
-		else if (Input.GetKeyUp(KeyCode.Escape) && !m_menu)
+		else if (Input.GetKeyUp(KeyCode.Escape) && m_menu)
 		{
 			m_menu = false;
 			Screen.showCursor = false;	
