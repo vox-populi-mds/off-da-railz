@@ -94,10 +94,13 @@ public class Game : MonoBehaviour
 						if (trainObject.networkView.owner == player.NetworkPlayer)
 						{
 							player.Train = trainObject;
+							Transform playerMarker = trainObject.transform.FindChild("PlayerMarker");
+							playerMarker.renderer.material.color = player.Color;
+							playerMarker.GetComponent<Light>().color = player.Color;
 							break;
 						}
 					}
-				
+					
 					if (player.Train == null)
 					{
 						unlinkedTrainExists = true;

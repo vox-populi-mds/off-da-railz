@@ -112,6 +112,7 @@ public class Session
 		Network.InitializeServer(32, PORT, !Network.HavePublicAddress());
 		MasterServer.RegisterHost(GAME_TYPE, Name, Description);
 		Player me = Players.Get().GetMe();
+		me.Color = Color.red;
 		me.NetworkPlayer = Network.player;
 		me.Ready = false;
 		Connected = true;

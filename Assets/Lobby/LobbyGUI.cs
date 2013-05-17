@@ -106,7 +106,7 @@ public class LobbyGUI : MonoBehaviour
 		GUILayout.EndArea();
 		
 		// Revert the label style.
-    	labelStyle.alignment = TextAnchor.UpperLeft;
+		labelStyle.alignment = TextAnchor.UpperLeft;
 	}
 	
 	void DrawServerBox()
@@ -127,7 +127,7 @@ public class LobbyGUI : MonoBehaviour
 		{
 			if (GUILayout.Button("Start Server"))
 			{
-				Session.Get().Host();
+				GetComponent<Lobby>().Host();
 			}
 		}
 		else if (Network.isServer)

@@ -3,21 +3,34 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Lobby : MonoBehaviour
-{
-	float m_lastPlayerNameUpdateTime;
+{	
+	Color[] m_colors;
+	
+	float m_lastPlayerUpdateTime;
 	
 	void Awake()
 	{
 		// Enable cursor visibility
 		Screen.showCursor = true;
 		
-		m_lastPlayerNameUpdateTime = Time.timeSinceLevelLoad;
+		m_colors = new Color[4];
+		m_colors[0] = Color.red;
+		m_colors[1] = Color.green;
+		m_colors[2] = Color.blue;
+		m_colors[3] = Color.yellow;
+		m_lastPlayerUpdateTime = Time.timeSinceLevelLoad;
 	}
 	
 	public void GO()
 	{
 		networkView.RPC("OnGO", RPCMode.Others);
 		OnGO();
+	}
+	
+	public void Host()
+	{
+		Players.Get().GetMe().Color = m_colors[0];
+		Session.Get().Host();
 	}
 	
 	[RPC]
@@ -31,6 +44,7 @@ public class Lobby : MonoBehaviour
 	void OnPlayerConnected(NetworkPlayer networkPlayer)
 	{
 		Player player = new Player();
+		player.Color = m_colors[Players.Get().GetAll().Count];
 		player.NetworkPlayer = networkPlayer;
 		Players.Get().Add(player);
 		networkView.RPC("OnRequestPlayerName", networkPlayer);
@@ -45,6 +59,16 @@ public class Lobby : MonoBehaviour
 	void OnPlayerReady(NetworkMessageInfo info)
 	{
 		Players.Get().Get(info.sender).Ready = true;
+	}
+	
+	[RPC]
+	void OnUpdatePlayerColor(NetworkPlayer networkPlayer, float r, float g, float b, float a)
+	{
+		// For clients the player itself might not have been seen yet.
+		if (Players.Get().Get(networkPlayer) != null)
+		{
+			Players.Get().Get(networkPlayer).Color = new Color(r, g, b, a);
+		}
 	}
 	
 	[RPC]
@@ -97,24 +121,36 @@ public class Lobby : MonoBehaviour
 	
 	void Update()
 	{
-		if (Network.isServer && Time.timeSinceLevelLoad - m_lastPlayerNameUpdateTime > 1.0f)
+		if (Network.isServer && Time.timeSinceLevelLoad - m_lastPlayerUpdateTime > 1.0f)
 		{
-			m_lastPlayerNameUpdateTime = Time.timeSinceLevelLoad;
+			m_lastPlayerUpdateTime = Time.timeSinceLevelLoad;
 			
 			foreach (Player player in Players.Get().GetAll())
 			{
+				networkView.RPC("OnUpdatePlayerColor", RPCMode.Others, player.NetworkPlayer, player.Color.r,
+					player.Color.g, player.Color.b, player.Color.a);
 				networkView.RPC("OnUpdatePlayerName", RPCMode.Others, player.NetworkPlayer, player.Name);
 			}
 		}
 	}
 	
-	public void UpdatePlayerName(string playerName)
+	public void UpdatePlayerColor(Color color)
 	{
-		Players.Get().GetMe().Name = playerName;
+		Players.Get().GetMe().Color = color;
 
 		if (Network.isClient)
 		{
-			networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player, playerName);
+			networkView.RPC("OnUpdatePlayerColor", RPCMode.Server, Network.player, color.r, color.g, color.b, color.a);
+		}
+	}
+	
+	public void UpdatePlayerName(string name)
+	{
+		Players.Get().GetMe().Name = name;
+
+		if (Network.isClient)
+		{
+			networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player, name);
 		}
 	}
 }

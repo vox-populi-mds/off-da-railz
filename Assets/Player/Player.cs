@@ -3,6 +3,12 @@ using System;
 
 public class Player
 {
+	public Color Color
+	{
+		get;
+		set;
+	}
+	
 	public int LastPing
 	{
 		get;

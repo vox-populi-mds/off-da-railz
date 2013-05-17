@@ -38,12 +38,10 @@ public class Train : MonoBehaviour
 		if(m_mine)
 		{
 			SetupWheelColliders();
-				
+			
 			SetupCenterOfMass();
-				
+			
 			SetupGears();
-				
-			SetupPlayerMarker();
 		}
 		
 		//DisableDebugWheelRendering();
@@ -61,14 +59,6 @@ public class Train : MonoBehaviour
 			MeshRenderer Mr = t.FindChild("Wheel").GetComponent<MeshRenderer>();
 			Mr.enabled = false;
 		}
-	}
-	
-	void SetupPlayerMarker()
-	{
-		GameObject marker = transform.FindChild("PlayerMarker").gameObject;
-	
-		Light light = marker.GetComponent<Light>();
-		light.color = m_PlayerColor;
 	}
 	
 	void SetupWheelColliders()
@@ -533,7 +523,6 @@ public class Train : MonoBehaviour
 	}
 	
 	// Public
-	public Color		m_PlayerColor			= Color.blue;
 	public float 		m_MaximumVelocity 		= 20.0f;
 	public float 		m_MaximumTurn			= 15f;
 	public float 		m_MinimumTurn			= 10f;
