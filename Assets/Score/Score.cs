@@ -9,14 +9,14 @@ public class Score : MonoBehaviour
 	
 	float m_boxWidth;
 	
-	float m_nextRoundCountdown;
+	float m_countdown;
 	
 	float m_scoreBoxHeight;
 	
 	void Awake()
 	{
 		m_aboveScoreBoxHeight = GUIConstants.GAP_SIZE_DOUBLE + GUIConstants.ONE_LINE_BOX_HEIGHT;
-		m_nextRoundCountdown = 20.0f;
+		m_countdown = 20.0f;
 		
 		// Enable cursor visibility
 		Screen.showCursor = true;
@@ -27,7 +27,11 @@ public class Score : MonoBehaviour
 		string countdownText = "";
 		if (Session.Get().GetRound() < Session.Get().GetRoundCount())
 		{
-			countdownText = "Next Round Starting in " + (int) m_nextRoundCountdown;
+			countdownText = "Next Round Starting in " + (int) m_countdown;
+		}
+		else
+		{
+			countdownText = "Returning to Lobby in " + (int) m_countdown;
 		}
 		
 		GUI.Box(new Rect(GUIConstants.GAP_SIZE, Screen.height - GUIConstants.GAP_SIZE -
@@ -40,7 +44,7 @@ public class Score : MonoBehaviour
 		
 		if (GUILayout.Button("Leave Game"))
 		{
-			Application.LoadLevel("Lobby");
+			Session.Get().LeaveGame();
 		}
 		
 		GUILayout.EndArea();
@@ -107,13 +111,17 @@ public class Score : MonoBehaviour
 			m_pingCooldown = 0;
 			Players.Get().PingAll();
 		}
-		if (Session.Get().GetRound() < Session.Get().GetRoundCount())
+		
+		m_countdown -= Time.deltaTime;
+		if (m_countdown < 0.0f)
 		{
-			m_nextRoundCountdown -= Time.deltaTime;
-
-			if (m_nextRoundCountdown < 0.0f)
+			if (Session.Get().GetRound() < Session.Get().GetRoundCount())
 			{
 				Application.LoadLevel("Level0");
+			}
+			else
+			{
+				Session.Get().EndGame();
 			}
 		}
 	}

@@ -10,8 +10,7 @@ public class Game : MonoBehaviour
 	public Transform cameras;
 	public Transform userInterface;
 	public Transform[] levelObstacles = new Transform[10];
-	
-	
+		
 	bool m_trainsLinked;
 	
 	public bool RoundStarted
@@ -42,7 +41,7 @@ public class Game : MonoBehaviour
 	{
 		get
 		{
-			return 90.0f;
+			return 10.0f;
 		}
 	}
 	

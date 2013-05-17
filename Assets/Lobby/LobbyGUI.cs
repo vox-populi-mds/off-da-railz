@@ -22,15 +22,8 @@ public class LobbyGUI : MonoBehaviour
 	
 	float m_listBoxWidthInternal;
 	
-	string m_serverDescription;
-	
-	string m_serverName;
-	
 	void Awake()
-	{
-		m_serverDescription = "Thy train shall be wreckethed.";
-		m_serverName = "Train wreck!";
-		
+	{		
 		m_aboveServerBoxHeight = GUIConstants.GAP_SIZE_DOUBLE + GUIConstants.ONE_LINE_BOX_HEIGHT;
 		m_aboveServerListBoxHeight = GUIConstants.GAP_SIZE * 3.0f + GUIConstants.ONE_LINE_BOX_HEIGHT * 2.0f;
 	}
@@ -42,7 +35,7 @@ public class LobbyGUI : MonoBehaviour
 		GUILayout.BeginArea(new Rect(GUIConstants.GAP_SIZE + GUIConstants.BOX_PADDING, m_abovePlayerListBoxHeight +
 			GUIConstants.BOX_PADDING, m_listBoxWidthInternal, m_listBoxHeight - GUIConstants.BOX_PADDING_DOUBLE));
 		
-		if (GetComponent<Lobby>().IsConnected())
+		if (Session.Get().Connected)
 		{			
 			foreach (Player player in Players.Get().GetAll())
 			{
@@ -86,7 +79,7 @@ public class LobbyGUI : MonoBehaviour
 			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
 		
 		GUILayout.BeginHorizontal();
-		if (GetComponent<Lobby>().IsConnected())
+		if (Session.Get().Connected)
 		{
 			if (Players.Get().GetMe().Ready)
 			{
@@ -120,21 +113,21 @@ public class LobbyGUI : MonoBehaviour
 		
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("Server Name");
-		m_serverName = GUILayout.TextField(m_serverName);
+		Session.Get().Name = GUILayout.TextField(Session.Get().Name);
 		GUILayout.Label("Description");
-		m_serverDescription = GUILayout.TextField(m_serverDescription, 50);
-		if (!GetComponent<Lobby>().IsConnected())
+		Session.Get().Description = GUILayout.TextField(Session.Get().Description);
+		if (!Session.Get().Connected)
 		{
 			if (GUILayout.Button("Start Server"))
 			{
-				GetComponent<Lobby>().StartServer(m_serverName, m_serverDescription);
+				Session.Get().Host();
 			}
 		}
 		else if (Network.isServer)
 		{
 			if (GUILayout.Button("Stop Server"))
 			{
-				GetComponent<Lobby>().StopServer();
+				Session.Get().Disconnect();
 			}
 		}
 		GUILayout.EndHorizontal();
@@ -150,10 +143,10 @@ public class LobbyGUI : MonoBehaviour
 		
 		if (GUILayout.Button("Refresh Server List"))
 		{
-			GetComponent<Lobby>().UpdateHostList();
+			Session.Get().FindHosts();
 		}
 		
-		HostData[] hosts = GetComponent<Lobby>().GetHostList();
+		HostData[] hosts = Session.Get().GetHosts();
 		foreach (HostData host in hosts)
 		{
 			GUILayout.BeginHorizontal();
@@ -182,7 +175,7 @@ public class LobbyGUI : MonoBehaviour
 					{
 						if (GUILayout.Button("Disconnect"))
 						{
-							GetComponent<Lobby>().Disconnect();
+							Session.Get().Disconnect();
 						}
 					}
 				}
@@ -190,7 +183,7 @@ public class LobbyGUI : MonoBehaviour
 				{
 					if (GUILayout.Button("Connect"))
 					{
-						GetComponent<Lobby>().Connect(host);
+						Session.Get().Connect(host);
 					}
 				}
 			}

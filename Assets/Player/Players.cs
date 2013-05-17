@@ -10,6 +10,12 @@ public class Players
 	private Players()
 	{
 		m_players = new List<Player>();
+		Player me = new Player();
+		me.Me = true;
+		me.Name = "John Doe";
+		me.NetworkPlayer = Network.player;
+		me.Ready = false;
+		m_players.Add(me);
 	}
 	
 	public void Add(Player player)
@@ -40,11 +46,6 @@ public class Players
 				player.Pinger = new Ping(player.NetworkPlayer.ipAddress);
 			}*/
 		}
-	}
-	
-	public void Clear()
-	{
-		m_players.Clear();
 	}
 	
 	public Player Get(NetworkPlayer networkPlayer)

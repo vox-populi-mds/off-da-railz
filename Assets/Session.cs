@@ -1,12 +1,82 @@
+using UnityEngine;
 using System;
 
 public class Session
 {
+	const string GAME_TYPE = "VoxPopuli::OffDaRailz";
+	
+	const int PORT = 25002;
+	
 	static Session instance;
+	
+	bool m_leftGame;
 	
 	int m_roundCount;
 	
 	int m_round;
+	
+	public bool Connected
+	{
+		get;
+		private set;
+	}
+	
+	public string Description
+	{
+		get;
+		set;
+	}
+	
+	public string Name
+	{
+		get;
+		set;
+	}
+	
+	private Session()
+	{
+		Description = "Thy train shall be wreckethed.";
+		Connected = false;
+		Name = "Train wreck!";
+		
+		m_leftGame = false;
+		m_round = 0;
+		m_roundCount = 0;
+		
+		Application.runInBackground = true;
+		MasterServer.RequestHostList(GAME_TYPE);
+	}
+	
+	public void Connect(HostData host)
+	{
+		// Connect to HostData struct, internally the correct method is used (GUID when using NAT).
+		if (Network.Connect(host) == NetworkConnectionError.NoError)
+		{
+			Players.Get().GetMe().Ready = false;
+			Connected = true;
+		}
+		else // The host list is probably out of date.
+		{
+			MasterServer.RequestHostList(GAME_TYPE);
+		}
+	}
+	
+	public void Disconnect()
+	{
+		if (Network.isServer)
+		{
+			Network.Disconnect();
+			MasterServer.UnregisterHost();
+			MasterServer.RequestHostList(GAME_TYPE);
+			Connected = false;
+		}
+		else if (Network.isClient)
+		{
+			Network.Disconnect();
+			Players.Get().RemoveOthers();
+			Connected = false;
+		}
+	}
 	
 	public void EndRound()
 	{
@@ -14,12 +84,6 @@ public class Session
 		{
 			player.Score += player.RoundScore;
 		}	
-	}
-	
-	private Session()
-	{
-		m_round = 0;
-		m_roundCount = 0;
 	}
 	
 	public static Session Get()
@@ -42,6 +106,43 @@ public class Session
 		return m_roundCount;
 	}
 	
+	public void Host()
+	{
+		// Use NAT punchthrough if no public IP present
+		Network.InitializeServer(32, PORT, !Network.HavePublicAddress());
+		MasterServer.RegisterHost(GAME_TYPE, Name, Description);
+		Player me = Players.Get().GetMe();
+		me.NetworkPlayer = Network.player;
+		me.Ready = false;
+		Connected = true;
+	}
+	
+	public void EndGame()
+	{
+		Application.LoadLevel("Lobby");
+	}
+	
+	public void FindHosts()
+	{
+		MasterServer.RequestHostList(GAME_TYPE);
+	}
+	
+	public HostData[] GetHosts()
+	{
+		return MasterServer.PollHostList();	
+	}
+	
+	public void LeaveGame()
+	{
+		m_leftGame = true;
+		EndGame();
+	}
+	
+	public bool LeftGame()
+	{
+		return m_leftGame;
+	}
+	
 	public void SetRoundCount(int roundCount)
 	{
 		m_roundCount = roundCount;
@@ -49,6 +150,7 @@ public class Session
 	
 	public void StartGame()
 	{
+		m_leftGame = false;
 		m_round = 0;
 	}
 	

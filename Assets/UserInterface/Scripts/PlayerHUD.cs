@@ -79,7 +79,7 @@ public class PlayerHUD : MonoBehaviour
 			
 			if (GUILayout.Button("Leave Game"))
 			{
-				Application.LoadLevel("Lobby");	
+				Session.Get().LeaveGame();
 			}
 			
 			GUILayout.EndArea();
