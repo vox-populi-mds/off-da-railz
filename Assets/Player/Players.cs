@@ -40,11 +40,15 @@ public class Players
 	{
 		foreach (Player player in m_players)
 		{
-			/*if (player.pinger.isDone)
+			if (player.Pinger == null)
+			{
+				player.Pinger = new Ping(player.NetworkPlayer.ipAddress);
+			}
+			if (player.Pinger.isDone)
 			{
 				player.LastPing = player.Pinger.time;
 				player.Pinger = new Ping(player.NetworkPlayer.ipAddress);
-			}*/
+			}
 		}
 	}
 	
@@ -96,6 +100,7 @@ public class Players
 		{
 			if (new NetworkPlayerComparer().Equals(networkPlayer, player.NetworkPlayer))
 			{
+				player.Pinger.DestroyPing();
 				m_players.Remove(player);
 			}
 		}

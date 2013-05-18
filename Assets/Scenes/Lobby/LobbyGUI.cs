@@ -33,12 +33,18 @@ public class LobbyGUI : MonoBehaviour
 		GUILayout.BeginArea(new Rect(GUIConstants.GAP_SIZE + GUIConstants.BOX_PADDING, m_abovePlayerListBoxHeight +
 			GUIConstants.BOX_PADDING, m_listBoxWidthInternal, m_listBoxHeight - GUIConstants.BOX_PADDING_DOUBLE));
 		
+		//float column0width = /*(m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) **/ 0.7f;
+		//float column1width = /*(m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) **/ 0.15f;
+		//float column2width = /*(m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) **/ 0.15f;
+		
 		if (Session.Get().Connected)
 		{			
 			foreach (Player player in Players.Get().GetAll())
 			{
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(player.Name);
+				GUILayout.Label(player.Name);//, GUILayout.Width(column0width));
+				GUILayout.Label(player.Ready? "Ready" : "");//, GUILayout.Width(column1width));
+				GUILayout.Label(player.LastPing.ToString());//, GUILayout.Width(column2width));
 				GUILayout.EndHorizontal();
 			}
 		}
@@ -54,8 +60,15 @@ public class LobbyGUI : MonoBehaviour
 			GUIConstants.BOX_PADDING, PLAYER_NAME_BOX_WIDTH - GUIConstants.BOX_PADDING_DOUBLE,
 			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
 		
+		//float column0width = (m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.7f;
+		//float column1width = (m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.15f;
+		//float column2width = (m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.15f;
+		
 		GUILayout.BeginHorizontal();
-		GUILayout.Label("Your Name");
+		GUILayout.Label("Your Name");//, GUILayout.Width(column0width));
+		GUILayout.Label("Ready");//, GUILayout.Width(column1width));
+		GUILayout.Label("Ping");//, GUILayout.Width(column2width));
+		
 		string tempPlayerName = GUILayout.TextField(Players.Get().GetMe().Name);
 		if (tempPlayerName != Players.Get().GetMe().Name)
 		{
@@ -210,7 +223,9 @@ public class LobbyGUI : MonoBehaviour
 		m_listBoxWidthInternal = m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE;
 		m_abovePlayerListBoxHeight = GUIConstants.GAP_SIZE * 4.0f + GUIConstants.ONE_LINE_BOX_HEIGHT * 2.0f +
 			m_listBoxHeight;
-
+		
+		Players.Get().PingAll();
+		
 		DrawPlayerListBox();
 		DrawPlayerNameBox();
 		DrawReadyGoBox();
