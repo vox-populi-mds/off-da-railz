@@ -101,8 +101,6 @@ public class TrainCarriages : MonoBehaviour
 		m_LatchTransform = transform.FindChild("BackLatch").transform;
 		m_CarriageLength = 30.0f;
 		
-		SetupTestBoxcars();
-		
 		SetupInitialWaypoints();
 	}
 	
@@ -114,19 +112,6 @@ public class TrainCarriages : MonoBehaviour
 			Vector3 posWaypoint = m_LatchTransform.position + posOffset;
 			CreateNewWaypoint(posWaypoint);
 		}
-		
-		/*// Create the required waypoints
-		for(int i = m_listCarriages.Count - 1; i >= 0; --i)
-		{
-			// Create the first waypoint required on the end of the last carriage.
-			if(i == m_listCarriages.Count - 1)
-			{
-				Vector3 lastWaypoint = m_listCarriages[m_listCarriages.Count - 1].transform.FindChild("BackLatch").transform.position;
-				CreateNewWaypoint(lastWaypoint);
-			}
-			
-			CreateNewWaypoint(m_listCarriages[i].transform.FindChild("FrontLatch").transform.position);
-		}*/
 	}
 	
 	// Update is called once per frame
@@ -314,40 +299,6 @@ public class TrainCarriages : MonoBehaviour
 		}
 	}
 	
-	void SetupTestBoxcars()
-	{	
-		Transform frontBodyTransform = transform;
-		
-		for(int i = 1; i < 5; ++i)
-		{
-			Object BoxObj = new Object();
-			if(Network.isClient || Network.isServer)
-			{
-				BoxObj = Network.Instantiate(m_TrainBoxCarTransform, Vector3.zero, Quaternion.identity, 0);
-			}	
-			else 
-			{
-				BoxObj = Instantiate(m_TrainBoxCarTransform);
-			}
-			
-			GameObject CarriageGO = ((Transform) BoxObj).gameObject;
-			
-			Vector3 vPosition = transform.position + new Vector3(i * -100.0f, 0.0f, 0.0f);
-			
-			//Vector3 vPosition = frontBodyTransform.FindChild("BackLatch").transform.position - 
-			//					(frontBodyTransform.rotation * CarriageGO.transform.FindChild("FrontLatch").transform.localPosition);
-			
-			CarriageGO.transform.position = vPosition;
-			//CarriageGO.transform.rotation = transform.rotation;
-			
-			//CreateJointBetweenCarriages(CarriageGO.transform, frontBodyTransform);
-			
-			//AddCarriage(CarriageGO.GetComponent<Carriage>());
-			
-			//frontBodyTransform = CarriageGO.transform;
-		}
-	}
-	
 	void CreateJointBetweenCarriages(Transform _ConnectFrom, Transform _ConnectTo)
 	{
 		// Move the back carriage to the right place.
@@ -416,7 +367,6 @@ public class TrainCarriages : MonoBehaviour
 	List<Transform>				m_listWaypoints;
 	int 						m_ExtraWaypoints = 4;
 	
-	public Transform		m_TrainBoxCarTransform;
 	public Vector3			m_CarriageAngularFreedom = new Vector3(10.0f, 45.0f, 0.5f);
 	public float 			m_CarriageMovementFreedom = 0.25f;
 	public const uint		MAX_CARRIAGES = 10;

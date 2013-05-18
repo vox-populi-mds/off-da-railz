@@ -10,6 +10,9 @@ public class Game : MonoBehaviour
 	public Transform cameras;
 	public Transform userInterface;
 	public Transform[] levelObstacles = new Transform[10];
+	
+	private Transform m_clientsTrain = null;
+	private Transform m_clientsCameras = null;
 		
 	bool m_trainsLinked;
 	
@@ -69,6 +72,7 @@ public class Game : MonoBehaviour
 			if (trainObject.GetComponent<NetworkView>().isMine)
 			{
 				trainObject.GetComponent<Train>().SetMine(true);
+				m_clientsTrain = trainObject.transform;
 			}
 		}
 		else 
@@ -76,6 +80,7 @@ public class Game : MonoBehaviour
 			trainObject = ((Transform) Instantiate(train, new Vector3(635.0f, 20.0f, -556.0f), Quaternion.identity))
 				.gameObject;
 			trainObject.GetComponent<Train>().SetMine(true);
+			m_clientsTrain = trainObject.transform;
 		}
 	}
 	
@@ -97,6 +102,13 @@ public class Game : MonoBehaviour
 							Transform playerMarker = trainObject.transform.FindChild("PlayerMarker");
 							playerMarker.renderer.material.color = player.Color;
 							playerMarker.GetComponent<Light>().color = player.Color;
+							playerMarker.GetComponent<TextMesh>().text = player.Name;
+							
+							if(m_clientsTrain.gameObject == trainObject)
+							{
+								playerMarker.GetComponent<TextMesh>().text = null;
+							}
+							
 							break;
 						}
 					}
@@ -112,6 +124,47 @@ public class Game : MonoBehaviour
 		}
 	}
 	
+	void ProcessScores()
+	{	
+		foreach (Player player in Players.Get().GetAll())
+		{
+			if (player.Train != null)
+			{
+				player.RoundScore = player.Train.GetComponent<TrainCarriages>().GetNumCarriages();
+			}
+		}
+		
+		// Check if the round should finish.
+		if (RoundTimeElapsed > RoundTimeLimit)
+		{
+			Session.Get().EndRound();
+			Application.LoadLevel("Score");
+		}
+	}
+	
+	void ProcessPlayerMarkerText()
+	{
+		foreach (Player player in Players.Get().GetAll())
+		{
+			if (player.Train != null && player.Train != m_clientsTrain.gameObject)
+			{
+				GameObject PM = player.Train.transform.FindChild("PlayerMarker").gameObject;
+				TextMesh playerText = PM.GetComponent<TextMesh>();
+				
+				float fDistanceToPlayer = Vector3.Distance(player.Train.transform.position, m_clientsTrain.position);
+				float fMaxDistance = 1000.0f;
+				float fMinCharSize = 1.0f;
+				float fMaxCharSize = 5.0f;
+				
+				playerText.characterSize = Mathf.Clamp(fMinCharSize + (fMaxCharSize - fMinCharSize) * (fDistanceToPlayer/fMaxDistance), fMinCharSize, fMaxCharSize);
+				
+				Vector3 v3Look = (player.Train.transform.position - m_clientsCameras.GetComponent<CameraToggle>().GetActiveCamera().position);
+				
+				PM.transform.rotation = Quaternion.LookRotation(v3Look);
+			}
+		}
+	}
+	
 	void Start()
 	{
 		Session.Get().StartRound();
@@ -119,7 +172,7 @@ public class Game : MonoBehaviour
 		CreateTrain();
 		Network.sendRate = 100;
 		
-		Instantiate(cameras, Vector3.zero, Quaternion.identity);
+		m_clientsCameras = ((Transform) Instantiate(cameras, Vector3.zero, Quaternion.identity));
 		
 		// Instantiate UI
 		GameObject ui = ((Transform) Instantiate(userInterface, Vector3.zero, Quaternion.identity)).gameObject;
@@ -132,20 +185,10 @@ public class Game : MonoBehaviour
 
 	void Update()
 	{		
-		if (RoundTimeElapsed > RoundTimeLimit)
-		{
-			Session.Get().EndRound();
-			Application.LoadLevel("Score");
-		}
-		
 		LinkTrains();
 		
-		foreach (Player player in Players.Get().GetAll())
-		{
-			if (player.Train != null)
-			{
-				player.RoundScore = player.Train.GetComponent<TrainCarriages>().GetNumCarriages();
-			}
-		}
+		ProcessScores();
+		
+		ProcessPlayerMarkerText();
 	}
 }

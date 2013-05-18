@@ -75,6 +75,11 @@ public class CameraToggle : MonoBehaviour {
 			Cameras[cameraIndex].fov = newFOV;
 		}
 	}
+	
+	public Transform GetActiveCamera()
+	{
+		return(Cameras[cameraIndex].transform);
+	}
 }
 
 

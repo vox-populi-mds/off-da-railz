@@ -379,7 +379,7 @@ public class Train : MonoBehaviour
 			Drag.x = -_RelativeVelocity.x * DragMultiplier.x;
 		}
 			
-		rigidbody.AddForce(transform.TransformDirection(Drag) * rigidbody.mass * Time.deltaTime);
+		rigidbody.AddForce(transform.TransformDirection(Drag) * rigidbody.mass * Time.fixedDeltaTime);
 	}
 	
 	void ProcessFriction(Vector3 _RelativeVelocity)
@@ -401,16 +401,16 @@ public class Train : MonoBehaviour
 	{	
 		if(m_Throttle == 0)
 		{
-			m_CurrentEnginePower -= Time.deltaTime * 200.0f;
+			m_CurrentEnginePower -= Time.fixedDeltaTime * 200.0f;
 		}
 		else if(Mathf.Sign(_RelativeVelocity.z) == Mathf.Sign(m_Throttle))
 		{
 			float NormPower = (m_CurrentEnginePower / m_EngineForceValues[m_EngineForceValues.Length - 1]) * 2;
-			m_CurrentEnginePower += Time.deltaTime * 200.0f * EvaluateNormPower(NormPower);
+			m_CurrentEnginePower += Time.fixedDeltaTime * 200.0f * EvaluateNormPower(NormPower);
 		}
 		else
 		{
-			m_CurrentEnginePower -= Time.deltaTime * 300;
+			m_CurrentEnginePower -= Time.fixedDeltaTime * 300;
 		}
 		
 		if(m_CurrentGear == 0)
@@ -456,7 +456,7 @@ public class Train : MonoBehaviour
 				BrakeForce = Mathf.Sign(m_Throttle) * m_EngineForceValues[0] * (rigidbody.mass);
 			}
 			
-			rigidbody.AddForce(transform.forward * Time.deltaTime * (ThrottleForce + BrakeForce));
+			rigidbody.AddForce(transform.forward * Time.fixedDeltaTime * (ThrottleForce + BrakeForce));
 		}
 	}
 	
@@ -464,21 +464,21 @@ public class Train : MonoBehaviour
 	{
 		if(_CanSteer)
 		{
-			float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
+			/*float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
 			float MinMaxTurn = EvaluateSpeedToTurn(rigidbody.velocity.magnitude);
 			float TurnSpeed = Mathf.Clamp(_RelativeVelocity.z / TurnRadius, -MinMaxTurn / 10.0f, MinMaxTurn / 10.0f);
 			
 			transform.RotateAround(	transform.position + transform.right * TurnRadius * m_Steer, 
 									transform.up, 
-									TurnSpeed * Mathf.Rad2Deg * Time.deltaTime * m_Steer);
+									TurnSpeed * Mathf.Rad2Deg * Time.fixedDeltaTime * m_Steer);*/
 			
-			/*float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
+			float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
 			float MinMaxTurn = EvaluateSpeedToTurn(rigidbody.velocity.magnitude);
 			float TurnSpeed = Mathf.Clamp(_RelativeVelocity.z / TurnRadius, -MinMaxTurn / 10.0f, MinMaxTurn / 10.0f);
 			
 			rigidbody.angularVelocity = new Vector3(rigidbody.angularVelocity.x, 
-													rigidbody.angularVelocity.y + (TurnSpeed * m_Steer * Time.deltaTime), 
-													rigidbody.angularVelocity.z);*/
+													rigidbody.angularVelocity.y + (TurnSpeed * m_Steer * Time.fixedDeltaTime), 
+													rigidbody.angularVelocity.z);
 		}
 	}
 	

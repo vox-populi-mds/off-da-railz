@@ -132,7 +132,7 @@ public class Carriage : MonoBehaviour
 			
 			float newForceAmount = Mathf.Clamp(fTrainSpeed * m_TimeSinceCollision, fTrainSpeed * 2.0f, fTrainSpeed * 10.0f);
 				
-			rigidbody.AddForce(v3Distance.normalized * newForceAmount * Time.deltaTime, ForceMode.VelocityChange);
+			rigidbody.AddForce(v3Distance.normalized * newForceAmount * Time.fixedDeltaTime, ForceMode.VelocityChange);
 			
 			Vector3 v3CurrentLook = rigidbody.transform.rotation * Vector3.forward;
 			Vector3 v3ToLook = m_SplineRotation * Vector3.forward;
@@ -145,7 +145,7 @@ public class Carriage : MonoBehaviour
 			
 			Vector3 X = Vector3.Cross(v3CurrentLook.normalized, v3ToLook.normalized);
 			float fThetaX = Mathf.Asin(X.magnitude);
-			Vector3 WX = X.normalized * fThetaX * Time.deltaTime;
+			Vector3 WX = X.normalized * fThetaX * Time.fixedDeltaTime;
 			
 			Vector3 W = WX * 50.0f * (1.0f - Mathf.Clamp01(fDistance/m_InitDistanceToLatch)) * rigidbody.mass;
 		
@@ -318,7 +318,7 @@ public class Carriage : MonoBehaviour
 			Drag.x = -_RelativeVelocity.x * DragMultiplier.x;
 		}
 			
-		rigidbody.AddForce(transform.TransformDirection(Drag) * rigidbody.mass * Time.deltaTime);
+		rigidbody.AddForce(transform.TransformDirection(Drag) * rigidbody.mass * Time.fixedDeltaTime);
 	}
 	
 	public void SetBackSplinePosition(Vector3 _v3Position)
