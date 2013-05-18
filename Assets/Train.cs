@@ -464,21 +464,21 @@ public class Train : MonoBehaviour
 	{
 		if(_CanSteer)
 		{
-			//float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
-			//float MinMaxTurn = EvaluateSpeedToTurn(rigidbody.velocity.magnitude);
-			//float TurnSpeed = Mathf.Clamp(_RelativeVelocity.z / TurnRadius, -MinMaxTurn / 10.0f, MinMaxTurn / 10.0f);
+			float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
+			float MinMaxTurn = EvaluateSpeedToTurn(rigidbody.velocity.magnitude);
+			float TurnSpeed = Mathf.Clamp(_RelativeVelocity.z / TurnRadius, -MinMaxTurn / 10.0f, MinMaxTurn / 10.0f);
 			
-			//transform.RotateAround(	transform.position + transform.right * TurnRadius * m_Steer, 
-			//						transform.up, 
-			//						TurnSpeed * Mathf.Rad2Deg * Time.deltaTime * m_Steer);
+			transform.RotateAround(	transform.position + transform.right * TurnRadius * m_Steer, 
+									transform.up, 
+									TurnSpeed * Mathf.Rad2Deg * Time.deltaTime * m_Steer);
 			
-			float TurnRadius = 4.0f / (17.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad));
+			/*float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
 			float MinMaxTurn = EvaluateSpeedToTurn(rigidbody.velocity.magnitude);
 			float TurnSpeed = Mathf.Clamp(_RelativeVelocity.z / TurnRadius, -MinMaxTurn / 10.0f, MinMaxTurn / 10.0f);
 			
 			rigidbody.angularVelocity = new Vector3(rigidbody.angularVelocity.x, 
 													rigidbody.angularVelocity.y + (TurnSpeed * m_Steer * Time.deltaTime), 
-													rigidbody.angularVelocity.z);
+													rigidbody.angularVelocity.z);*/
 		}
 	}
 	
