@@ -25,10 +25,8 @@ public class TrainCarriages : MonoBehaviour
 		if (m_listCarriages.Count < MAX_CARRIAGES)
 		{
 			m_listCarriages.Add(_carriage);
-			m_listCarriagesAwaitingConnection.Add(_carriage);
 			
 			_carriage.SetTrain(transform);
-			_carriage.SetConnectionState(Carriage.ConnectionState.CONNECTED_VIA_SPLINE);
 			
 			return true;
 		}
@@ -50,29 +48,27 @@ public class TrainCarriages : MonoBehaviour
 		// if attempting to remove the active carriage
 		if (_carriage == m_ActiveCarriage)
 		{			
-			if ( remCarIndex > 0 ) // if removed carriage is not first carriage
+			if ( remCarIndex < 0 ) // if removed carriage is not first carriage
 			{
-					m_ActiveCarriage = m_listCarriages[remCarIndex-1];	// move active carriage back 1 index
+				m_ActiveCarriage = m_listCarriages[remCarIndex-1];	// move active carriage back 1 index
 			}
 			else
 			{
 				m_ActiveCarriage = null; // otherwise, there are no more carriages
 			}
 		}
-				
+		
+		_carriage.SetConnectionState(Carriage.ConnectionState.NOT_CONNECTED);
 		m_listCarriages.Remove(_carriage);
 		
 		//_carriage.Explode();
 		
-		Destroy (_carriage);
+		//Destroy (_carriage);
 				
-		if (remCarIndex >= m_listCarriages.Count) // if there are carriages 'after' the attacked carriage
+		while (remCarIndex < m_listCarriages.Count) // loop through, remove all of them from the list and make them 'loose'
 		{
-			while (remCarIndex < m_listCarriages.Count) // loop through, remove all of them from the list and make them 'loose'
-			{
-				m_listCarriages[remCarIndex].GetComponent<FollowObject>().target = null;
-				m_listCarriages.RemoveAt(remCarIndex);
-			}
+			m_listCarriages[remCarIndex].SetConnectionState(Carriage.ConnectionState.NOT_CONNECTED);
+			m_listCarriages.RemoveAt(remCarIndex++);
 		}
 	}
 	
@@ -226,6 +222,7 @@ public class TrainCarriages : MonoBehaviour
 		
 		DestroyImmediate(SplineInterpolator);
 		
+		// Process the force positions for the carriages.
 		for(int i = 0; i < m_listCarriages.Count; ++i)
 		{
 			float stepPerWaypoint = 1.0f / (m_listWaypoints.Count - 1);
@@ -250,6 +247,24 @@ public class TrainCarriages : MonoBehaviour
 			Quaternion carriageRot = interp.GetRotationAtTime(times);
 			
 			carriageScript.SetSplineRotation(carriageRot);
+			
+			// Set the carriage to connected via spline ad this carriage was just hit and add to the waiting list for connection
+			if(m_listCarriages[i].GetConnectionState() == Carriage.ConnectionState.NOT_CONNECTED)
+			{
+				m_listCarriagesAwaitingConnection.Add(m_listCarriages[i]);
+				m_listCarriages[i].SetConnectionState(Carriage.ConnectionState.CONNECTION_AWAITING_FIND_JOINT);
+				
+				m_listCarriages[i].AddExtraCollisionForce();
+				
+				if(i != 0)
+				{
+					m_listCarriages[i].SetFrontBackLatchTransform(m_listCarriages[i - 1].transform.FindChild("BackLatch"));
+				}
+				else
+				{
+					m_listCarriages[i].SetFrontBackLatchTransform(m_LatchTransform);
+				}
+			}
 		}
 	}
 	
@@ -379,7 +394,7 @@ public class TrainCarriages : MonoBehaviour
 		
 		joint.anchor = _ConnectFrom.transform.FindChild("FrontLatch").transform.localPosition;
 		
-		_ConnectFrom.GetComponent<Carriage>().SetConnectionState(Carriage.ConnectionState.CONNECTED_VIA_JOINT);
+		_ConnectFrom.GetComponent<Carriage>().SetConnectionState(Carriage.ConnectionState.CONNECTED_JOINT);
 	}
 	
 	public int GetNumCarriages()
