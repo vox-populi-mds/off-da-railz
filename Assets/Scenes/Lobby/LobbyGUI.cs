@@ -33,18 +33,24 @@ public class LobbyGUI : MonoBehaviour
 		GUILayout.BeginArea(new Rect(GUIConstants.GAP_SIZE + GUIConstants.BOX_PADDING, m_abovePlayerListBoxHeight +
 			GUIConstants.BOX_PADDING, m_listBoxWidthInternal, m_listBoxHeight - GUIConstants.BOX_PADDING_DOUBLE));
 		
-		//float column0width = /*(m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) **/ 0.7f;
-		//float column1width = /*(m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) **/ 0.15f;
-		//float column2width = /*(m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) **/ 0.15f;
+		float column0width = (m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.7f;
+		float column1width = (m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.15f;
+		float column2width = (m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.15f;
 		
 		if (Session.Get().Connected)
 		{			
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("Player", GUILayout.Width(column0width));
+			GUILayout.Label("Ready", GUILayout.Width(column1width));
+			GUILayout.Label("Ping", GUILayout.Width(column2width));
+			GUILayout.EndHorizontal();
+			
 			foreach (Player player in Players.Get().GetAll())
 			{
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(player.Name);//, GUILayout.Width(column0width));
-				GUILayout.Label(player.Ready? "Ready" : "");//, GUILayout.Width(column1width));
-				GUILayout.Label(player.LastPing.ToString());//, GUILayout.Width(column2width));
+				GUILayout.Label(player.Name, GUILayout.Width(column0width));
+				GUILayout.Label(player.Ready ? "Yes" : "No", GUILayout.Width(column1width));
+				GUILayout.Label(player.LastPing.ToString(), GUILayout.Width(column2width));
 				GUILayout.EndHorizontal();
 			}
 		}
@@ -60,14 +66,8 @@ public class LobbyGUI : MonoBehaviour
 			GUIConstants.BOX_PADDING, PLAYER_NAME_BOX_WIDTH - GUIConstants.BOX_PADDING_DOUBLE,
 			GUIConstants.ONE_LINE_BOX_HEIGHT - GUIConstants.BOX_PADDING_DOUBLE));
 		
-		//float column0width = (m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.7f;
-		//float column1width = (m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.15f;
-		//float column2width = (m_boxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.15f;
-		
 		GUILayout.BeginHorizontal();
-		GUILayout.Label("Your Name");//, GUILayout.Width(column0width));
-		GUILayout.Label("Ready");//, GUILayout.Width(column1width));
-		GUILayout.Label("Ping");//, GUILayout.Width(column2width));
+		GUILayout.Label("Your Name");
 		
 		string tempPlayerName = GUILayout.TextField(Players.Get().GetMe().Name);
 		if (tempPlayerName != Players.Get().GetMe().Name)
