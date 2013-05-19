@@ -84,6 +84,12 @@ public class Train : MonoBehaviour
 	void SetupWheelFrictionCurve()
 	{
 		m_WheelFrictionCurve = new WheelFrictionCurve();
+		
+		m_WheelFrictionCurve.extremumSlip = 0.6f;
+		m_WheelFrictionCurve.extremumValue = 0.0f;
+		m_WheelFrictionCurve.asymptoteSlip = 2.0f;
+		m_WheelFrictionCurve.asymptoteValue = 0.0f;
+		m_WheelFrictionCurve.stiffness = 200;
 	}
 	
 	Wheel SetupWheel(Transform _WheelTransform, bool _IsFrontWheel)
@@ -174,7 +180,7 @@ public class Train : MonoBehaviour
 		}
 	}
 	
-	/*										Update Functions 									  	   */
+	// ---------------------------------- Update Functions ---------------------------------------- //
 	
 	void Update() 
 	{
@@ -184,6 +190,8 @@ public class Train : MonoBehaviour
 		
 		if(m_mine)
 		{
+			ProcessInAirTimer();
+			
 			ProcessWheelGraphics(RelativeVelocity);
 			
 			ProcessGear(RelativeVelocity);
@@ -194,6 +202,29 @@ public class Train : MonoBehaviour
 		
 				ProcessIfFlipped();
 			}
+		}
+	}
+	
+	void ProcessInAirTimer()
+	{
+		m_IsOnGround = false;
+		foreach(Wheel w in m_Wheels)
+		{
+			WheelHit Wh = new WheelHit();
+			if(w.m_Collider.GetGroundHit(out Wh))
+			{	
+				m_IsOnGround = true;
+				break;
+			}
+		}
+		
+		if(m_IsOnGround)
+		{
+			m_AirTime = 0.0f;
+		}
+		else
+		{
+			m_AirTime += Time.deltaTime;
 		}
 	}
 	
@@ -277,6 +308,8 @@ public class Train : MonoBehaviour
 		rigidbody.angularVelocity = Vector3.zero;
 		m_ResetTimer = 0;
 		m_CurrentEnginePower = 0;
+		
+		GetComponent<TrainCarriages>().RemAllCarriages();
 	}
 	
 	void ProcessInput()
@@ -295,11 +328,6 @@ public class Train : MonoBehaviour
 		if(transform.localEulerAngles.z > 80 && transform.localEulerAngles.z < 280)
 		{
 			m_ResetTimer += Time.deltaTime;
-			
-			foreach(Wheel w in m_Wheels)
-			{
-				w.m_Collider.enabled = false;
-			}
 		}
 		else
 		{
@@ -308,16 +336,11 @@ public class Train : MonoBehaviour
 		
 		if(m_ResetTimer > m_ResetTime)
 		{	
-			foreach(Wheel w in m_Wheels)
-			{
-				w.m_Collider.enabled = true;
-			}
-			
-			//FlipTrain();
+			FlipTrain();
 		}
 	}
 	
-	/*								Fixed Update Functions (Rigid Body)							  	   */
+	// ---------------------------------- Fixed Update Functions (Rigid Body) ---------------------------------------- //
 	
 	void FixedUpdate()
 	{	
@@ -340,24 +363,9 @@ public class Train : MonoBehaviour
 	}
 	
 	void ProcessDrag(Vector3 _RelativeVelocity)
-	{
-		// Only apply the drag if the train is on the ground
-		bool IsOnGround = false;
-		foreach(Wheel w in m_Wheels)
-		{
-			WheelCollider Wc = w.m_Collider;
-			WheelHit Wh = new WheelHit();
-			
-			// First we get the velocity at the point where the wheel meets the ground, if the wheel is touching the ground
-			if(Wc.GetGroundHit(out Wh))
-			{	
-				IsOnGround = true;
-				break;
-			}
-		}
-		
+	{	
 		Vector3 DragMultiplier = m_GroundDragMultiplier;
-		if(!IsOnGround) 
+		if(!m_IsOnGround) 
 		{
 			rigidbody.angularDrag = 0.0f;
 			DragMultiplier = m_AirDragMultiplier;
@@ -383,13 +391,7 @@ public class Train : MonoBehaviour
 	}
 	
 	void ProcessFriction(Vector3 _RelativeVelocity)
-	{
-		float SqrVel = _RelativeVelocity.x * _RelativeVelocity.x;
-		
-		// Add extra sideways friction based on the trains's turning velocity to avoid slipping
-		m_WheelFrictionCurve.extremumValue = Mathf.Clamp(30000 - SqrVel, 0, 30000);
-		m_WheelFrictionCurve.asymptoteValue = Mathf.Clamp(15000 - (SqrVel / 2), 0, 15000);
-			
+	{	
 		foreach(Wheel w in m_Wheels)
 		{
 			w.m_Collider.sidewaysFriction = m_WheelFrictionCurve;
@@ -463,22 +465,12 @@ public class Train : MonoBehaviour
 	void ApplySteering(bool _CanSteer, Vector3 _RelativeVelocity)
 	{
 		if(_CanSteer)
-		{
-			/*float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
+		{	
+			float TurnRadius = 4.0f / (17.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad));
 			float MinMaxTurn = EvaluateSpeedToTurn(rigidbody.velocity.magnitude);
 			float TurnSpeed = Mathf.Clamp(_RelativeVelocity.z / TurnRadius, -MinMaxTurn / 10.0f, MinMaxTurn / 10.0f);
 			
-			transform.RotateAround(	transform.position + transform.right * TurnRadius * m_Steer, 
-									transform.up, 
-									TurnSpeed * Mathf.Rad2Deg * Time.fixedDeltaTime * m_Steer);*/
-			
-			float TurnRadius = 3.0f / Mathf.Sin((90.0f - (m_Steer * 30.0f)) * Mathf.Deg2Rad);
-			float MinMaxTurn = EvaluateSpeedToTurn(rigidbody.velocity.magnitude);
-			float TurnSpeed = Mathf.Clamp(_RelativeVelocity.z / TurnRadius, -MinMaxTurn / 10.0f, MinMaxTurn / 10.0f);
-			
-			rigidbody.angularVelocity = new Vector3(rigidbody.angularVelocity.x, 
-													rigidbody.angularVelocity.y + (TurnSpeed * m_Steer * Time.fixedDeltaTime), 
-													rigidbody.angularVelocity.z);
+			rigidbody.angularVelocity = new Vector3(rigidbody.angularVelocity.x, (TurnSpeed * m_Steer), rigidbody.angularVelocity.z);
 		}
 	}
 	
@@ -547,8 +539,6 @@ public class Train : MonoBehaviour
 	public Vector3 		m_GroundDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
 	public Vector3 		m_AirDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
 	
-	public float 		m_Throttle			= 0.0f;
-	
 	public Transform	m_TrainLatchTransform;
 		
 	// Protected
@@ -559,6 +549,7 @@ public class Train : MonoBehaviour
 	float 				m_WheelRadius 		= 0.4f;
 	
 	float 				m_Steer 	 		= 0.0f;	
+	public float 		m_Throttle			= 0.0f;
 
 	float 				m_ResetTimer  = 0.0f;
 
@@ -570,6 +561,8 @@ public class Train : MonoBehaviour
 	
 	bool 				m_CanSteer;
 	bool 				m_CanDrive;
+	bool				m_IsOnGround;
+	float 				m_AirTime;
 	
 	Game				m_game;
 	

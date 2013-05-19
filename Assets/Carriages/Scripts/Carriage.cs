@@ -119,6 +119,21 @@ public class Carriage : MonoBehaviour
 			v3Force.y = 0;
 			
 			rigidbody.AddForce(v3Force, ForceMode.Force);
+			
+			Vector3 v3CurrentLook = rigidbody.transform.rotation * Vector3.forward;
+			Vector3 v3ToLook = m_SplineRotation * Vector3.forward;
+			
+			Vector3 X = Vector3.Cross(v3CurrentLook.normalized, v3ToLook.normalized);
+			float fThetaX = Mathf.Asin(X.magnitude);
+			Vector3 WX = X.normalized * fThetaX * Time.fixedDeltaTime;
+			
+			Vector3 W = WX * 50.0f * rigidbody.mass;
+		
+			Quaternion q = rigidbody.transform.rotation * rigidbody.inertiaTensorRotation;
+			Vector3 T = q * Vector3.Scale(rigidbody.inertiaTensor, (Quaternion.Inverse(q) * W));
+			
+			rigidbody.AddTorque(T, ForceMode.Force);
+
 		}
 		// Move the carriage towards the desired spline position and rotation so that it can get close enough to the joint connection.
 		else if(m_ConnectionState == ConnectionState.CONNECTION_FIND_JOINT)
@@ -130,24 +145,32 @@ public class Carriage : MonoBehaviour
 			float fDistance = v3Distance.magnitude;
 			float fTrainSpeed = m_Train.GetComponent<Train>().GetSpeed();
 			
-			float newForceAmount = Mathf.Clamp(fTrainSpeed * m_TimeSinceCollision, fTrainSpeed * 2.0f, fTrainSpeed * 10.0f);
+			float newForceAmount = Mathf.Clamp(fTrainSpeed * m_TimeSinceCollision, fTrainSpeed * 2.0f, fTrainSpeed * 10.0f) * rigidbody.mass;
 				
-			rigidbody.AddForce(v3Distance.normalized * newForceAmount * Time.fixedDeltaTime, ForceMode.VelocityChange);
+			rigidbody.AddForce(v3Distance.normalized * newForceAmount, ForceMode.Force);
 			
 			Vector3 v3CurrentLook = rigidbody.transform.rotation * Vector3.forward;
-			Vector3 v3ToLook = m_SplineRotation * Vector3.forward;
-			
-			Vector3 v3CurrentRight = rigidbody.transform.rotation * Vector3.right;
-			Vector3 v3ToRight = m_SplineRotation * Vector3.right;
+			Vector3 v3ToLook = m_FrontBackLatchTransform.rotation * Vector3.forward;
 			
 			Vector3 v3CurrentUp = rigidbody.transform.rotation * Vector3.up;
-			Vector3 v3ToUp = m_SplineRotation * Vector3.up;
+			Vector3 v3ToUp = m_FrontBackLatchTransform.rotation * Vector3.up;
+			
+			Vector3 v3CurrentRight = rigidbody.transform.rotation * Vector3.right;
+			Vector3 v3ToRight = m_FrontBackLatchTransform.rotation * Vector3.right;
 			
 			Vector3 X = Vector3.Cross(v3CurrentLook.normalized, v3ToLook.normalized);
 			float fThetaX = Mathf.Asin(X.magnitude);
 			Vector3 WX = X.normalized * fThetaX * Time.fixedDeltaTime;
+						
+			Vector3 Y = Vector3.Cross(v3CurrentUp.normalized, v3ToUp.normalized);
+			float fThetaY = Mathf.Asin(Y.magnitude);
+			Vector3 WY = Y.normalized * fThetaY * Time.fixedDeltaTime;
 			
-			Vector3 W = WX * 50.0f * (1.0f - Mathf.Clamp01(fDistance/m_InitDistanceToLatch)) * rigidbody.mass;
+			Vector3 Z = Vector3.Cross(v3CurrentRight.normalized, v3ToRight.normalized);
+			float fThetaZ = Mathf.Asin(Z.magnitude);
+			Vector3 WZ = Z.normalized * fThetaZ * Time.fixedDeltaTime;
+			
+			Vector3 W = (WX + WY + WZ) * rigidbody.mass;
 		
 			Quaternion q = rigidbody.transform.rotation * rigidbody.inertiaTensorRotation;
 			Vector3 T = q * Vector3.Scale(rigidbody.inertiaTensor, (Quaternion.Inverse(q) * W));
@@ -245,6 +268,12 @@ public class Carriage : MonoBehaviour
 	void SetupWheelFrictionCurve()
 	{
 		m_WheelFrictionCurve = new WheelFrictionCurve();
+		
+		m_WheelFrictionCurve.extremumSlip = 0.6f;
+		m_WheelFrictionCurve.extremumValue = 0.0f;
+		m_WheelFrictionCurve.asymptoteSlip = 2.0f;
+		m_WheelFrictionCurve.asymptoteValue = 0.0f;
+		m_WheelFrictionCurve.stiffness = 200;
 	}
 	
 	void ProcessWheelGraphics(Vector3 _RelativeVelocity)

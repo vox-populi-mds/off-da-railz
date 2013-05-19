@@ -11,7 +11,6 @@ public enum ECarriageType {
 public class TrainCarriages : MonoBehaviour 
 {
 	void Awake()
-	
 	{
 		m_listCarriages = new List<Carriage>();	
 	}
@@ -35,7 +34,12 @@ public class TrainCarriages : MonoBehaviour
 		return false;
 	}
 	
-	void RemCarriage(Carriage _carriage) 
+	public void RemAllCarriages()
+	{
+		RemCarriage(m_listCarriages[0]);
+	}
+	
+	public void RemCarriage(Carriage _carriage) 
 	{
 		if ((!m_listCarriages.Contains(_carriage)) || m_listCarriages.Count == 0) 
 		{
@@ -43,13 +47,12 @@ public class TrainCarriages : MonoBehaviour
 			return;
 		}
 		
-		int remCarIndex = m_listCarriages.IndexOf(_carriage); // index of carriage to remove
-						
+		int remCarIndex = m_listCarriages.IndexOf(_carriage); // index of carriage to remove			
 		
 		// if attempting to remove the active carriage
 		if (_carriage == m_ActiveCarriage)
 		{			
-			if ( remCarIndex < 0 ) // if removed carriage is not first carriage
+			if ( remCarIndex > 0 ) // if removed carriage is not first carriage
 			{
 				m_ActiveCarriage = m_listCarriages[remCarIndex-1];	// move active carriage back 1 index
 			}
@@ -60,7 +63,7 @@ public class TrainCarriages : MonoBehaviour
 		}
 		
 		_carriage.SetConnectionState(Carriage.ConnectionState.NOT_CONNECTED);
-		m_listCarriages.Remove(_carriage);
+		m_listCarriages.RemoveAt(remCarIndex);
 		
 		//_carriage.Explode();
 		
@@ -69,16 +72,15 @@ public class TrainCarriages : MonoBehaviour
 		while (remCarIndex < m_listCarriages.Count) // loop through, remove all of them from the list and make them 'loose'
 		{
 			m_listCarriages[remCarIndex].SetConnectionState(Carriage.ConnectionState.NOT_CONNECTED);
-			m_listCarriages.RemoveAt(remCarIndex++);
+			m_listCarriages.RemoveAt(remCarIndex);
 		}
 	}
 	
 	void CreateNewWaypoint(Vector3 _Position)
 	{
-		GameObject newWaypoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+		GameObject newWaypoint = new GameObject();
 		newWaypoint.transform.rotation = m_LatchTransform.rotation;
 		newWaypoint.transform.position = _Position;
-		Destroy(newWaypoint.collider);
 		
 		m_listWaypoints.Add(newWaypoint.transform);
 		
