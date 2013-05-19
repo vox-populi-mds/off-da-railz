@@ -5,17 +5,19 @@ public class Players
 {
 	static Players instance;
 	
+	Player m_me;
+	
 	List<Player> m_players;
 	
 	private Players()
 	{
+		m_me = new Player();
+		m_me.Me = true;
+		m_me.Name = "John Doe";
+		m_me.NetworkPlayer = Network.player;
+		m_me.Ready = false;
 		m_players = new List<Player>();
-		Player me = new Player();
-		me.Me = true;
-		me.Name = "John Doe";
-		me.NetworkPlayer = Network.player;
-		me.Ready = false;
-		m_players.Add(me);
+		m_players.Add(m_me);
 	}
 	
 	public void Add(Player player)
@@ -82,15 +84,7 @@ public class Players
 	
 	public Player GetMe()
 	{
-		foreach (Player player in m_players)
-		{
-			if (player.Me)
-			{
-				return player;
-			}
-		}
-		
-		return null;
+		return m_me;
 	}
 	
 	public void Remove(NetworkPlayer networkPlayer)

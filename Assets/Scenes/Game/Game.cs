@@ -11,7 +11,6 @@ public class Game : MonoBehaviour
 	public Transform userInterface;
 	public Transform[] levelObstacles = new Transform[10];
 	
-	private Transform m_clientsTrain = null;
 	private Transform m_clientsCameras = null;
 		
 	bool m_trainsLinked;
@@ -72,7 +71,6 @@ public class Game : MonoBehaviour
 			if (trainObject.GetComponent<NetworkView>().isMine)
 			{
 				trainObject.GetComponent<Train>().SetMine(true);
-				m_clientsTrain = trainObject.transform;
 			}
 		}
 		else 
@@ -80,7 +78,6 @@ public class Game : MonoBehaviour
 			trainObject = ((Transform) Instantiate(train, new Vector3(635.0f, 20.0f, -556.0f), Quaternion.identity))
 				.gameObject;
 			trainObject.GetComponent<Train>().SetMine(true);
-			m_clientsTrain = trainObject.transform;
 		}
 	}
 	
@@ -104,7 +101,7 @@ public class Game : MonoBehaviour
 							playerMarker.GetComponent<Light>().color = player.Color;
 							playerMarker.GetComponent<TextMesh>().text = player.Name;
 							
-							if(m_clientsTrain.gameObject == trainObject)
+							if (player.Me)
 							{
 								playerMarker.GetComponent<TextMesh>().text = null;
 							}
@@ -138,7 +135,6 @@ public class Game : MonoBehaviour
 		if (RoundTimeElapsed > RoundTimeLimit)
 		{
 			Session.Get().EndRound();
-			Application.LoadLevel("Score");
 		}
 	}
 	
@@ -146,12 +142,12 @@ public class Game : MonoBehaviour
 	{
 		foreach (Player player in Players.Get().GetAll())
 		{
-			if (player.Train != null && player.Train != m_clientsTrain.gameObject)
+			if (player.Train != null && !player.Me)
 			{
 				GameObject PM = player.Train.transform.FindChild("PlayerMarker").gameObject;
 				TextMesh playerText = PM.GetComponent<TextMesh>();
 				
-				float fDistanceToPlayer = Vector3.Distance(player.Train.transform.position, m_clientsTrain.position);
+				float fDistanceToPlayer = Vector3.Distance(player.Train.transform.position, Players.Get().GetMe().Train.transform.position);
 				float fMaxDistance = 1000.0f;
 				float fMinCharSize = 1.0f;
 				float fMaxCharSize = 5.0f;
@@ -168,9 +164,7 @@ public class Game : MonoBehaviour
 	void Start()
 	{
 		Session.Get().StartRound();
-		
 		CreateTrain();
-		Network.sendRate = 100;
 		
 		m_clientsCameras = ((Transform) Instantiate(cameras, Vector3.zero, Quaternion.identity));
 		

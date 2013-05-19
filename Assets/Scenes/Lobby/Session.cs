@@ -45,6 +45,7 @@ public class Session
 		
 		Application.runInBackground = true;
 		MasterServer.RequestHostList(GAME_TYPE);
+		Network.sendRate = 100;
 	}
 	
 	public void Connect(HostData host)
@@ -83,7 +84,9 @@ public class Session
 		foreach (Player player in Players.Get().GetAll())
 		{
 			player.Score += player.RoundScore;
-		}	
+		}
+		
+		Application.LoadLevel("Score");
 	}
 	
 	public static Session Get()
