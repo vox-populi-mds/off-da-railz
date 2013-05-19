@@ -34,14 +34,14 @@ public class LobbyGUI : MonoBehaviour
 			GUIConstants.BOX_PADDING, m_listBoxWidthInternal, m_listBoxHeight - GUIConstants.BOX_PADDING_DOUBLE));
 		
 		float column0width = (m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.7f;
-		float column1width = (m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.15f;
-		float column2width = (m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.15f;
+		//float column1width = (m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.15f;
+		float column2width = (m_listBoxWidth - GUIConstants.BOX_PADDING_DOUBLE) * 0.3f;
 		
 		if (Session.Get().Connected)
 		{			
 			GUILayout.BeginHorizontal();
 			GUILayout.Label("Player", GUILayout.Width(column0width));
-			GUILayout.Label("Ready", GUILayout.Width(column1width));
+			//GUILayout.Label("Ready", GUILayout.Width(column1width));
 			GUILayout.Label("Ping", GUILayout.Width(column2width));
 			GUILayout.EndHorizontal();
 			
@@ -49,7 +49,7 @@ public class LobbyGUI : MonoBehaviour
 			{
 				GUILayout.BeginHorizontal();
 				GUILayout.Label(player.Name, GUILayout.Width(column0width));
-				GUILayout.Label(player.Ready ? "Yes" : "No", GUILayout.Width(column1width));
+				//GUILayout.Label(player.Ready ? "Yes" : "No", GUILayout.Width(column1width));
 				GUILayout.Label(player.LastPing.ToString(), GUILayout.Width(column2width));
 				GUILayout.EndHorizontal();
 			}
