@@ -4,8 +4,6 @@ using System.Collections;
 
 public class Game : MonoBehaviour
 {
-	public const int COUNTDOWN_START = 3;
-	
 	public Transform train;
 	public Transform cameras;
 	public Transform userInterface;

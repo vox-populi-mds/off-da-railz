@@ -4,6 +4,8 @@ using System.Collections;
 
 public class PlayerHUD : MonoBehaviour
 {
+	const int COUNTDOWN_START = 3;
+	
 	const int MAX_COUNTDOWN_SIZE = 60;
 	
 	const int ROUND_TIMER_WIDTH = 200;
@@ -46,7 +48,7 @@ public class PlayerHUD : MonoBehaviour
 		Game game = GameObject.Find("The Game").GetComponent<Game>();
 		float countdown = game.RoundStartTime - Time.timeSinceLevelLoad;
 		string countdownText = null;
-		if (countdown >= 1 && countdown < Game.COUNTDOWN_START + 1)
+		if (countdown >= 1 && countdown < COUNTDOWN_START + 1)
 		{
 			countdownText = ((int) countdown).ToString();
 		}
