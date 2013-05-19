@@ -215,6 +215,10 @@ public class LobbyGUI : MonoBehaviour
 	void OnGUI()
 	{
 		GUI.skin.font = m_font;
+		GUI.skin.box.fontSize = GUIConstants.FONT_SIZE;
+		GUI.skin.button.fontSize = GUIConstants.FONT_SIZE;
+		GUI.skin.label.fontSize = GUIConstants.FONT_SIZE;
+		GUI.skin.textField.fontSize = GUIConstants.FONT_SIZE;
 		
 		float gapsHeight = GUIConstants.GAP_SIZE * 6.0f;
 		float oneLineBoxesHeight = GUIConstants.ONE_LINE_BOX_HEIGHT * 3.0f;
