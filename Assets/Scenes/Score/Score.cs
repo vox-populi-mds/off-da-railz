@@ -128,11 +128,12 @@ public class Score : MonoBehaviour
 		}
 		
 		m_countdown -= Time.deltaTime;
+		
 		if (m_countdown < 0.0f)
 		{
 			if (Session.Get().GetRound() < Session.Get().GetRoundCount())
 			{
-				Application.LoadLevel("Level0");
+				Application.LoadLevel("Game");
 			}
 			else
 			{
