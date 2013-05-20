@@ -8,9 +8,6 @@ public class Wheel
 	public Transform 		m_TireGraphic;
 	public bool 			m_DriveWheel  		= false;
 	public bool 			m_SteerWheel  		= false;
-	public int 				m_LastSkidmark  	= -1;
-	public Vector3 			m_LastEmitPosition  = Vector3.zero;
-	public float 			m_LastEmitTime  	= Time.time;
 	public Vector3 			m_WheelVelo  		= Vector3.zero;
 	public Vector3 			m_GroundSpeed 		= Vector3.zero;
 }
@@ -325,6 +322,19 @@ public class Train : MonoBehaviour
 	
 	void ProcessIfFlipped()
 	{
+		float Multiplyer = 1.0f;
+		if(!m_IsOnGround)
+		{
+			Multiplyer = 0.0f;
+		}
+		
+		float fSinAngle = Mathf.Sin(transform.localEulerAngles.z * Mathf.Deg2Rad);
+		
+		Vector3 newCenterOfMassPos = m_CenterOfMass.localPosition + Vector3.right * Multiplyer * fSinAngle;
+		rigidbody.centerOfMass = newCenterOfMassPos;
+		
+		Debug.Log(newCenterOfMassPos);
+		
 		if(transform.localEulerAngles.z > 80 && transform.localEulerAngles.z < 280)
 		{
 			m_ResetTimer += Time.deltaTime;
@@ -512,6 +522,11 @@ public class Train : MonoBehaviour
 	public float GetSpeed()
 	{
 		return(rigidbody.velocity.magnitude);		
+	}
+	
+	public bool IsOnGround()
+	{
+		return(m_IsOnGround);
 	}
 	
 	// Public
