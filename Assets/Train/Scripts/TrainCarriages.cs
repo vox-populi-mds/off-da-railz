@@ -36,7 +36,10 @@ public class TrainCarriages : MonoBehaviour
 	
 	public void RemAllCarriages()
 	{
-		RemCarriage(m_listCarriages[0]);
+		if(m_listCarriages.Count != 0)
+		{
+			RemCarriage(m_listCarriages[0]);
+		}
 	}
 	
 	public void RemCarriage(Carriage _carriage) 
