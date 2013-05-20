@@ -72,20 +72,13 @@ public class Carriage : MonoBehaviour
 	
 	void ProcessDebugInfo()
 	{
-		Color DrawColor = Color.green;
-		if(!m_FollowSpline)
-		{
-			DrawColor = Color.yellow;
-		}
-		
 		if(m_ConnectionState == ConnectionState.CONNECTED_JOINT)
 		{
-			Debug.DrawLine(rigidbody.worldCenterOfMass, m_midPointSpinePosition, DrawColor);
+			Debug.DrawLine(rigidbody.worldCenterOfMass, m_midPointSpinePosition, Color.yellow);
 		}
 		else if(m_ConnectionState == ConnectionState.CONNECTION_FIND_JOINT)
 		{
-			Vector3 v3ToBodyPosition = m_FrontBackLatchTransform.position + m_FrontBackLatchTransform.rotation * transform.FindChild("BackLatch").transform.localPosition;
-			Debug.DrawLine(rigidbody.worldCenterOfMass, v3ToBodyPosition, Color.cyan);
+			Debug.DrawLine(transform.FindChild("FrontLatch").transform.position, m_FrontBackLatchTransform.position, Color.cyan);
 		}	
 	}
 
@@ -125,27 +118,39 @@ public class Carriage : MonoBehaviour
 		// Move the carriage towards its desired position on the spline.
 		if(m_ConnectionState == ConnectionState.CONNECTED_JOINT)
 		{
-			if(!m_FollowSpline)
-			{
-				return;
-			}
-			
-			Vector3 v3Force = (m_midPointSpinePosition - rigidbody.worldCenterOfMass) * rigidbody.mass * 20.0f;
+			Vector3 v3Force = (m_midPointSpinePosition - rigidbody.worldCenterOfMass) * rigidbody.mass * 10.0f;
+			v3Force.y = 0;
 			
 			rigidbody.AddForce(v3Force, ForceMode.Force);
+			
+			Vector3 v3CurrentLook = rigidbody.transform.rotation * Vector3.forward;
+			Vector3 v3ToLook = m_SplineRotation * Vector3.forward;
+			
+			Vector3 X = Vector3.Cross(v3CurrentLook.normalized, v3ToLook.normalized);
+			float fThetaX = Mathf.Asin(X.magnitude);
+			Vector3 WX = X.normalized * fThetaX * Time.fixedDeltaTime;
+			
+			Vector3 W = WX * 50.0f * rigidbody.mass;
+		
+			Quaternion q = rigidbody.transform.rotation * rigidbody.inertiaTensorRotation;
+			Vector3 T = q * Vector3.Scale(rigidbody.inertiaTensor, (Quaternion.Inverse(q) * W));
+			
+			rigidbody.AddTorque(T, ForceMode.Force);
 
 		}
 		// Move the carriage towards the desired spline position and rotation so that it can get close enough to the joint connection.
 		else if(m_ConnectionState == ConnectionState.CONNECTION_FIND_JOINT)
 		{
 			m_TimeSinceCollision += Time.deltaTime;
-			Vector3 v3ToBodyPosition = m_FrontBackLatchTransform.position + m_FrontBackLatchTransform.rotation * transform.FindChild("BackLatch").transform.localPosition;
+			Vector3 v3ToBodyPosition = m_FrontBackLatchTransform.position + transform.rotation * transform.FindChild("BackLatch").transform.localPosition;
 			
 			Vector3 v3Distance = v3ToBodyPosition - rigidbody.worldCenterOfMass;
 			float fDistance = v3Distance.magnitude;
 			float fTrainSpeed = m_Train.GetComponent<Train>().GetSpeed();
+			
+			float newForceAmount = Mathf.Clamp(fTrainSpeed * m_TimeSinceCollision, fTrainSpeed * 2.0f, fTrainSpeed * 10.0f) * rigidbody.mass;
 				
-			rigidbody.velocity = (v3Distance.normalized * (m_InitDistanceToLatch / 1.0f + fTrainSpeed));
+			rigidbody.AddForce(v3Distance.normalized * newForceAmount, ForceMode.Force);
 			
 			Vector3 v3CurrentLook = rigidbody.transform.rotation * Vector3.forward;
 			Vector3 v3ToLook = m_FrontBackLatchTransform.rotation * Vector3.forward;
@@ -168,7 +173,7 @@ public class Carriage : MonoBehaviour
 			float fThetaZ = Mathf.Asin(Z.magnitude);
 			Vector3 WZ = Z.normalized * fThetaZ * Time.fixedDeltaTime;
 			
-			Vector3 W = (WX + WY + WZ) * rigidbody.mass * 100.0f * m_InitDistanceToLatch/fDistance;
+			Vector3 W = (WX + WY + WZ) * rigidbody.mass;
 		
 			Quaternion q = rigidbody.transform.rotation * rigidbody.inertiaTensorRotation;
 			Vector3 T = q * Vector3.Scale(rigidbody.inertiaTensor, (Quaternion.Inverse(q) * W));
@@ -177,7 +182,7 @@ public class Carriage : MonoBehaviour
 
 			// Set the connection state to wait for a joint connection from the train carriage if close enough.
 			float fLatchDistance = Vector3.Distance(m_FrontBackLatchTransform.position, transform.FindChild("FrontLatch").transform.position);
-			if(fLatchDistance < 5.0f)
+			if(fLatchDistance < 10.0f)
 			{
 				m_ConnectionState = ConnectionState.CONNECTION_AWAITING_JOINT;
 			}
@@ -187,7 +192,7 @@ public class Carriage : MonoBehaviour
 			rigidbody.angularDrag = 0;
 			m_TimeSinceCollision += Time.deltaTime;
 			
-			if(m_TimeSinceCollision > 2.0f)
+			if(m_TimeSinceCollision > 1.0f)
 			{
 				Vector3 v3ToBodyPosition = m_FrontBackLatchTransform.position + m_FrontBackLatchTransform.rotation * transform.FindChild("FrontLatch").transform.localPosition;
 				m_InitDistanceToLatch = Vector3.Distance(v3ToBodyPosition, rigidbody.worldCenterOfMass);
@@ -198,8 +203,6 @@ public class Carriage : MonoBehaviour
 		else if(m_ConnectionState == ConnectionState.CONNECTION_AWAITING_JOINT)
 		{
 			rigidbody.angularDrag = 0;
-			rigidbody.angularVelocity = Vector3.zero;
-			rigidbody.velocity = Vector3.zero;
 		}
 	}
 	
@@ -466,11 +469,6 @@ public class Carriage : MonoBehaviour
 		Debug.Log("Destroyed");
 	}
 	
-	public void SetSplineFollowState(bool _State)
-	{
-		m_FollowSpline = _State;
-	}
-	
 	
 	//private GameObject 			m_ObjectWeaponPowerUp;
 	private GameObject			m_PowerupOrWeapon;
@@ -486,7 +484,6 @@ public class Carriage : MonoBehaviour
 	
 	private bool 				m_IsOnGround = false;
 	private	float				m_GroundedTime = 0.0f;
-	private bool				m_FollowSpline = false;
 	
 	private float 				m_InitAngularDrag;
 	
