@@ -51,7 +51,7 @@ public class Carriage : MonoBehaviour
 		{
 			ProcessDebugInfo();
 			
-			/*GetComponent<Health>().SetDamage(Time.deltaTime);
+			//GetComponent<Health>().SetDamage(Time.deltaTime);
 			
 			if (!m_Dying)
 			{
@@ -64,9 +64,9 @@ public class Carriage : MonoBehaviour
 			}
 			if (GetComponent<Health>().GetHealth() <= 0)
 			{
-				DestroyTrain();
+				DestroyCarriage();
 			}
-			*/
+			
 		}
 	}
 	
@@ -214,6 +214,7 @@ public class Carriage : MonoBehaviour
 			Mr.enabled = false;
 		}
 	}
+	
 	
 	public void SetTrain(Transform _train)
 	{
@@ -414,7 +415,6 @@ public class Carriage : MonoBehaviour
 		}
 		
 		TrainCarriages PlayerTrainCarrages;
-		//Health CarriageHealth;
 		
 		if (CollisionInfo.gameObject.name == "Train(Clone)")
 		{
@@ -425,12 +425,17 @@ public class Carriage : MonoBehaviour
 			}
 			else
 			{
-				//CarriageHealth = GetComponent<Health>();
-				
-				//if (CarriageHealth != null){
-					//CarriageHealth.OnDeath();
-				//}
+				if (m_ConnectionState == ConnectionState.CONNECTED_JOINT)
+				{
+					GetComponent<Health>().SetDamage(CollisionInfo.impactForceSum.magnitude);	
+					Debug.Log("Damage sustained : " + CollisionInfo.impactForceSum.magnitude);
+				}
 			}
+		}
+		
+        foreach (ContactPoint contact in CollisionInfo.contacts) 
+		{
+            Debug.DrawRay(contact.point, contact.normal, Color.white);
 		}
 	}		
 	
@@ -438,13 +443,30 @@ public class Carriage : MonoBehaviour
 	{
 		m_Dying = true;
 		
-       	GameObject meshy = Instantiate(Resources.LoadAssetAtPath("Assets/Carriages/train_boxwreck.obj", typeof(GameObject))) as GameObject;
+       	GameObject meshy = Instantiate(Resources.LoadAssetAtPath("Assets/Carriages/Models/train_boxwreck.obj", typeof(GameObject))) as GameObject;
+		
+		if (meshy.renderer != null)
+		{
+			meshy.renderer.enabled = false;
+		}
 		
 		GetComponentInChildren<MeshFilter>().mesh = meshy.GetComponentInChildren<MeshFilter>().mesh;
+		
+		DestroyImmediate(meshy);
 	}
 	
-	void DestroyTrain(){
+	void DestroyCarriage()
+	{		
+		if (renderer != null)
+		{
 		this.renderer.enabled = false;
+		}		
+		if (m_Train != null)
+		{
+			m_Train.GetComponent<TrainCarriages>().RemCarriage(this);
+		}
+		Destroy(gameObject);
+		Debug.Log("Destroyed");
 	}
 	
 	
@@ -453,7 +475,6 @@ public class Carriage : MonoBehaviour
 	
 	public Transform[] 			m_WheelTransforms;
 	
-	//public float				m_StucturalIntegrity	= 100.0f;
 	public float	 			m_SuspensionRange 		= 0.5f;
 	public float 				m_SuspensionDamper 		= 0.0f;
 	public float 				m_SuspensionSpring 		= 0.0f;
