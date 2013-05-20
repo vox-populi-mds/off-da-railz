@@ -36,7 +36,10 @@ public class TrainCarriages : MonoBehaviour
 	
 	public void RemAllCarriages()
 	{
-		RemCarriage(m_listCarriages[0]);
+		if(m_listCarriages.Count != 0)
+		{
+			RemCarriage(m_listCarriages[0]);
+		}
 	}
 	
 	public void RemCarriage(Carriage _carriage) 
@@ -187,6 +190,12 @@ public class TrainCarriages : MonoBehaviour
 			Direction.Normalize();
 			
 			CreateNewWaypoint(m_LastPosition + Direction * m_CarriageLength);
+			++m_NumWaypointWhileGrounded;
+		}
+		
+		if(!GetComponent<Train>().IsOnGround())
+		{
+			m_NumWaypointWhileGrounded = 0;
 		}
 	}
 	
@@ -214,12 +223,22 @@ public class TrainCarriages : MonoBehaviour
 		// Process the force positions for the carriages.
 		for(int i = 0; i < m_listCarriages.Count; ++i)
 		{
+			Carriage carriageScript = m_listCarriages[i].GetComponent<Carriage>();
+			
+			// Tell this carriage not to follow the spline.
+			if(m_NumWaypointWhileGrounded < i + 2)
+			{
+				carriageScript.SetSplineFollowState(false);
+			}
+			else
+			{
+				carriageScript.SetSplineFollowState(true);
+			}
+			
 			float stepPerWaypoint = 1.0f / (m_listWaypoints.Count - 1);
 			
 			float timeBack = 1.0f - (((1.0f + ((i + 1) * 1.0f)) - (m_DistanceFromLastWaypoint/m_CarriageLength)) * stepPerWaypoint);
 			Vector3 carriageBackPos = interp.GetHermiteAtTime(timeBack);
-			
-			Carriage carriageScript = m_listCarriages[i].GetComponent<Carriage>();
 			
 			if(i != 0)
 			{
@@ -237,7 +256,7 @@ public class TrainCarriages : MonoBehaviour
 			
 			carriageScript.SetSplineRotation(carriageRot);
 			
-			// Set the carriage to connected via spline ad this carriage was just hit and add to the waiting list for connection
+			// Set the carriage to connected via spline and this carriage was just hit and add to the waiting list for connection
 			if(m_listCarriages[i].GetConnectionState() == Carriage.ConnectionState.NOT_CONNECTED)
 			{
 				m_listCarriagesAwaitingConnection.Add(m_listCarriages[i]);
@@ -371,6 +390,7 @@ public class TrainCarriages : MonoBehaviour
 	Vector3						m_LastPosition;
 	List<Transform>				m_listWaypoints;
 	int 						m_ExtraWaypoints = 4;
+	int 						m_NumWaypointWhileGrounded;
 	
 	public Vector3			m_CarriageAngularFreedom = new Vector3(10.0f, 45.0f, 0.5f);
 	public float 			m_CarriageMovementFreedom = 0.25f;
