@@ -33,7 +33,10 @@ public class Carriage : MonoBehaviour
 			
 		// test the weapons
 		//m_PowerupOrWeapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/Shotgun.prefab", typeof(GameObject))) as GameObject;
-		//DisableDebugWheelRendering();
+		if (!GameObject.Find("The Game").GetComponent<Game>().debug_mode)		
+		{
+			DisableDebugWheelRendering();
+		}
 		m_Train = null;
 	}
 	

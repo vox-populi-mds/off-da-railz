@@ -43,8 +43,10 @@ public class Train : MonoBehaviour
 			
 			SetupGears();
 		}
-		
-		//DisableDebugWheelRendering();
+		if (!GameObject.Find("The Game").GetComponent<Game>().debug_mode)	
+		{
+			DisableDebugWheelRendering();
+		}
 	}
 	
 	void DisableDebugWheelRendering()
