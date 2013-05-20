@@ -4,14 +4,19 @@ using System.Collections;
 
 public class Game : MonoBehaviour
 {
-	public Transform train;
-	public Transform cameras;
-	public Transform userInterface;
-	public Transform[] levelObstacles = new Transform[10];
-	
-	private Transform m_clientsCameras = null;
-		
+	public Transform 	train;
+	public Transform 	cameras;
+	public Transform 	userInterface;
+	public Transform[] 	levelObstacles = new Transform[10];
+	private Transform 	m_clientsCameras = null;
+			
 	bool m_trainsLinked;
+	
+	public bool debug_mode
+	{
+		get;
+		set;
+	}
 	
 	public bool RoundStarted
 	{
@@ -168,6 +173,8 @@ public class Game : MonoBehaviour
 		
 		// Instantiate UI
 		GameObject ui = ((Transform) Instantiate(userInterface, Vector3.zero, Quaternion.identity)).gameObject;
+		
+		debug_mode = false;
 		
 		// Instantiate Obstacles
 		foreach (Transform obstacle in levelObstacles) {

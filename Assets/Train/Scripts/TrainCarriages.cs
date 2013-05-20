@@ -104,6 +104,7 @@ public class TrainCarriages : MonoBehaviour
 		m_CarriageLength = 30.0f;
 		
 		SetupInitialWaypoints();
+				
 	}
 	
 	void SetupInitialWaypoints()
@@ -301,7 +302,7 @@ public class TrainCarriages : MonoBehaviour
 		for(int i = 0; i < CleanupCarriages.Count; ++i)
 		{
 			m_listCarriagesAwaitingConnection.RemoveAt(CleanupCarriages[i]);
-		}
+		}		
 	}
 	
 	void SetupSplineInterpolator(SplineInterpolator interp, Transform[] trans)
@@ -319,6 +320,8 @@ public class TrainCarriages : MonoBehaviour
 	
 	void CreateJointBetweenCarriages(Transform _ConnectFrom, Transform _ConnectTo)
 	{
+		Audio.GetInstance.Play(m_connectionNoise, _ConnectTo, 100, false);
+		
 		// Move the back carriage to the right place.
 		Vector3 backLatchFront = _ConnectTo.FindChild("BackLatch").transform.position;
 		Vector3 newBackCarriagePosition = backLatchFront - _ConnectTo.rotation * _ConnectFrom.FindChild("FrontLatch").localPosition;
@@ -389,4 +392,6 @@ public class TrainCarriages : MonoBehaviour
 	public Vector3			m_CarriageAngularFreedom = new Vector3(10.0f, 45.0f, 0.5f);
 	public float 			m_CarriageMovementFreedom = 0.25f;
 	public const uint		MAX_CARRIAGES = 10;
+	
+	public AudioClip 		m_connectionNoise;
 }
