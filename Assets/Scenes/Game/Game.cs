@@ -9,6 +9,8 @@ public class Game : MonoBehaviour
 	public Transform 	userInterface;
 	public Transform[] 	levelObstacles = new Transform[10];
 	private Transform 	m_clientsCameras = null;
+	
+	public Transform[] m_SpawnLocations = new Transform[16];
 			
 	bool m_trainsLinked;
 	
@@ -69,8 +71,14 @@ public class Game : MonoBehaviour
 		
 		if(Network.isClient || Network.isServer)
 		{
-			trainObject = ((Transform) Network.Instantiate(train, new Vector3(UnityEngine.Random.Range(-300.0f, 300.0f),
-				5.0f, UnityEngine.Random.Range(-300.0f, 300.0f)), Quaternion.identity, 0)).gameObject;
+			// Old method of spawning
+			/*trainObject = ((Transform) Network.Instantiate(train, new Vector3(UnityEngine.Random.Range(-300.0f, 300.0f),
+				5.0f, UnityEngine.Random.Range(-300.0f, 300.0f)), Quaternion.identity, 0)).gameObject;*/
+			
+			int SpawnLocId = UnityEngine.Random.Range(0, 15);
+			trainObject = ((Transform)Network.Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId].rotation, 0)).gameObject;
+			
+			
 			if (trainObject.GetComponent<NetworkView>().isMine)
 			{
 				trainObject.GetComponent<Train>().SetMine(true);
