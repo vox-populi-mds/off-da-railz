@@ -22,7 +22,7 @@ public class TrainCarriages : MonoBehaviour
 	
 	public bool AddCarriage(Carriage _carriage) 
 	{
-		if (m_listCarriages.Count < MAX_CARRIAGES)
+		//if (m_listCarriages.Count < MAX_CARRIAGES)
 		{
 			m_listCarriages.Add(_carriage);
 			
@@ -31,7 +31,7 @@ public class TrainCarriages : MonoBehaviour
 			return true;
 		}
 		// over capacity!
-		return false;
+		//return false;
 	}
 	
 	public void RemAllCarriages()

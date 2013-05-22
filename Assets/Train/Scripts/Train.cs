@@ -335,7 +335,7 @@ public class Train : MonoBehaviour
 		Vector3 newCenterOfMassPos = m_CenterOfMass.localPosition + Vector3.right * Multiplyer * fSinAngle;
 		rigidbody.centerOfMass = newCenterOfMassPos;
 		
-		Debug.Log(rigidbody.centerOfMass);
+		//Debug.Log(rigidbody.centerOfMass);
 		
 		if(transform.localEulerAngles.z > 80 && transform.localEulerAngles.z < 280)
 		{
