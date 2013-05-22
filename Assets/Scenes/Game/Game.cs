@@ -190,4 +190,16 @@ public class Game : MonoBehaviour
 		
 		ProcessPlayerMarkerText();
 	}
+	
+	void OnPlayerDisconnected(NetworkPlayer networkPlayer)
+	{
+		Players.Get().Remove(networkPlayer);
+		networkView.RPC("RemoveOnOthers",RPCMode.Others);
+	}
+	
+	[RPC]
+	void RemoveOnOthers(NetworkPlayer networkPlayer)
+	{
+		Players.Get().Remove(networkPlayer);
+	}
 }
