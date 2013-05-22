@@ -39,23 +39,34 @@ public class CameraToggle : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
+		int iDistanceScale = m_target.parent.GetComponent<TrainCarriages>().GetNumCarriages();
+		
+		if(iDistanceScale > 10)
+		{
+			iDistanceScale = 10;	
+		}
+		
+		if(cameraIndex == 0 || cameraIndex == 1)
+		{
+			float NewDistance = distance + 30 * iDistanceScale;
+			float NewHeight = height + 5 * iDistanceScale;
+			
+			NewDistance = Mathf.Lerp(Cameras[cameraIndex].GetComponent<SmoothFollow>().GetDistance(), NewDistance, 2.0f * Time.deltaTime);
+			NewHeight = Mathf.Lerp(Cameras[cameraIndex].GetComponent<SmoothFollow>().height, NewHeight, 2.0f * Time.deltaTime);
+			
+			Cameras[cameraIndex].GetComponent<SmoothFollow>().SetDistance(NewDistance);
+			Cameras[cameraIndex].GetComponent<SmoothFollow>().height = NewHeight;
+		}		
+		
 		if (Input.GetKeyDown(KeyCode.C))
 		{
-			int iDistanceScale = m_target.parent.GetComponent<TrainCarriages>().GetNumCarriages();
-						
 			int prev = cameraIndex;
 			cameraIndex++;			
 			if (cameraIndex	>= Cameras.Length) {
 				cameraIndex = 0;
 			}
 			Cameras[cameraIndex].gameObject.SetActive(true);
-			Cameras[prev].gameObject.SetActive(false);			
-			
-			if(cameraIndex == 0 || cameraIndex == 1)
-			{
-				Cameras[cameraIndex].GetComponent<SmoothFollow>().distance = distance + 10 * iDistanceScale;
-				Cameras[cameraIndex].GetComponent<SmoothFollow>().height = height + 5 * iDistanceScale;
-			}				
+			Cameras[prev].gameObject.SetActive(false);								
 		}				
 		
 		//Change FOV depending on speed		
