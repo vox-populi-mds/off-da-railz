@@ -1,16 +1,16 @@
 using UnityEngine;
 using System.Collections;
-using UnityEditor;
+//using UnityEditor;
 
 public class TerrainSplatMap : MonoBehaviour 
 {
 	void Start () 
 	{	
 		// Allow reading of this texture.
-		string path = AssetDatabase.GetAssetPath(m_SplatMap);
-		TextureImporter ti = (TextureImporter) TextureImporter.GetAtPath(path);
-		ti.isReadable = true;
-		AssetDatabase.ImportAsset(path);
+		//string path = AssetDatabase.GetAssetPath(m_SplatMap);
+		//TextureImporter ti = (TextureImporter) TextureImporter.GetAtPath(path);
+		//ti.isReadable = true;
+		//AssetDatabase.ImportAsset(path);
 		
 		// Get the alpha map data
 		TerrainData td = GetComponent<Terrain>().terrainData;	
