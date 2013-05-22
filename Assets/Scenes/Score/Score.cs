@@ -125,7 +125,6 @@ public class Score : MonoBehaviour
 		if (m_pingCooldown > 1)
 		{
 			m_pingCooldown = 0;
-			Players.Get().PingAll();
 		}
 		
 		m_countdown -= Time.deltaTime;

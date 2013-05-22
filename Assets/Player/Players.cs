@@ -38,7 +38,7 @@ public class Players
 		return true;
 	}
 	
-	public void PingAll()
+	/*public void PingAll()
 	{
 		foreach (Player player in m_players)
 		{
@@ -52,7 +52,7 @@ public class Players
 				player.Pinger = new Ping(player.NetworkPlayer.ipAddress);
 			}
 		}
-	}
+	}*/
 	
 	public Player Get(NetworkPlayer networkPlayer)
 	{
@@ -94,7 +94,7 @@ public class Players
 		{
 			if (new NetworkPlayerComparer().Equals(networkPlayer, player.NetworkPlayer))
 			{
-				player.Pinger.DestroyPing();
+				//player.Pinger.DestroyPing();
 				m_players.Remove(player);
 			}
 		}

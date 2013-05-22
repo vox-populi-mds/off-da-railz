@@ -228,7 +228,7 @@ public class LobbyGUI : MonoBehaviour
 		m_abovePlayerListBoxHeight = GUIConstants.GAP_SIZE * 4.0f + GUIConstants.ONE_LINE_BOX_HEIGHT * 2.0f +
 			m_listBoxHeight;
 		
-		Players.Get().PingAll();
+		//Players.Get().PingAll();
 		
 		DrawPlayerListBox();
 		DrawPlayerNameBox();

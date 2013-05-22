@@ -9,11 +9,11 @@ public class Player
 		set;
 	}
 	
-	public int LastPing
+	/*public int LastPing
 	{
 		get;
 		set;
-	}
+	}*/
 	
 	public bool Me
 	{
@@ -33,11 +33,11 @@ public class Player
 		set;
 	}
 	
-	public Ping Pinger
+	/*public Ping Pinger
 	{
 		get;
 		set;
-	}
+	}*/
 	
 	public bool Ready
 	{
@@ -71,6 +71,5 @@ public class Player
 		RoundScore = 0;
 		Score = 0;
 		Train = null;
-		//ping = new Ping(NetworkPlayer.ipAddress);
 	}
 }
