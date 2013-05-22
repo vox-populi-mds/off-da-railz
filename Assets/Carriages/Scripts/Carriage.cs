@@ -50,9 +50,7 @@ public class Carriage : MonoBehaviour
 		if(Network.isServer)
 		{
 			ProcessDebugInfo();
-			
-			//GetComponent<Health>().SetDamage(Time.deltaTime);
-			
+						
 			if (!m_Dying)
 			{
 				if (GetComponent<Health>().GetHealth() < 50)
@@ -212,10 +210,10 @@ public class Carriage : MonoBehaviour
 		}
 	}
 	
-	
 	public void SetTrain(Transform _train)
 	{
 		m_Train = _train;
+		GetComponent<Health>().Reset();
 	}
 	
 	void SetupWheelColliders()
@@ -235,7 +233,6 @@ public class Carriage : MonoBehaviour
 	void Damage(float _damage)
 	{
 		GetComponent<Health>().SetDamage(_damage);
-		//m_StucturalIntegrity -= _damage;
 	}
 	
 	CarriageWheel SetupWheel(Transform _WheelTransform)
@@ -462,8 +459,9 @@ public class Carriage : MonoBehaviour
 		{
 			m_Train.GetComponent<TrainCarriages>().RemCarriage(this);
 		}
-		Destroy(gameObject);
-		Debug.Log("Destroyed");
+		
+		//Destroy(gameObject);
+		//Debug.Log("Destroyed");
 	}
 	
 	public void SetSplineFollowState(bool _State)
