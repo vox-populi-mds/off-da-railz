@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<varlist name="ProjectData">
+	<int name="FileVersion">1</int>
+	<varlist name="MapInfo">
+		<varlist name="Terrain">
+			<int name="nx">2048</int>
+			<int name="ny">2048</int>
+			<float name="MinAlt">-8.62657</float>
+			<float name="MaxAlt">462.865</float>
+			<float name="HorizScale">1</float>
+		</varlist>
+		<varlist name="Texture">
+			<int name="nx">2048</int>
+			<int name="ny">2048</int>
+		</varlist>
+		<bool name="WrapFlag">false</bool>
+	</varlist>
+	<varlist name="Maps">
+		<varlist name="DM">
+			<string name="Filename">Terrain_DM.dmf</string>
+			<string name="MapType">DM</string>
+		</varlist>
+		<varlist name="HF">
+			<string name="Filename">Terrain_HF.hfz</string>
+			<string name="MapType">HF</string>
+		</varlist>
+		<varlist name="AM">
+			<string name="Filename">Terrain_AM.amf.gz</string>
+			<string name="MapType">AM</string>
+		</varlist>
+		<varlist name="TX">
+			<string name="Filename">Terrain_TX.jpg</string>
+			<string name="MapType">RGB</string>
+		</varlist>
+		<varlist name="Alpha_1">
+			<string name="Filename">Terrain_Alpha_1.png</string>
+			<string name="MapType">RGBA</string>
+		</varlist>
+	</varlist>
+	<varlist name="Climates">
+		<varlist name="Desert">
+			<string name="Filename">C:\Users\Martin\L3DT\Resources\Pro 12.09.0.1\Climates\desert26\Desert26.cli.xml</string>
+		</varlist>
+		<varlist name="Artificial">
+			<string name="Filename">C:\Users\Martin\L3DT\Resources\Pro 12.09.0.1\Climates\artificial26\Artificial26.cli.xml</string>
+		</varlist>
+		<varlist name="Spring Desertworld (FA)">
+			<string name="Filename">C:\Users\Martin\L3DT\Resources\Pro 12.09.0.1\Climates\Spring Desertworld (FA)\Desertworld.cli.xml</string>
+		</varlist>
+		<varlist name="Arctic">
+			<string name="Filename">C:\Users\Martin\L3DT\Resources\Pro 12.09.0.1\Climates\arctic26\Arctic26.cli.xml</string>
+		</varlist>
+		<varlist name="Temperate (coastal)">
+			<string name="Filename">C:\Users\Martin\L3DT\Resources\Pro 12.09.0.1\Climates\temperate26\Temperate26-coastal.cli.xml</string>
+		</varlist>
+		<varlist name="Temperate (basic)">
+			<string name="Filename">C:\Users\Martin\L3DT\Resources\Pro 12.09.0.1\Climates\temperate26\Temperate26-basic.cli.xml</string>
+		</varlist>
+		<varlist name="Temperate">
+			<string name="Filename">C:\Users\Martin\L3DT\Resources\Pro 12.09.0.1\Climates\temperate26\Temperate26.cli.xml</string>
+		</varlist>
+		<varlist name="Spring Mars (FA)">
+			<string name="Filename">C:\Users\Martin\L3DT\Resources\Pro 12.09.0.1\Climates\Spring Mars (FA)\Mars.cli.xml</string>
+		</varlist>
+		<varlist name="Demo-grass-rock-sand">
+			<string name="Filename">C:\Users\Martin\L3DT\Resources\Pro 12.09.0.1\Climates\Demonstrations\Demo-grass-rock-sand.cli.xml</string>
+		</varlist>
+	</varlist>
+</varlist>
