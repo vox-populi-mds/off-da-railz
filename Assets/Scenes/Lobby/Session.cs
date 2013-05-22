@@ -113,7 +113,7 @@ public class Session
 	{
 		// Use NAT punchthrough if no public IP present
 		// Limit max connections to 16
-		Network.InitializeServer(16, PORT, !Network.HavePublicAddress());
+		Network.InitializeServer(15, PORT, !Network.HavePublicAddress());
 		MasterServer.RegisterHost(GAME_TYPE, Name, Description);
 		Player me = Players.Get().GetMe();
 		me.Color = Color.red;
