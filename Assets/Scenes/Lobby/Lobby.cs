@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Lobby : MonoBehaviour
 {	
-	Color[] m_colors;
+	public Color[] m_colors = new Color[16];
 	
 	float m_lastPlayerUpdateTime;
 	
@@ -12,12 +12,6 @@ public class Lobby : MonoBehaviour
 	{
 		// Enable cursor visibility
 		Screen.showCursor = true;
-		
-		m_colors = new Color[4];
-		m_colors[0] = Color.red;
-		m_colors[1] = Color.green;
-		m_colors[2] = Color.blue;
-		m_colors[3] = Color.yellow;
 		m_lastPlayerUpdateTime = Time.timeSinceLevelLoad;
 	}
 	
