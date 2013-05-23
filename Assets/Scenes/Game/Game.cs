@@ -76,7 +76,7 @@ public class Game : MonoBehaviour
 				5.0f, UnityEngine.Random.Range(-300.0f, 300.0f)), Quaternion.identity, 0)).gameObject;*/
 			
 			int SpawnLocId = UnityEngine.Random.Range(0, 15);
-			trainObject = ((Transform)Network.Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId].rotation, 0)).gameObject;
+			trainObject = ((Transform) Network.Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId].rotation, 0)).gameObject;
 			
 			if (trainObject.GetComponent<NetworkView>().isMine)
 			{

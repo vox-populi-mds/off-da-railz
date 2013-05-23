@@ -24,7 +24,7 @@ public class Carriage : MonoBehaviour
 	
 	// Use this for initialization
 	void Start () 
-	{
+	{	
 		SetupWheelColliders();
 		
 		Vector3 v3NewCenter = (transform.FindChild("FrontLatch").transform.localPosition + transform.FindChild("BackLatch").transform.localPosition) * 0.5f;
@@ -47,26 +47,26 @@ public class Carriage : MonoBehaviour
 		
 		ProcessWheelGraphics(RelativeVelocity);
 		
+		ProcessDebugInfo();
+		
 		// Server processes the info needed for the carriages.
-		if(Network.isServer)
+		if(!Network.isServer)
 		{
-			ProcessDebugInfo();
-
-			
-
-			if (!m_Dying)
-			{
-				if (GetComponent<Health>().GetHealth() < 50)
-				{	
-					networkView.RPC("Dying", RPCMode.All);
-				}
-			}
-			if (GetComponent<Health>().GetHealth() <= 0)
-			{
-				DestroyCarriage();
-			}
-			
+			return;
 		}
+		
+		if (!m_Dying)
+		{
+			if (GetComponent<Health>().GetHealth() < 50)
+			{	
+				networkView.RPC("Dying", RPCMode.All);
+			}
+		}
+		if (GetComponent<Health>().GetHealth() <= 0)
+		{
+			DestroyCarriage();
+		}
+			
 	}
 	
 	void ProcessDebugInfo()
@@ -131,6 +131,7 @@ public class Carriage : MonoBehaviour
 			}
 			
 			Vector3 v3Force = (m_midPointSpinePosition - rigidbody.worldCenterOfMass) * rigidbody.mass * 20.0f;
+			v3Force.y = 0;
 			
 			rigidbody.AddForce(v3Force, ForceMode.Force);
 
@@ -286,14 +287,11 @@ public class Carriage : MonoBehaviour
 			// First we get the velocity at the point where the wheel meets the ground, if the wheel is touching the ground
 			if(Wc.GetGroundHit(out Wh))
 			{	
-				//TODO: FIX THIS: w.m_WheelGraphic.localPosition = Wc.transform.up * (m_WheelRadius + Wc.transform.InverseTransformPoint(Wh.point).y);
 				w.m_WheelVelo = rigidbody.GetPointVelocity(Wh.point);
 				w.m_GroundSpeed = w.m_WheelGraphic.InverseTransformDirection(w.m_WheelVelo);
 			}
 			else
 			{
-				// If the wheel is not touching the ground we set the position of the wheel graphics to
-				// the wheel's transform position + the range of the suspension.
 				w.m_WheelGraphic.position = Wc.transform.position + (-Wc.transform.up * m_SuspensionRange);
 			}
 			

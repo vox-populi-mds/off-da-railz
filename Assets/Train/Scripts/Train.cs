@@ -188,7 +188,7 @@ public class Train : MonoBehaviour
 		ProcessAnimation(RelativeVelocity);
 		
 		if(m_mine)
-		{
+		{	
 			ProcessInAirTimer();
 			
 			ProcessWheelGraphics(RelativeVelocity);
@@ -206,18 +206,18 @@ public class Train : MonoBehaviour
 	
 	void ProcessInAirTimer()
 	{
-		m_IsOnGround = false;
+		bool IsOnGround = false;
 		foreach(Wheel w in m_Wheels)
 		{
 			WheelHit Wh = new WheelHit();
 			if(w.m_Collider.GetGroundHit(out Wh))
 			{	
-				m_IsOnGround = true;
+				IsOnGround = true;
 				break;
 			}
 		}
 		
-		if(m_IsOnGround)
+		if(IsOnGround)
 		{
 			m_AirTime = 0.0f;
 		}
@@ -225,6 +225,14 @@ public class Train : MonoBehaviour
 		{
 			m_AirTime += Time.deltaTime;
 		}
+		
+		networkView.RPC("SetOnGround", RPCMode.All, IsOnGround);
+	}
+	
+	[RPC]
+	void SetOnGround(bool _bState)
+	{
+		m_IsOnGround = _bState;
 	}
 	
 	void ProcessAnimation(Vector3 _RelativeVelocity)

@@ -92,18 +92,12 @@ public class TrainCarriages : MonoBehaviour
 	
 	// Use this for initialization
 	void Start() 
-	{	
+	{		
 		m_listCarriagesAwaitingConnection = new List<Carriage>();
 		m_listWaypoints = new List<Transform>();
 		m_ActiveCarriage = null;
 		m_LatchTransform = transform.FindChild("BackLatch").transform;
 		m_CarriageLength = 30.0f;
-		
-		// Only Create ones spline.
-		if(!GetComponent<Train>().IsMine())
-		{
-			return;
-		}
 		
 		SetupInitialWaypoints();		
 	}
@@ -120,13 +114,7 @@ public class TrainCarriages : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update() 
-	{
-		// Only update ones own spline
-		if(!GetComponent<Train>().IsMine())
-		{
-			return;
-		}
-		
+	{	
 		if (m_listCarriages.Count > 1) 
 		{
 			if (Input.GetKeyDown(KeyCode.E) || Input.GetAxis("Mouse ScrollWheel")>0)
@@ -159,7 +147,7 @@ public class TrainCarriages : MonoBehaviour
 		CleanOldWaypoints();
 		
 		ProcessWaypointCreation();
-	
+		
 		ProcessCarriagesSpline();
 		
 		ProcessNewCarriagesConnection();
@@ -221,7 +209,7 @@ public class TrainCarriages : MonoBehaviour
 		
 		// Process the force positions for the carriages.
 		for(int i = 0; i < m_listCarriages.Count; ++i)
-		{
+		{	
 			Carriage carriageScript = m_listCarriages[i].GetComponent<Carriage>();
 			
 			// Tell this carriage not to follow the spline.
