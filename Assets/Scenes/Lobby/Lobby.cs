@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Lobby : MonoBehaviour
 {	
-	public Color[] m_colors = new Color[16];
+	public Color[] m_colors;
 	
 	float m_lastPlayerUpdateTime;
 	
@@ -28,6 +28,23 @@ public class Lobby : MonoBehaviour
 	}
 	
 	[RPC]
+	void OnCreatePlayer(string ipAddress, int port)
+	{
+		if (port == 0)
+		{
+			return;
+		}
+		
+		if (Players.Get().Get(ipAddress, port) == null)
+		{
+			Player player = new Player();
+			player.IPAddress = ipAddress;
+			player.Port = port;
+			Players.Get().Add(player);
+		}
+	}
+	
+	[RPC]
 	void OnGO()
 	{
 		Session.Get().StartGame();
@@ -38,9 +55,10 @@ public class Lobby : MonoBehaviour
 	void OnPlayerConnected(NetworkPlayer networkPlayer)
 	{
 		Player player = new Player();
+		player.Apply(networkPlayer);
 		player.Color = m_colors[Players.Get().GetAll().Count];
-		player.NetworkPlayer = networkPlayer;
 		Players.Get().Add(player);
+		
 		networkView.RPC("OnRequestPlayerName", networkPlayer);
 	}
 	
@@ -56,42 +74,29 @@ public class Lobby : MonoBehaviour
 	}
 	
 	[RPC]
-	void OnUpdatePlayerColor(NetworkPlayer networkPlayer, float r, float g, float b, float a)
-	{
-		// For clients the player itself might not have been seen yet.
-		if (Players.Get().Get(networkPlayer) != null)
-		{
-			Players.Get().Get(networkPlayer).Color = new Color(r, g, b, a);
-		}
-	}
-	
-	[RPC]
 	void OnRequestPlayerName()
 	{
-		networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player, Players.Get().GetMe().Name);
+		networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player.ipAddress, Network.player.port,
+			Players.Get().GetMe().Name);
 	}
 	
 	[RPC]
-	void OnUpdatePlayerName(NetworkPlayer networkPlayer, string playerName)
+	void OnUpdatePlayerColor(string ipAddress, int port, float r, float g, float b, float a)
 	{
-		// If the server's network player has not been updated, update it.
-		Player me = Players.Get().GetMe();
-		if (me.NetworkPlayer.port == 0)
+		// The player itself might not have been seen yet.
+		if (Players.Get().Get(ipAddress, port) != null)
 		{
-			me.NetworkPlayer = Network.player;
+			Players.Get().Get(ipAddress, port).Color = new Color(r, g, b, a);
 		}
-		
-		// For clients this may be the first time a player has been seen.
-		if (Players.Get().Get(networkPlayer) == null)
+	}
+	
+	[RPC]
+	void OnUpdatePlayerName(string ipAddress, int port, string playerName)
+	{
+		// The player itself might not have been seen yet.
+		if (Players.Get().Get(ipAddress, port) != null)
 		{
-			Player player = new Player();
-			player.Name = playerName;
-			player.NetworkPlayer = networkPlayer;
-			Players.Get().Add(player);
-		}
-		else
-		{
-			Players.Get().Get(networkPlayer).Name = playerName;
+			Players.Get().Get(ipAddress, port).Name = playerName;
 		}
 	}
 	
@@ -115,15 +120,23 @@ public class Lobby : MonoBehaviour
 	
 	void Update()
 	{
+		// If the server's player has not been updated, update it.
+		Player me = Players.Get().GetMe();
+		if (me.Port == 0)
+		{
+			me.Apply(Network.player);
+		}
+		
 		if (Network.isServer && Time.timeSinceLevelLoad - m_lastPlayerUpdateTime > 1.0f)
 		{
 			m_lastPlayerUpdateTime = Time.timeSinceLevelLoad;
 			
 			foreach (Player player in Players.Get().GetAll())
 			{
-				networkView.RPC("OnUpdatePlayerColor", RPCMode.Others, player.NetworkPlayer, player.Color.r,
+				networkView.RPC("OnCreatePlayer", RPCMode.Others, player.IPAddress, player.Port);
+				networkView.RPC("OnUpdatePlayerColor", RPCMode.Others, player.IPAddress, player.Port, player.Color.r,
 					player.Color.g, player.Color.b, player.Color.a);
-				networkView.RPC("OnUpdatePlayerName", RPCMode.Others, player.NetworkPlayer, player.Name);
+				networkView.RPC("OnUpdatePlayerName", RPCMode.Others, player.IPAddress, player.Port, player.Name);
 			}
 		}
 	}
@@ -134,7 +147,8 @@ public class Lobby : MonoBehaviour
 
 		if (Network.isClient)
 		{
-			networkView.RPC("OnUpdatePlayerColor", RPCMode.Server, Network.player, color.r, color.g, color.b, color.a);
+			networkView.RPC("OnUpdatePlayerColor", RPCMode.Server, Network.player.ipAddress, Network.player.port,
+				color.r, color.g, color.b, color.a);
 		}
 	}
 	
@@ -144,7 +158,7 @@ public class Lobby : MonoBehaviour
 
 		if (Network.isClient)
 		{
-			networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player, name);
+			networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player.ipAddress, Network.player.port, name);
 		}
 	}
 }

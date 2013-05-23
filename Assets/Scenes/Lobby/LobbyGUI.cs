@@ -14,6 +14,8 @@ public class LobbyGUI : MonoBehaviour
 	
 	public Font m_font;
 	
+	float m_lastPingTime;
+	
 	float m_listBoxHeight;
 	
 	float m_listBoxWidth;
@@ -24,6 +26,7 @@ public class LobbyGUI : MonoBehaviour
 	{		
 		m_aboveServerBoxHeight = GUIConstants.GAP_SIZE_DOUBLE + GUIConstants.ONE_LINE_BOX_HEIGHT;
 		m_aboveServerListBoxHeight = GUIConstants.GAP_SIZE * 3.0f + GUIConstants.ONE_LINE_BOX_HEIGHT * 2.0f;
+		m_lastPingTime = 0.0f;
 	}
 	
 	void DrawPlayerListBox()
@@ -50,8 +53,7 @@ public class LobbyGUI : MonoBehaviour
 				GUILayout.BeginHorizontal();
 				GUILayout.Label(player.Name, GUILayout.Width(column0width));
 				//GUILayout.Label(player.Ready ? "Yes" : "No", GUILayout.Width(column1width));
-				int ping = Network.GetAveragePing(player.NetworkPlayer);
-				GUILayout.Label((ping < 0 ? "0" : ping.ToString()), GUILayout.Width(column2width));
+				GUILayout.Label(player.LastPing.ToString(), GUILayout.Width(column2width));
 				GUILayout.EndHorizontal();
 			}
 		}
@@ -229,7 +231,11 @@ public class LobbyGUI : MonoBehaviour
 		m_abovePlayerListBoxHeight = GUIConstants.GAP_SIZE * 4.0f + GUIConstants.ONE_LINE_BOX_HEIGHT * 2.0f +
 			m_listBoxHeight;
 		
-		//Players.Get().PingAll();
+		if (Time.timeSinceLevelLoad - m_lastPingTime > 1.0f)
+		{
+			m_lastPingTime = Time.timeSinceLevelLoad;
+			Players.Get().PingAll();
+		}
 		
 		DrawPlayerListBox();
 		DrawPlayerNameBox();

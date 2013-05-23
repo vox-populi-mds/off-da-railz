@@ -14,7 +14,6 @@ public class Players
 		m_me = new Player();
 		m_me.Me = true;
 		m_me.Name = "John Doe";
-		m_me.NetworkPlayer = Network.player;
 		m_me.Ready = false;
 		m_players = new List<Player>();
 		m_players.Add(m_me);
@@ -38,27 +37,32 @@ public class Players
 		return true;
 	}
 	
-	/*public void PingAll()
+	public void PingAll()
 	{
 		foreach (Player player in m_players)
 		{
 			if (player.Pinger == null)
 			{
-				player.Pinger = new Ping(player.NetworkPlayer.ipAddress);
+				player.Pinger = new Ping(player.IPAddress);
 			}
 			if (player.Pinger.isDone)
 			{
 				player.LastPing = player.Pinger.time;
-				player.Pinger = new Ping(player.NetworkPlayer.ipAddress);
+				player.Pinger = new Ping(player.IPAddress);
 			}
 		}
-	}*/
+	}
 	
 	public Player Get(NetworkPlayer networkPlayer)
 	{
+		return Get(networkPlayer.ipAddress, networkPlayer.port);
+	}
+	
+	public Player Get(string ipAddress, int port)
+	{
 		foreach (Player player in m_players)
 		{
-			if (new NetworkPlayerComparer().Equals(networkPlayer, player.NetworkPlayer))
+			if (player.IPAddress == ipAddress && player.Port == port)
 			{
 				return player;
 			}
@@ -92,7 +96,7 @@ public class Players
 		List<Player> players = new List<Player>(m_players);
 		foreach (Player player in players)
 		{
-			if (new NetworkPlayerComparer().Equals(networkPlayer, player.NetworkPlayer))
+			if (player.Matches(networkPlayer))
 			{
 				//player.Pinger.DestroyPing();
 				m_players.Remove(player);

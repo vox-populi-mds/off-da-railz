@@ -84,12 +84,10 @@ public class Score : MonoBehaviour
 		
 		foreach (Player player in Players.Get().GetAll())
 		{
-			int ping = Network.GetAveragePing(player.NetworkPlayer);
 			GUILayout.BeginHorizontal();
 			GUILayout.Label(player.Name, GUILayout.Width(column0width));
 			GUILayout.Label(player.Score.ToString(), GUILayout.Width(column1width));
-			GUILayout.Label((ping < 0 ? "0" : ping.ToString()), GUILayout.Width(column2width));
-			//GUILayout.Label(player.LastPing.ToString(), GUILayout.Width(column2width));
+			GUILayout.Label(player.LastPing.ToString(), GUILayout.Width(column2width));
 			GUILayout.EndHorizontal();
 		}
 		

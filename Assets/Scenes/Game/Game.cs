@@ -103,7 +103,7 @@ public class Game : MonoBehaviour
 					GameObject[] trainObjects = GameObject.FindGameObjectsWithTag("Player");
 					foreach (GameObject trainObject in trainObjects)
 					{
-						if (trainObject.networkView.owner == player.NetworkPlayer)
+						if (player.Matches(trainObject.networkView.owner))
 						{
 							player.Train = trainObject;
 							Transform playerMarker = trainObject.transform.FindChild("PlayerMarker");
