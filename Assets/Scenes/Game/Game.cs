@@ -148,12 +148,6 @@ public class Game : MonoBehaviour
 				player.RoundScore = player.Train.GetComponent<TrainCarriages>().GetNumCarriages();
 			}
 		}
-		
-		// Check if the round should finish.
-		if (RoundTimeElapsed > RoundTimeLimit)
-		{
-			Session.Get().EndRound();
-		}
 	}
 	
 	void ProcessPlayerMarkerText()
@@ -204,6 +198,11 @@ public class Game : MonoBehaviour
 		ProcessScores();
 		
 		ProcessPlayerMarkerText();
+		
+		if (RoundTimeElapsed > RoundTimeLimit)
+		{
+			Session.Get().EndRound();
+		}
 	}
 	
 	void OnPlayerDisconnected(NetworkPlayer networkPlayer)
@@ -213,8 +212,8 @@ public class Game : MonoBehaviour
 	}
 	
 	[RPC]
-	void RemoveOnOthers(NetworkPlayer networkPlayer)
+	void RemoveOnOthers(NetworkMessageInfo info)
 	{
-		Players.Get().Remove(networkPlayer);
+		Players.Get().Remove(info.sender);
 	}
 }

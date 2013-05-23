@@ -103,10 +103,19 @@ public class Players
 		{
 			if (player.Matches(networkPlayer))
 			{
-				//player.Pinger.DestroyPing();
-				m_players.Remove(player);
+				Remove(player);
 			}
 		}
+	}
+	
+	void Remove(Player player)
+	{
+		if (player.Train != null)
+		{
+			GameObject.Destroy(player.Train);
+		}
+		
+		m_players.Remove(player);
 	}
 	
 	public void RemoveOthers()
@@ -116,7 +125,7 @@ public class Players
 		{
 			if (!player.Me)
 			{
-				m_players.Remove(player);
+				Remove(player);
 			}
 		}
 	}
