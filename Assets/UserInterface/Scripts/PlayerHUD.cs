@@ -4,21 +4,27 @@ using System.Collections;
 
 public class PlayerHUD : MonoBehaviour
 {
-	const int COUNTDOWN_START = 3;
-	
-	const int MAX_COUNTDOWN_SIZE = 60;
-	
+	const int COUNTDOWN_START = 3;	
+	const int MAX_COUNTDOWN_SIZE = 60;	
 	const int ROUND_TIMER_WIDTH = 200;
+	
+	int DefaultWidth = 1024;
+	
+	int DefaultTexWidth  = 50;
+	int DefaultTexHeight  = 50;
+	
+	float TextureWidth = 0;
+	float TextureHeight = 0;
+	
+	float GUIscale = 1;
 	
 	public Texture2D[] textureCarridges = new Texture2D[3];
 	public Texture2D textureWeaponShotgun;
 	
-	bool m_menu;
-	
-	float m_menuBoxSize;
-	
-	float m_menuPaddingTop;
-	
+	bool m_menu;	
+	float m_menuBoxSize;	
+	float m_menuPaddingTop;	
+		
 	void Awake()
 	{
 		// Disable cursor visibility
@@ -29,23 +35,47 @@ public class PlayerHUD : MonoBehaviour
 		m_menuPaddingTop = 50;
 	}
 	
-	void DrawCarriages()
+	void CalculateScale()
 	{
-		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
+		GUIscale = (float)Screen.width / DefaultWidth;
+		TextureWidth = DefaultTexWidth * GUIscale;
+		TextureHeight = DefaultTexHeight * GUIscale;
+	}
 	
-		for (int index = 0; index < trainCarriages.GetNumCarriages(); index++)
-		{
-			int severity = 0; // good
-			float hp = trainCarriages.GetCarriage(index).GetHealth();
-			if (hp < 100)
-			{
-				++severity; // medium
-				if (hp < 50)
+	void DrawCarriages()
+	{		
+		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
+		
+		int iOffsetX = 1;
+		
+		if(trainCarriages.GetNumCarriages() < 10)
+		{		
+			for (int index = 1; index <= trainCarriages.GetNumCarriages(); index++)
+			{				
+				GUI.DrawTexture(new Rect(Screen.width - iOffsetX * TextureWidth, 0, TextureWidth, TextureHeight), textureCarridges[0], ScaleMode.ScaleToFit);
+				if(index % 5 == 0)
 				{
-					++severity; // broken
-				}
+					TextureHeight += TextureHeight;
+					iOffsetX = 0;
+				}	
+				
+				iOffsetX++;
 			}
-			GUI.DrawTexture(new Rect((Screen.width - index * 100) + 100, 0, 100, 100), textureCarridges[severity]);
+		}
+		//If there are more than 10 carriages, simply draw the texture with the number of carriages overlayed.
+		else
+		{
+			Rect TextureBounds = new Rect(Screen.width - iOffsetX * TextureWidth, 0, TextureWidth, TextureHeight);					
+			GUI.DrawTexture(TextureBounds, textureCarridges[0], ScaleMode.ScaleToFit);
+			
+			float RectX = TextureBounds.x + (TextureBounds.width / 2);
+			float RectY = TextureHeight / 3;
+			
+			Rect NumberBounds = new Rect(RectX, RectY, RectX, TextureBounds.height / 4);
+			
+			GUI.color = Color.red;
+			GUI.Label(NumberBounds, trainCarriages.GetNumCarriages().ToString());
+			GUI.color = Color.white;
 		}
 	}
 	
@@ -64,7 +94,7 @@ public class PlayerHUD : MonoBehaviour
 		}
 		else if (countdown >= 0 && countdown < 1)
 		{
-			countdownText = "Fight!";
+			countdownText = "Begin!";
 		}
 		
 		GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 100, 200, 200), countdownText, style);
@@ -115,7 +145,7 @@ public class PlayerHUD : MonoBehaviour
 	void DrawWeapons()
 	{
 		GUI.DrawTexture(new Rect((textureWeaponShotgun.width / 2) - 100, Screen.height - (textureWeaponShotgun.height / 2),
-			(textureWeaponShotgun.width / 2), (textureWeaponShotgun.height / 2)), textureWeaponShotgun);
+			(textureWeaponShotgun.width / 2), (textureWeaponShotgun.height / 2)), textureWeaponShotgun, ScaleMode.ScaleAndCrop);
  	}
 	
 	void OnGUI()
@@ -133,6 +163,8 @@ public class PlayerHUD : MonoBehaviour
 	
 	void Update() 
 	{
+		CalculateScale();
+		
 		if (Input.GetKeyUp(KeyCode.Escape) && !m_menu)
 		{
 			m_menu = true;
