@@ -8,10 +8,11 @@ public class PlayerHUD : MonoBehaviour
 	const int MAX_COUNTDOWN_SIZE = 60;	
 	const int ROUND_TIMER_WIDTH = 200;
 	
-	int DefaultWidth = 1024;
+	int DefaultWidth = 1600;
+	int DefaultHeight = 900;	
 	
-	int DefaultTexWidth  = 50;
-	int DefaultTexHeight  = 50;
+	int DefaultTexWidth  = 100;
+	int DefaultTexHeight  = 100;
 	
 	float TextureWidth = 0;
 	float TextureHeight = 0;
@@ -36,15 +37,18 @@ public class PlayerHUD : MonoBehaviour
 	}
 	
 	void CalculateScale()
-	{
-		GUIscale = (float)Screen.width / DefaultWidth;
+	{		
+		float WidthScale = (float)Screen.width / DefaultWidth;
+		float HeightScale = (float)Screen.height / DefaultHeight;
+		
+		GUIscale = WidthScale;
 		TextureWidth = DefaultTexWidth * GUIscale;
 		TextureHeight = DefaultTexHeight * GUIscale;
 	}
 	
 	void DrawCarriages()
 	{		
-		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();	
+		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
 		
 		int iOffsetX = 1;
 		
@@ -52,18 +56,8 @@ public class PlayerHUD : MonoBehaviour
 		{		
 			for (int index = 1; index <= trainCarriages.GetNumCarriages(); index++)
 			{				
-				float hp 	= trainCarriages.GetCarriage(index-1).GetHealth();
-				uint damageLevel	= 0;
-				if (hp < 100)
-				{
-					++damageLevel;
-					if (hp < 30)
-					{
-						++damageLevel;
-					}
-				}
-				GUI.DrawTexture(new Rect(Screen.width - iOffsetX * TextureWidth, 0, TextureWidth, TextureHeight), textureCarridges[damageLevel], ScaleMode.ScaleToFit);
-				if((index % 5) == 0)
+				GUI.DrawTexture(new Rect(Screen.width - iOffsetX * TextureWidth, 0, TextureWidth, TextureHeight), textureCarridges[0], ScaleMode.ScaleToFit);
+				if(index % 5 == 0)
 				{
 					TextureHeight += TextureHeight;
 					iOffsetX = 0;
@@ -75,23 +69,8 @@ public class PlayerHUD : MonoBehaviour
 		//If there are more than 10 carriages, simply draw the texture with the number of carriages overlayed.
 		else
 		{
-			float maxHP = trainCarriages.GetNumCarriages() * 100;
-			float currentHP = trainCarriages.CumulativeHealth();
-			float healthRatio = currentHP/maxHP;
-			uint damageLevel = 0;
-			
-			if (healthRatio < 0.9f)
-			{
-				++damageLevel;
-				if (healthRatio < 0.4f)
-				{
-					++damageLevel;
-				}
-			}
-			
-			
 			Rect TextureBounds = new Rect(Screen.width - iOffsetX * TextureWidth, 0, TextureWidth, TextureHeight);					
-			GUI.DrawTexture(TextureBounds, textureCarridges[damageLevel], ScaleMode.ScaleToFit);
+			GUI.DrawTexture(TextureBounds, textureCarridges[0], ScaleMode.ScaleToFit);
 			
 			float RectX = TextureBounds.x + (TextureBounds.width / 2);
 			float RectY = TextureHeight / 3;
@@ -108,7 +87,7 @@ public class PlayerHUD : MonoBehaviour
 	{
 		GUIStyle style = new GUIStyle();
 		style.alignment = TextAnchor.MiddleCenter;
-		style.fontSize = (int) (MAX_COUNTDOWN_SIZE * (Time.timeSinceLevelLoad - Mathf.Floor(Time.timeSinceLevelLoad)));
+		style.fontSize = (int) (MAX_COUNTDOWN_SIZE * (Time.timeSinceLevelLoad - Mathf.Floor(Time.timeSinceLevelLoad)) * GUIscale);
 		
 		Game game = GameObject.Find("The Game").GetComponent<Game>();
 		float countdown = game.RoundStartTime - Time.timeSinceLevelLoad;
@@ -127,16 +106,19 @@ public class PlayerHUD : MonoBehaviour
 	
 	void DrawMenu()
 	{
+		//Scale stuff here
+		float menuBoxSize  = m_menuBoxSize * GUIscale;
+		
 		if (m_menu)
 		{
 			float halfMenuBoxSize = m_menuBoxSize / 2.0f;
 			
-			GUI.Box(new Rect(Screen.width / 2 - halfMenuBoxSize, Screen.height / 2 - halfMenuBoxSize, m_menuBoxSize,
-				m_menuBoxSize), "Menu");
+			GUI.Box(new Rect(Screen.width / 2 - halfMenuBoxSize, Screen.height / 2 - halfMenuBoxSize, menuBoxSize,
+				menuBoxSize), "Menu");
 			
 			GUILayout.BeginArea(new Rect(Screen.width / 2 - halfMenuBoxSize + GUIConstants.BOX_PADDING,
-				Screen.height / 2 - halfMenuBoxSize + m_menuPaddingTop, m_menuBoxSize - GUIConstants.BOX_PADDING_DOUBLE,
-				m_menuBoxSize - GUIConstants.BOX_PADDING_DOUBLE - m_menuPaddingTop));
+				Screen.height / 2 - halfMenuBoxSize + m_menuPaddingTop, menuBoxSize - GUIConstants.BOX_PADDING_DOUBLE,
+				menuBoxSize - GUIConstants.BOX_PADDING_DOUBLE - m_menuPaddingTop));
 				
 			if (GUILayout.Button("Continue"))
 			{
@@ -169,8 +151,13 @@ public class PlayerHUD : MonoBehaviour
 	
 	void DrawWeapons()
 	{
-		GUI.DrawTexture(new Rect((textureWeaponShotgun.width / 2) - 100, Screen.height - (textureWeaponShotgun.height / 2),
-			(textureWeaponShotgun.width / 2), (textureWeaponShotgun.height / 2)), textureWeaponShotgun, ScaleMode.ScaleAndCrop);
+		float Width = textureWeaponShotgun.width * GUIscale;
+		float Height = textureWeaponShotgun.height * GUIscale;
+		
+		float Offset = 100 * GUIscale;
+		
+		GUI.DrawTexture(new Rect((Width / 2) - Offset, Screen.height - (Height / 2),
+			(Width / 2), (Height / 2)), textureWeaponShotgun, ScaleMode.ScaleAndCrop);
  	}
 	
 	void OnGUI()
