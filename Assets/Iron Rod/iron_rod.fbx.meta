@@ -1,35 +1,20 @@
 fileFormatVersion: 2
-guid: 767063d5c5275664e947e91a8745e615
+guid: dfe6acc385d0e894aa305254a047c0fa
 ModelImporter:
   serializedVersion: 15
   fileIDToRecycleName:
-    100000: Collada_visual_scene_group
-    100002: Collada_visual_scene_group 1
-    100004: group
-    100006: group_1
-    100008: matrixTransform
-    100010: pallet03
-    100012: pallet03_1
-    100014: //RootNode
-    100016: sceneRoot
-    100018: sceneRoot 1
-    400000: Collada_visual_scene_group
-    400002: Collada_visual_scene_group 1
-    400004: group
-    400006: group_1
-    400008: matrixTransform
-    400010: pallet03
-    400012: pallet03_1
-    400014: //RootNode
-    400016: sceneRoot
-    400018: sceneRoot 1
-    2300000: pallet03_1
-    3300000: pallet03_1
-    4300000: pallet03_1
-    9500000: //RootNode
+    100000: //RootNode
+    100002: rod
+    400000: //RootNode
+    400002: rod
+    2300000: rod
+    3300000: rod
+    4300000: rod
+    7400000: Default Take
+    11100000: //RootNode
   materials:
     importMaterials: 1
-    materialName: 0
+    materialName: 3
     materialSearch: 1
   animations:
     legacyGenerateAnimations: 4
@@ -46,12 +31,10 @@ ModelImporter:
     globalScale: .00999999978
     meshCompression: 0
     addColliders: 0
-    importBlendShapes: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
     optimizeMeshForGPU: 1
-    weldVertices: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
@@ -59,7 +42,7 @@ ModelImporter:
   tangentSpace:
     normalSmoothAngle: 60
     splitTangentsAcrossUV: 1
-    normalImportMode: 0
+    normalImportMode: 1
     tangentImportMode: 1
   importAnimation: 1
   copyAvatar: 0
@@ -77,5 +60,5 @@ ModelImporter:
     rootMotionBoneName: 
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   additionalBone: 1
-  animationType: 2
+  animationType: 1
   userData: 
