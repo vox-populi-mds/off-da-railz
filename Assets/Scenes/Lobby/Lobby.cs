@@ -152,7 +152,8 @@ public class Lobby : MonoBehaviour
 	public void UpdatePlayerName(string name)
 	{
 		Players.Get().GetMe().Name = name;
-
+		PlayerPrefs.SetString("PlayerName", name);
+		
 		if (Network.isClient)
 		{
 			networkView.RPC("OnUpdatePlayerName", RPCMode.Server, Network.player.ipAddress, Network.player.port, name);

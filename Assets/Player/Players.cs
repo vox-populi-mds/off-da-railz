@@ -17,6 +17,11 @@ public class Players
 		m_me.Ready = false;
 		m_players = new List<Player>();
 		m_players.Add(m_me);
+		
+		if(PlayerPrefs.HasKey("PlayerName"))
+		{
+			m_me.Name = PlayerPrefs.GetString("PlayerName");
+		}
 	}
 	
 	public void Add(Player player)
