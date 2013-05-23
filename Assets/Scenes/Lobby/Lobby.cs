@@ -120,12 +120,9 @@ public class Lobby : MonoBehaviour
 	
 	void Update()
 	{
-		// If the server's player has not been updated, update it.
+		// Make sure my player is up to date.
 		Player me = Players.Get().GetMe();
-		if (me.Port == 0)
-		{
-			me.Apply(Network.player);
-		}
+		me.Apply(Network.player);
 		
 		if (Network.isServer && Time.timeSinceLevelLoad - m_lastPlayerUpdateTime > 1.0f)
 		{
