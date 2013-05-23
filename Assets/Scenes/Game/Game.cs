@@ -77,20 +77,22 @@ public class Game : MonoBehaviour
 			
 			int SpawnLocId = UnityEngine.Random.Range(0, 15);
 			trainObject = ((Transform) Network.Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId].rotation, 0)).gameObject;
-			
-			if (trainObject.GetComponent<NetworkView>().isMine)
-			{
-				trainObject.GetComponent<Train>().SetMine(true);
-			}
+			trainObject.GetComponent<Train>().SetMine(true);
+			networkView.RPC("OnCreateTrain", RPCMode.Others, Network.player.ipAddress, Network.player.port,
+				trainObject.networkView.viewID.ToString());
+			OnCreateTrain(Network.player.ipAddress, Network.player.port, trainObject.networkView.viewID.ToString());
 		}
 		else 
 		{
 			int SpawnLocId = UnityEngine.Random.Range(0, 15);
-			trainObject = ((Transform) Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId].rotation)).gameObject;			
+			trainObject = ((Transform) Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId]
+				.rotation)).gameObject;			
 			trainObject.GetComponent<Train>().SetMine(true);
 		}
 	}
 	
+	// This whole madness is not in the OnCreateTrain method because I'm assuming the order of network messages is not guaranteed
+	// i.e. we might get told about the creation of a train before it has actully been created on this client.
 	void LinkTrains()
 	{
 		if (!m_trainsLinked)
@@ -103,7 +105,7 @@ public class Game : MonoBehaviour
 					GameObject[] trainObjects = GameObject.FindGameObjectsWithTag("Player");
 					foreach (GameObject trainObject in trainObjects)
 					{
-						if (player.Matches(trainObject.networkView.owner))
+						if (player.TrainViewID == trainObject.networkView.viewID.ToString())
 						{
 							player.Train = trainObject;
 							Transform playerMarker = trainObject.transform.FindChild("PlayerMarker");
@@ -129,6 +131,12 @@ public class Game : MonoBehaviour
 			
 			m_trainsLinked = !unlinkedTrainExists;
 		}
+	}
+	
+	[RPC]
+	void OnCreateTrain(string ipAddress, int port, string id)
+	{
+		Players.Get().Get(ipAddress, port).TrainViewID = id;
 	}
 	
 	void ProcessScores()
@@ -201,7 +209,7 @@ public class Game : MonoBehaviour
 	void OnPlayerDisconnected(NetworkPlayer networkPlayer)
 	{
 		Players.Get().Remove(networkPlayer);
-		networkView.RPC("RemoveOnOthers",RPCMode.Others);
+		networkView.RPC("RemoveOnOthers", RPCMode.Others);
 	}
 	
 	[RPC]

@@ -69,6 +69,12 @@ public class Player
 		set;
 	}
 	
+	public string TrainViewID
+	{
+		get;
+		set;
+	}
+	
 	public Player()
 	{
 		IPAddress = "";
