@@ -216,6 +216,11 @@ public class Carriage : MonoBehaviour
 		GetComponent<Health>().Reset();
 	}
 	
+	public float GetHealth()
+	{
+		return GetComponent<Health>().GetHealth();
+	}
+	
 	void SetupWheelColliders()
 	{
 		m_Wheels = new CarriageWheel[m_WheelTransforms.Length];

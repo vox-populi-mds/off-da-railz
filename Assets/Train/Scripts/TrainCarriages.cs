@@ -378,6 +378,13 @@ public class TrainCarriages : MonoBehaviour
 		return(m_listCarriages.Count);
 	}
 	
+	public Carriage GetCarriage(int index)
+	{
+		if (m_listCarriages.Count > index)
+			return m_listCarriages[index];
+		return null;
+	}
+	
 	private List<Carriage> 		m_listCarriages;
 	private List<Carriage> 		m_listCarriagesAwaitingConnection;
 	private Carriage			m_ActiveCarriage;

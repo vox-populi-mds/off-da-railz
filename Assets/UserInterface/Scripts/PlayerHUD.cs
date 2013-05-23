@@ -32,10 +32,20 @@ public class PlayerHUD : MonoBehaviour
 	void DrawCarriages()
 	{
 		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
-		
-		for (int index = 1; index <= trainCarriages.GetNumCarriages(); index++)
+	
+		for (int index = 0; index < trainCarriages.GetNumCarriages(); index++)
 		{
-			GUI.DrawTexture(new Rect(Screen.width - index * 100, 0, 100, 100), textureCarridges[0]);
+			int severity = 0; // good
+			float hp = trainCarriages.GetCarriage(index).GetHealth();
+			if (hp < 100)
+			{
+				++severity; // medium
+				if (hp < 50)
+				{
+					++severity; // broken
+				}
+			}
+			GUI.DrawTexture(new Rect((Screen.width - index * 100) + 100, 0, 100, 100), textureCarridges[severity]);
 		}
 	}
 	
