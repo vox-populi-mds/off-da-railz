@@ -64,18 +64,14 @@ public class Session
 	
 	public void Disconnect()
 	{
+		Network.Disconnect();
+		Players.Get().RemoveOthers();
+		Connected = false;
+		
 		if (Network.isServer)
 		{
-			Network.Disconnect();
 			MasterServer.UnregisterHost();
 			MasterServer.RequestHostList(GAME_TYPE);
-			Connected = false;
-		}
-		else if (Network.isClient)
-		{
-			Network.Disconnect();
-			Players.Get().RemoveOthers();
-			Connected = false;
 		}
 	}
 	
