@@ -44,7 +44,7 @@ public class PlayerHUD : MonoBehaviour
 	
 	void DrawCarriages()
 	{		
-		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
+		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();	
 		
 		int iOffsetX = 1;
 		
