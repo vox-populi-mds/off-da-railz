@@ -78,7 +78,6 @@ public class Game : MonoBehaviour
 			int SpawnLocId = UnityEngine.Random.Range(0, 15);
 			trainObject = ((Transform)Network.Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId].rotation, 0)).gameObject;
 			
-			
 			if (trainObject.GetComponent<NetworkView>().isMine)
 			{
 				trainObject.GetComponent<Train>().SetMine(true);
@@ -86,8 +85,8 @@ public class Game : MonoBehaviour
 		}
 		else 
 		{
-			trainObject = ((Transform) Instantiate(train, new Vector3(635.0f, 20.0f, -556.0f), Quaternion.identity))
-				.gameObject;
+			int SpawnLocId = UnityEngine.Random.Range(0, 15);
+			trainObject = ((Transform) Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId].rotation)).gameObject;			
 			trainObject.GetComponent<Train>().SetMine(true);
 		}
 	}
