@@ -237,14 +237,6 @@ public class Carriage : MonoBehaviour
 		}
 	}
 	
-<<<<<<< HEAD
-=======
-	void Damage(float _damage)
-	{
-		GetComponent<Health>().SetDamage(_damage);
-	}
-	
->>>>>>> df9a286cad379c1663f9a8a709594c308c3217b0
 	CarriageWheel SetupWheel(Transform _WheelTransform)
 	{	
 		GameObject Go = new GameObject(_WheelTransform.name + " Collider");
@@ -464,40 +456,6 @@ public class Carriage : MonoBehaviour
 		}
 	}		
 	
-<<<<<<< HEAD
-=======
-	void Dying()
-	{
-		m_Dying = true;
-		
-       	GameObject meshy = Instantiate(Resources.LoadAssetAtPath("Assets/Carriages/Models/train_boxwreck.obj", typeof(GameObject))) as GameObject;
-		
-		if (meshy.renderer != null)
-		{
-			meshy.renderer.enabled = false;
-		}
-		
-		GetComponentInChildren<MeshFilter>().mesh = meshy.GetComponentInChildren<MeshFilter>().mesh;
-		
-		DestroyImmediate(meshy);
-	}
-	
-	void DestroyCarriage()
-	{		
-		if (renderer != null)
-		{
-		this.renderer.enabled = false;
-		}		
-		if (m_Train != null)
-		{
-			m_Train.GetComponent<TrainCarriages>().RemCarriage(this);
-		}
-		
-		//Destroy(gameObject);
-		//Debug.Log("Destroyed");
-	}
-	
->>>>>>> df9a286cad379c1663f9a8a709594c308c3217b0
 	public void SetSplineFollowState(bool _State)
 	{
 		m_FollowSpline = _State;

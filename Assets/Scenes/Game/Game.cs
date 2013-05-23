@@ -184,9 +184,9 @@ public class Game : MonoBehaviour
 		debug_mode = false;
 		
 		// Instantiate Obstacles
-		foreach (Transform obstacle in levelObstacles) {
-			Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
-		}
+		//foreach (Transform obstacle in levelObstacles) {
+		//	Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
+		//}
 	}
 
 	void Update()

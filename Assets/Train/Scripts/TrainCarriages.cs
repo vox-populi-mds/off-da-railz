@@ -85,10 +85,14 @@ public class TrainCarriages : MonoBehaviour
 		m_DistanceFromLastWaypoint = 0;
 	}
 	
+	void Awake()
+	{
+		m_listCarriages = new List<Carriage>();	
+	}
+	
 	// Use this for initialization
 	void Start() 
 	{	
-		m_listCarriages = new List<Carriage>();	
 		m_listCarriagesAwaitingConnection = new List<Carriage>();
 		m_listWaypoints = new List<Transform>();
 		m_ActiveCarriage = null;
