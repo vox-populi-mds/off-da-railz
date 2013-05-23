@@ -47,17 +47,18 @@ public class Carriage : MonoBehaviour
 		
 		ProcessWheelGraphics(RelativeVelocity);
 		
+		// Server processes the info needed for the carriages.
 		if(Network.isServer)
 		{
 			ProcessDebugInfo();
-						
+
+			
+
 			if (!m_Dying)
 			{
 				if (GetComponent<Health>().GetHealth() < 50)
-				{		
-	
-					Dying();
-	
+				{	
+					networkView.RPC("Dying", RPCMode.All);
 				}
 			}
 			if (GetComponent<Health>().GetHealth() <= 0)
@@ -90,6 +91,7 @@ public class Carriage : MonoBehaviour
 	
 	void FixedUpdate()
 	{	
+		// Only update if it is the server
 		if(!Network.isServer)
 		{
 			return;
@@ -235,11 +237,14 @@ public class Carriage : MonoBehaviour
 		}
 	}
 	
+<<<<<<< HEAD
+=======
 	void Damage(float _damage)
 	{
 		GetComponent<Health>().SetDamage(_damage);
 	}
 	
+>>>>>>> df9a286cad379c1663f9a8a709594c308c3217b0
 	CarriageWheel SetupWheel(Transform _WheelTransform)
 	{	
 		GameObject Go = new GameObject(_WheelTransform.name + " Collider");
@@ -406,6 +411,30 @@ public class Carriage : MonoBehaviour
 		rigidbody.AddForce(v3RandomForce, ForceMode.Impulse);
 	}
 	
+	[RPC]
+	public void ApplyDamage(float _fDamage)
+	{
+		GetComponent<Health>().SetDamage(_fDamage);	
+		Debug.Log("Damage sustained : " + _fDamage);
+	}
+	
+	[RPC]
+	void Dying()
+	{
+		m_Dying = true;
+		
+		GetComponentInChildren<MeshFilter>().mesh = m_DamagedMesh;
+	}
+	
+	void DestroyCarriage()
+	{				
+		if (m_Train != null)
+		{
+			TrainCarriages PlayerTrainCarrages = m_Train.GetComponent<TrainCarriages>();
+			PlayerTrainCarrages.networkView.RPC("RemCarriage", RPCMode.All, this.networkView.viewID);
+		}
+	}
+	
 	void OnCollisionEnter(Collision CollisionInfo)
 	{	
 		if(!Network.isServer)
@@ -413,21 +442,18 @@ public class Carriage : MonoBehaviour
 			return;
 		}
 		
-		TrainCarriages PlayerTrainCarrages;
-		
 		if (CollisionInfo.gameObject.name == "Train(Clone)")
 		{
 			if (m_Train == null)
 			{
-				PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
-				PlayerTrainCarrages.AddCarriage(this);
+				TrainCarriages PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
+				PlayerTrainCarrages.networkView.RPC("AddCarriage", RPCMode.All, this.networkView.viewID);
 			}
 			else
 			{
 				if (m_ConnectionState == ConnectionState.CONNECTED_JOINT)
 				{
-					GetComponent<Health>().SetDamage(CollisionInfo.impactForceSum.magnitude);	
-					Debug.Log("Damage sustained : " + CollisionInfo.impactForceSum.magnitude);
+					networkView.RPC("ApplyDamage", RPCMode.All, CollisionInfo.impactForceSum.magnitude);
 				}
 			}
 		}
@@ -438,6 +464,8 @@ public class Carriage : MonoBehaviour
 		}
 	}		
 	
+<<<<<<< HEAD
+=======
 	void Dying()
 	{
 		m_Dying = true;
@@ -469,6 +497,7 @@ public class Carriage : MonoBehaviour
 		//Debug.Log("Destroyed");
 	}
 	
+>>>>>>> df9a286cad379c1663f9a8a709594c308c3217b0
 	public void SetSplineFollowState(bool _State)
 	{
 		m_FollowSpline = _State;
@@ -477,7 +506,7 @@ public class Carriage : MonoBehaviour
 	
 	//private GameObject 			m_ObjectWeaponPowerUp;
 	private GameObject			m_PowerupOrWeapon;
-	
+
 	public Transform[] 			m_WheelTransforms;
 	
 	public float	 			m_SuspensionRange 		= 0.5f;
@@ -486,6 +515,8 @@ public class Carriage : MonoBehaviour
 	
 	public Vector3 				m_GroundDragMultiplier = new Vector3(2.0f, 5.0f, 1.0f);
 	public Vector3 				m_AirDragMultiplier = new Vector3(0.0f, 0.0f, 1.0f);
+	
+	public Mesh					m_DamagedMesh = null;
 	
 	private bool 				m_IsOnGround = false;
 	private	float				m_GroundedTime = 0.0f;

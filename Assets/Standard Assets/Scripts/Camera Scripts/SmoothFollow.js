@@ -80,11 +80,11 @@ function LateUpdate ()
     	distance = Mathf.Clamp(hit.distance, minDistance, maxDistance);  
     	CollisionDetected = true;
     	
-    	Debug.DrawLine(transform.position, target.position, Color.red);	  	    	
+    	//Debug.DrawLine(transform.position, target.position, Color.red);	  	    	
     }
     else
     {
-    	Debug.DrawLine(transform.position, target.position, Color.green);	
+    	//Debug.DrawLine(transform.position, target.position, Color.green);	
     }
       
 	// Set the position of the camera on the x-z plane to:

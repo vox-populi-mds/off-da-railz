@@ -1,59 +1,48 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-/*
-public enum ECarriageType {
-	Rocket,
-	Shotgun,
-	Gatling,
-};*/
 
 public class TrainCarriages : MonoBehaviour 
 {
-	void Awake()
-	{
-		m_listCarriages = new List<Carriage>();	
-	}
-	
 	Carriage GetActiveCarriage() 
 	{
 		return m_ActiveCarriage;
 	}
 	
-	public bool AddCarriage(Carriage _carriage) 
+	[RPC]
+	public bool AddCarriage(NetworkViewID _iCarriageViewID) 
 	{
-		//if (m_listCarriages.Count < MAX_CARRIAGES)
+		if (m_listCarriages.Count < MAX_CARRIAGES)
 		{
-			m_listCarriages.Add(_carriage);
+			NetworkView NV = NetworkView.Find(_iCarriageViewID);
+			Carriage c = NV.gameObject.GetComponent<Carriage>();
 			
-			_carriage.SetTrain(transform);
+			m_listCarriages.Add(c);
+			c.SetTrain(transform);
 			
 			return true;
 		}
-		// over capacity!
-		//return false;
+		
+		//over capacity!
+		return false;
 	}
 	
-	public void RemAllCarriages()
+	[RPC]
+	public void RemCarriage(NetworkViewID _iCarriageViewID) 
 	{
-		if(m_listCarriages.Count != 0)
-		{
-			RemCarriage(m_listCarriages[0]);
-		}
-	}
-	
-	public void RemCarriage(Carriage _carriage) 
-	{
-		if ((!m_listCarriages.Contains(_carriage)) || m_listCarriages.Count == 0) 
+		NetworkView NV = NetworkView.Find(_iCarriageViewID);
+		Carriage c = NV.gameObject.GetComponent<Carriage>();
+			
+		if ((!m_listCarriages.Contains(c)) || m_listCarriages.Count == 0) 
 		{
 			// attempting to remove carriage that does not exist
 			return;
 		}
 		
-		int remCarIndex = m_listCarriages.IndexOf(_carriage); // index of carriage to remove			
+		int remCarIndex = m_listCarriages.IndexOf(c); // index of carriage to remove			
 		
 		// if attempting to remove the active carriage
-		if (_carriage == m_ActiveCarriage)
+		if (c == m_ActiveCarriage)
 		{			
 			if ( remCarIndex > 0 ) // if removed carriage is not first carriage
 			{
@@ -65,17 +54,21 @@ public class TrainCarriages : MonoBehaviour
 			}
 		}
 		
-		_carriage.SetConnectionState(Carriage.ConnectionState.NOT_CONNECTED);
+		c.SetConnectionState(Carriage.ConnectionState.NOT_CONNECTED);
 		m_listCarriages.RemoveAt(remCarIndex);
-		
-		//_carriage.Explode();
-		
-		//Destroy (_carriage);
 				
 		while (remCarIndex < m_listCarriages.Count) // loop through, remove all of them from the list and make them 'loose'
 		{
 			m_listCarriages[remCarIndex].SetConnectionState(Carriage.ConnectionState.NOT_CONNECTED);
 			m_listCarriages.RemoveAt(remCarIndex);
+		}
+	}
+	
+	public void RemAllCarriages()
+	{
+		if(m_listCarriages.Count != 0)
+		{
+			RemCarriage(m_listCarriages[0].networkView.viewID);
 		}
 	}
 	
@@ -94,20 +87,21 @@ public class TrainCarriages : MonoBehaviour
 	
 	// Use this for initialization
 	void Start() 
-	{
-		if(!Network.isServer)
-		{
-			return;
-		}
-		
+	{	
+		m_listCarriages = new List<Carriage>();	
 		m_listCarriagesAwaitingConnection = new List<Carriage>();
 		m_listWaypoints = new List<Transform>();
 		m_ActiveCarriage = null;
 		m_LatchTransform = transform.FindChild("BackLatch").transform;
 		m_CarriageLength = 30.0f;
 		
-		SetupInitialWaypoints();
-				
+		// Only Create ones spline.
+		if(!GetComponent<Train>().IsMine())
+		{
+			return;
+		}
+		
+		SetupInitialWaypoints();		
 	}
 	
 	void SetupInitialWaypoints()
@@ -123,7 +117,8 @@ public class TrainCarriages : MonoBehaviour
 	// Update is called once per frame
 	void Update() 
 	{
-		if(!Network.isServer)
+		// Only update ones own spline
+		if(!GetComponent<Train>().IsMine())
 		{
 			return;
 		}
@@ -401,7 +396,7 @@ public class TrainCarriages : MonoBehaviour
 	
 	public Vector3			m_CarriageAngularFreedom = new Vector3(10.0f, 45.0f, 0.5f);
 	public float 			m_CarriageMovementFreedom = 0.25f;
-	public const uint		MAX_CARRIAGES = 10;
+	public const uint		MAX_CARRIAGES = 50;
 	
 	public AudioClip 		m_connectionNoise;
 }
