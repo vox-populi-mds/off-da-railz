@@ -384,6 +384,16 @@ public class TrainCarriages : MonoBehaviour
 		return null;
 	}
 	
+	public float CumulativeHealth()
+	{
+		float retval = 0.0f;
+		foreach (Carriage car in m_listCarriages)
+		{
+			retval += car.GetHealth();
+		}
+		return retval;
+	}
+	
 	private List<Carriage> 		m_listCarriages;
 	private List<Carriage> 		m_listCarriagesAwaitingConnection;
 	private Carriage			m_ActiveCarriage;

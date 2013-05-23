@@ -406,8 +406,8 @@ public class Carriage : MonoBehaviour
 	[RPC]
 	public void ApplyDamage(float _fDamage)
 	{
-		GetComponent<Health>().SetDamage(_fDamage);	
-		Debug.Log("Damage sustained : " + _fDamage);
+		GetComponent<Health>().SetDamage(_fDamage/2);	
+		Debug.Log("Damage sustained : " + _fDamage/2 + " (" + ToString() + ")");
 	}
 	
 	[RPC]
