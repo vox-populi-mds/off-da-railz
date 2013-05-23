@@ -7,7 +7,7 @@ public class Game : MonoBehaviour
 	public Transform 	train;
 	public Transform 	cameras;
 	public Transform 	userInterface;
-	public Transform[] 	levelObstacles = new Transform[10];
+	public Transform[] 	levelObstacles = new Transform[100];
 	private Transform 	m_clientsCameras = null;
 	
 	public Transform[] m_SpawnLocations = new Transform[16];
@@ -184,9 +184,9 @@ public class Game : MonoBehaviour
 		debug_mode = false;
 		
 		// Instantiate Obstacles
-		//foreach (Transform obstacle in levelObstacles) {
-		//	Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
-		//}
+		foreach (Transform obstacle in levelObstacles) {
+			Instantiate(obstacle, obstacle.localPosition, obstacle.localRotation);
+		}
 	}
 
 	void Update()
