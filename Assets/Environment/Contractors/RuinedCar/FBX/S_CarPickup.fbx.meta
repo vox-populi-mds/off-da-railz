@@ -1,22 +1,49 @@
 fileFormatVersion: 2
-guid: d60859031080f4cc183c5f275f655acd
-labels:
-- Construction
-- Stone
+guid: 9bbb38583e205a441b1d543e01ae49c5
 ModelImporter:
   serializedVersion: 15
   fileIDToRecycleName:
-    100000: //RootNode
-    400000: //RootNode
-    2300000: //RootNode
-    2800000: __AssetImporterPreview
-    3300000: //RootNode
-    4300000: pPipe1
-    6400000: //RootNode
-    11100000: //RootNode
+    100000: polySurface36
+    100002: polySurface37
+    100004: polySurface38
+    100006: polySurface39
+    100008: polySurface47
+    100010: //RootNode
+    100012: transform1
+    100014: transform2
+    100016: transform3
+    100018: transform4
+    400000: polySurface36
+    400002: polySurface37
+    400004: polySurface38
+    400006: polySurface39
+    400008: polySurface47
+    400010: //RootNode
+    400012: transform1
+    400014: transform2
+    400016: transform3
+    400018: transform4
+    2300000: polySurface47
+    2300002: transform1
+    2300004: transform2
+    2300006: transform3
+    2300008: transform4
+    2300010: //RootNode
+    3300000: polySurface47
+    3300002: transform1
+    3300004: transform2
+    3300006: transform3
+    3300008: transform4
+    3300010: //RootNode
+    4300000: transform3
+    4300002: transform1
+    4300004: transform2
+    4300006: transform4
+    4300008: polySurface47
+    9500000: //RootNode
   materials:
     importMaterials: 1
-    materialName: 3
+    materialName: 0
     materialSearch: 1
   animations:
     legacyGenerateAnimations: 4
@@ -30,9 +57,9 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: .00999999978
     meshCompression: 0
-    addColliders: 1
+    addColliders: 0
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
@@ -43,8 +70,8 @@ ModelImporter:
     secondaryUVPackMargin: 4
   tangentSpace:
     normalSmoothAngle: 60
-    splitTangentsAcrossUV: 0
-    normalImportMode: 1
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
     tangentImportMode: 1
   importAnimation: 1
   copyAvatar: 0
@@ -62,5 +89,5 @@ ModelImporter:
     rootMotionBoneName: 
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   additionalBone: 1
-  animationType: 1
+  animationType: 2
   userData: 
