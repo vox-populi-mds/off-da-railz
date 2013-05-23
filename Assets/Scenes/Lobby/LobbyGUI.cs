@@ -50,7 +50,8 @@ public class LobbyGUI : MonoBehaviour
 				GUILayout.BeginHorizontal();
 				GUILayout.Label(player.Name, GUILayout.Width(column0width));
 				//GUILayout.Label(player.Ready ? "Yes" : "No", GUILayout.Width(column1width));
-				GUILayout.Label(Network.GetAveragePing(player.NetworkPlayer).ToString(), GUILayout.Width(column2width));
+				int ping = Network.GetAveragePing(player.NetworkPlayer);
+				GUILayout.Label((ping < 0 ? "0" : ping.ToString()), GUILayout.Width(column2width));
 				GUILayout.EndHorizontal();
 			}
 		}
