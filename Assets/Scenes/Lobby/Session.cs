@@ -17,6 +17,22 @@ public class Session
 	
 	int m_round;
 	
+	bool m_sessionInProgress = false;
+	
+	bool m_readyToLoadGame = false;
+	
+	public bool ReadyToLoadGame
+	{
+		get { return m_readyToLoadGame; }
+		set { m_readyToLoadGame = value; }
+	}
+	
+	public bool GameInSession
+	{
+		get { return m_sessionInProgress; }
+		set { m_sessionInProgress = value; }
+	}
+	
 	public bool Connected
 	{
 		get;
@@ -70,6 +86,7 @@ public class Session
 		Network.Disconnect();
 		Players.Get().RemoveOthers();
 		Connected = false;
+		m_sessionInProgress = false;
 		
 		if (Network.isServer)
 		{
@@ -92,6 +109,7 @@ public class Session
 			player.Score += player.RoundScore;
 			player.Train = null;
 		}
+		m_sessionInProgress = true;
 	}
 	
 	public static Session Get()
@@ -127,6 +145,7 @@ public class Session
 		Connected = true;
 	}
 	
+		m_sessionInProgress = false;
 	public void FindHosts()
 	{
 		MasterServer.RequestHostList(GAME_TYPE);
@@ -183,6 +202,7 @@ public class Session
 	
 	public void StartGame()
 	{
+		m_sessionInProgress = true;
 		m_leftGame = false;
 		m_round = 0;
 		//Players.Get().

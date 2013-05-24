@@ -114,6 +114,7 @@ public class LobbyGUI : MonoBehaviour
 			{
 				if (GUILayout.Button("GO!", widthOption))
 				{
+					GetComponent<Lobby>().
 					GetComponent<Lobby>().GO();
 				}
 			}
@@ -206,7 +207,11 @@ public class LobbyGUI : MonoBehaviour
 				{
 					if (GUILayout.Button("Connect"))
 					{
-						Session.Get().Connect(host);
+						// Make sure a game is not in session before connecting
+						if (!Session.Get().GameInSession)
+						{
+							Session.Get().Connect(host);
+						}
 					}
 				}
 			}

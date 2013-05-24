@@ -175,6 +175,9 @@ public class Game : MonoBehaviour
 	
 	void Start()
 	{
+		if (!Session.Get ().ReadyToLoadGame)
+			return;
+		
 		CreateTrain();
 		
 		m_clientsCameras = ((Transform) Instantiate(cameras, Vector3.zero, Quaternion.identity));
@@ -202,6 +205,22 @@ public class Game : MonoBehaviour
 		{
 			Session.Get().EndRound();
 		}
+	}
+	
+
+	void OnPlayerConnected(NetworkPlayer networkPlayer)
+	{
+		// This game is in session kindly Fuck off
+		if (Session.Get ().GameInSession && Network.isServer)
+		{
+			networkView.RPC("GoAway", networkPlayer);
+		}
+	}	
+	
+	[RPC]
+	void GoAway()
+	{
+		Session.Get ().Disconnect();
 	}
 	
 	void OnPlayerDisconnected(NetworkPlayer networkPlayer)
