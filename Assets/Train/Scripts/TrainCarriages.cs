@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using OffDaRailz;
 
 public class TrainCarriages : MonoBehaviour 
 {
@@ -115,33 +116,49 @@ public class TrainCarriages : MonoBehaviour
 	// Update is called once per frame
 	void Update() 
 	{	
-		if (m_listCarriages.Count > 1) 
+		if (m_listCarriages.Count >= 1) 
 		{
 			if (Input.GetKeyDown(KeyCode.E) || Input.GetAxis("Mouse ScrollWheel")>0)
 			{
-				int index = m_listCarriages.IndexOf(m_ActiveCarriage);
+				if (m_ActiveCarriage != null){
+					int index = m_listCarriages.IndexOf(m_ActiveCarriage);
+					m_ActiveCarriage.UpGrade().DisableUpgrade();
 				
-				if (m_listCarriages.Count > index + 1)
-				{
-					m_ActiveCarriage = m_listCarriages[index+1];
-				}			
-				else
-				{
+					if (m_listCarriages.Count > index + 1)
+					{
+						m_ActiveCarriage = m_listCarriages[index+1];
+					}			
+					else
+					{
+						m_ActiveCarriage = m_listCarriages[0];
+					}
+				}else{
 					m_ActiveCarriage = m_listCarriages[0];
 				}
+				
+				m_ActiveCarriage.UpGrade().EnableUpgrade();				
 			} else
 			if (Input.GetKeyDown(KeyCode.Q) || Input.GetAxis("Mouse ScrollWheel")<0)
 			{
-				int index = m_listCarriages.IndexOf(m_ActiveCarriage);
-				if (index > 0)
-				{
-					m_ActiveCarriage = m_listCarriages[index-1];
+				if (m_ActiveCarriage != null){
+					int index = m_listCarriages.IndexOf(m_ActiveCarriage);
+					m_ActiveCarriage.UpGrade();
+					
+					if (index > 0)
+					{
+						m_ActiveCarriage = m_listCarriages[index-1];
+					}
+					else
+					{
+						m_ActiveCarriage = m_listCarriages[m_listCarriages.Count-1];
+					}
+				}else{
+					m_ActiveCarriage = m_listCarriages[0];
 				}
-				else
-				{
-					m_ActiveCarriage = m_listCarriages[m_listCarriages.Count-1];
-				}
+				
+				m_ActiveCarriage.UpGrade().EnableUpgrade();		
 			}
+			
 		}
 		
 		CleanOldWaypoints();

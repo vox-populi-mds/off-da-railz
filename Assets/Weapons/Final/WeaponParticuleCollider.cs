@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using OffTheRailz;
+using OffDaRailz;
 
 public class WeaponParticleCollisions : MonoBehaviour {
 	public float m_fDamagePerShot;

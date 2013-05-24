@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using OffTheRailz;
+using OffDaRailz;
 
 public class CarriageWheel
 {
@@ -25,6 +25,7 @@ public class Carriage : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{	
+		GameObject l_Weapon;
 		SetupWheelColliders();
 		
 		Vector3 v3NewCenter = (transform.FindChild("FrontLatch").transform.localPosition + transform.FindChild("BackLatch").transform.localPosition) * 0.5f;
@@ -32,7 +33,9 @@ public class Carriage : MonoBehaviour
 		m_InitAngularDrag = rigidbody.angularDrag;
 			
 		// test the weapons
-		//m_PowerupOrWeapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Shotgun/Shotgun.prefab", typeof(GameObject))) as GameObject;
+		l_Weapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Final/Shotgun.prefab", typeof(GameObject))) as GameObject;
+		m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<Shoot>();
+		
 		if (!GameObject.Find("The Game").GetComponent<Game>().debug_mode)		
 		{
 			DisableDebugWheelRendering();
@@ -218,8 +221,10 @@ public class Carriage : MonoBehaviour
 	
 	public void SetTrain(Transform _train)
 	{
+		Transform leftGunPos = _train.FindChild("LeftGunPort");
 		m_Train = _train;
 		GetComponent<Health>().Reset();
+		m_PowerupOrWeapon.SetTarget(leftGunPos);
 	}
 	
 	public float GetHealth()
@@ -462,9 +467,12 @@ public class Carriage : MonoBehaviour
 		m_FollowSpline = _State;
 	}
 	
+	public IUpgrade UpGrade(){
+		return (m_PowerupOrWeapon);	
+	}
 	
 	//private GameObject 			m_ObjectWeaponPowerUp;
-	private GameObject			m_PowerupOrWeapon;
+	private IUpgrade			m_PowerupOrWeapon;
 
 	public Transform[] 			m_WheelTransforms;
 	
