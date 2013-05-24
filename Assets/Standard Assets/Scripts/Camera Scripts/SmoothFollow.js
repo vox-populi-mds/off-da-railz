@@ -13,6 +13,7 @@ Then we apply the smoothed values to the transform's position.
 var target : Transform;
 // The distance in the x-z plane to the target
 private var distance = 10.0;
+private var hitDistance = 10.0f;
 // the height we want the camera to be above the target
 var height = 5.0;
 // How much we 
@@ -21,8 +22,8 @@ var rotationDamping = 3.0;
 
 var CollisionDetected : boolean;
 var CollisionCoolDown : float = 0.0f;
-var minDistance = 1.0f;
-var maxDistance = 10.0f;
+var minDistance = 10.0f;
+var maxDistance = 40.0f;
 
 // Place the script in the Camera-Control group in the component menu
 @script AddComponentMenu("Camera-Control/Smooth Follow")
@@ -46,13 +47,19 @@ function LateUpdate ()
 	if (!target)
 		return;
 		
+	var Layermask : int = 1 << 8;
+	var hit : RaycastHit;
+		
 	if(CollisionDetected)
 	{
 		CollisionCoolDown += Time.deltaTime;
 		if(CollisionCoolDown > 2.0f)
 		{
-			CollisionCoolDown = 0.0f;
-			CollisionDetected = false;
+			if( Physics.Linecast(transform.position, target.position, hit, Layermask) == false)
+		    {
+				CollisionCoolDown = 0.0f;
+				CollisionDetected = false;		
+			}		
 		}
 	}
 	
@@ -71,29 +78,33 @@ function LateUpdate ()
 
 	// Convert the angle into a rotation
 	var currentRotation = Quaternion.Euler (0, currentRotationAngle, 0);
-	var Layermask : int = 1 << 8;
-			
-	var hit : RaycastHit;
-    if( Physics.Linecast( transform.position, target.position, hit, Layermask))
+	
+	//if(CollisionDetected == false)
+	//{		
+		//Set the position of the camera on the x-z plane to:
+		//distance meters behind the target
+		transform.position = target.position;
+		transform.position -= currentRotation * Vector3.forward * distance;     	
+		
+		// Set the height of the camera
+		transform.position.y = currentHeight;		
+	//}
+	
+	var TargetPos : Vector3 = target.position;
+	TargetPos.y += 10;
+	
+	if( Physics.Linecast(TargetPos, transform.position, hit, Layermask))
     {
-   		var oldDistance = distance;
-    	distance = Mathf.Clamp(hit.distance, minDistance, maxDistance);  
-    	CollisionDetected = true;
+    	CollisionDetected = true;   
     	
+    	var Direction : Vector3;
+    	Direction = target.position - transform.position;
+    	Direction.Normalize();
+    	Direction *= 5.0f;   	       	
+    	transform.position = hit.point + Direction; 
+    	//transform.position = hit.point;
     	//Debug.DrawLine(transform.position, target.position, Color.red);	  	    	
-    }
-    else
-    {
-    	//Debug.DrawLine(transform.position, target.position, Color.green);	
-    }
-      
-	// Set the position of the camera on the x-z plane to:
-	// distance meters behind the target
-	transform.position = target.position;
-	transform.position -= currentRotation * Vector3.forward * distance;
-
-	// Set the height of the camera
-	transform.position.y = currentHeight;
+    }  
 	
 	// Always look at the target
 	transform.LookAt (target);
