@@ -174,7 +174,10 @@ public class Carriage : MonoBehaviour
 			Quaternion q = rigidbody.transform.rotation * rigidbody.inertiaTensorRotation;
 			Vector3 T = q * Vector3.Scale(rigidbody.inertiaTensor, (Quaternion.Inverse(q) * W));
 			
-			rigidbody.AddTorque(T, ForceMode.Force);
+			if(!float.IsNaN(T.x) && !float.IsNaN(T.y) && !float.IsNaN(T.z))
+			{
+				rigidbody.AddTorque(T, ForceMode.Force);
+			}
 
 			// Set the connection state to wait for a joint connection from the train carriage if close enough.
 			float fLatchDistance = Vector3.Distance(m_FrontBackLatchTransform.position, transform.FindChild("FrontLatch").transform.position);

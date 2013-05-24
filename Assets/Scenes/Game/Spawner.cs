@@ -16,7 +16,15 @@ public class Spawner : MonoBehaviour
 		{
 			m_listCarriages = new List<Carriage>();
 			
-			SetupQuadrants();
+			// Random dropping spawn.
+			if(m_RandomSpawnOverride)
+			{
+				SetupQuadrants();
+			}
+			else
+			{
+				SetupSpawnLocations();
+			}
 			
 			// Spawn initial carriages.
 			for(int i = 0; i < m_InitialSpawnedCarriages; ++i)
@@ -37,6 +45,16 @@ public class Spawner : MonoBehaviour
 				SpawnNewCarriage();
 				m_fSpawnTimer = 0.0f;
 			}
+		}
+	}
+	
+	void SetupSpawnLocations()
+	{
+		m_listSpawnLocations = new List<Transform>();
+		
+		foreach(Transform t in m_SpawnLocations)
+		{
+			m_listSpawnLocations.Add(t);
 		}
 	}
 	
@@ -62,29 +80,61 @@ public class Spawner : MonoBehaviour
 			}
 		}
 		
-		m_CurrentSpawnQuad = 0;
+		m_CurrentSpawnLocation = 0;
 	}
 	
 	void SpawnNewCarriage()
-	{
-		GameObject CarriageGO = ((Transform) Network.Instantiate(m_Carriage, Vector3.zero, Random.rotation, 0)).gameObject;
-			
-		Vector3 v3RandomPosition = new Vector3(Random.Range(m_listSpawnQuadrants[m_CurrentSpawnQuad].bottomLeft.x, 
-															m_listSpawnQuadrants[m_CurrentSpawnQuad].topRight.x), 300.0f, 
-											   Random.Range(m_listSpawnQuadrants[m_CurrentSpawnQuad].bottomLeft.z, 
-															m_listSpawnQuadrants[m_CurrentSpawnQuad].topRight.z));
-		CarriageGO.transform.position = v3RandomPosition;
-		
-		m_listCarriages.Add(CarriageGO.GetComponent<Carriage>());
-		
-		// Change spawwning quadrant.
-		if(m_CurrentSpawnQuad != m_listSpawnQuadrants.Count - 1)
+	{	
+		if(m_RandomSpawnOverride)
 		{
-			m_CurrentSpawnQuad += 1;
+			GameObject CarriageGO = ((Transform) Network.Instantiate(m_Carriage, Vector3.zero, Random.rotation, 0)).gameObject;
+				
+			Vector3 v3RandomPosition = new Vector3(Random.Range(m_listSpawnQuadrants[m_CurrentSpawnLocation].bottomLeft.x, 
+																m_listSpawnQuadrants[m_CurrentSpawnLocation].topRight.x), 300.0f, 
+												   Random.Range(m_listSpawnQuadrants[m_CurrentSpawnLocation].bottomLeft.z, 
+																m_listSpawnQuadrants[m_CurrentSpawnLocation].topRight.z));
+			CarriageGO.transform.position = v3RandomPosition;
+			
+			m_listCarriages.Add(CarriageGO.GetComponent<Carriage>());
+			
+			// Change spawning location.
+			if(m_CurrentSpawnLocation != m_listSpawnQuadrants.Count - 1)
+			{
+				m_CurrentSpawnLocation += 1;
+			}
+			else
+			{
+				m_CurrentSpawnLocation = 0;
+			}
 		}
 		else
 		{
-			m_CurrentSpawnQuad = 0;
+			Transform transformSpawner = m_listSpawnLocations[m_CurrentSpawnLocation];
+			
+			Quaternion RotationSpawn = transformSpawner.rotation;
+			Vector3 PositionSpawn = transformSpawner.position;
+			
+			GameObject CarriageGO = ((Transform) Network.Instantiate(m_Carriage, PositionSpawn, RotationSpawn, 0)).gameObject;
+			
+			float ForceAmmount = transformSpawner.GetComponent<SpawnForce>().m_Force;
+			ForceAmmount += Random.Range(-ForceAmmount/5.0f, ForceAmmount/5.0f);
+			
+			CarriageGO.rigidbody.AddForce((RotationSpawn * Vector3.forward) * ForceAmmount * CarriageGO.rigidbody.mass, ForceMode.Impulse);
+			
+			m_listCarriages.Add(CarriageGO.GetComponent<Carriage>());
+			
+			// Change spawning location.
+			int iRandomPlus = Random.Range(1, 3);
+			if(m_CurrentSpawnLocation < m_listSpawnLocations.Count - iRandomPlus)
+			{
+				m_CurrentSpawnLocation += iRandomPlus;
+			}
+			else
+			{
+				m_CurrentSpawnLocation = (m_CurrentSpawnLocation + iRandomPlus) - m_listSpawnLocations.Count;
+			}
+			
+			Debug.Log(m_CurrentSpawnLocation);
 		}
 	}
 	
@@ -92,9 +142,14 @@ public class Spawner : MonoBehaviour
 	public int 				m_InitialSpawnedCarriages = 5;
 	public Transform		m_Carriage;
 	
+	public Transform		m_SpawnLocations;
+	public bool 			m_RandomSpawnOverride = false;
+	
 	private float 			m_fSpawnTimer;
 	private float			m_ArenaWidthHeight = 1000.0f;
 	private List<Carriage> 	m_listCarriages;
+	
+	private List<Transform>	m_listSpawnLocations;
 	private List<Quadrant>	m_listSpawnQuadrants;
-	private	int				m_CurrentSpawnQuad;
+	private	int				m_CurrentSpawnLocation;
 }

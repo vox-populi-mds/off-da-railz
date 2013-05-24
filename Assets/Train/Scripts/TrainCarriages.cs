@@ -274,7 +274,7 @@ public class TrainCarriages : MonoBehaviour
 				Transform transformFront;
 				
 				int carriageIndex = m_listCarriages.IndexOf(c);
-				if(carriageIndex != 0)
+				if(carriageIndex > 0)
 				{
 					transformFront = m_listCarriages[carriageIndex - 1].transform;
 				}
