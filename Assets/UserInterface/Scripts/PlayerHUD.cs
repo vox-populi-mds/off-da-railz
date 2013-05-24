@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using OffDaRailz;
 
 public class PlayerHUD : MonoBehaviour
 {
@@ -21,6 +22,9 @@ public class PlayerHUD : MonoBehaviour
 	
 	public Texture2D[] textureCarridges = new Texture2D[3];
 	public Texture2D textureWeaponShotgun;
+	public Texture2D textureWeaponEmpty;
+	public Texture2D textureSpeedBoost;
+	public Texture2D textureInactive;
 	
 	bool m_menu;	
 	float m_menuBoxSize;	
@@ -151,14 +155,53 @@ public class PlayerHUD : MonoBehaviour
 	
 	void DrawWeapons()
 	{
-		float Width = textureWeaponShotgun.width * GUIscale;
-		float Height = textureWeaponShotgun.height * GUIscale;
+		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
 		
+		float Width = textureWeaponShotgun.width * GUIscale;
+		float Height = textureWeaponShotgun.height * GUIscale;		
 		float Offset = 100 * GUIscale;
 		
+		if(trainCarriages.GetActiveCarriage() != null)
+		{
+			IUpgrade CurrentUpgrade = trainCarriages.GetActiveCarriage().UpGrade();		
+			
+			string WeaponName = CurrentUpgrade.GetName();
+					
+			if(WeaponName == "Shotgun")
+			{			
+				GUI.DrawTexture(new Rect((Width / 2) - Offset, Screen.height - (Height / 2),
+					(Width / 2), (Height / 2)), textureWeaponShotgun, ScaleMode.ScaleAndCrop);
+			}
+			else if(WeaponName == "NoPowerUp")
+			{
+				GUI.DrawTexture(new Rect((Width / 2) - Offset, Screen.height - (Height / 2),
+					(Width / 2), (Height / 2)), textureWeaponEmpty, ScaleMode.ScaleAndCrop);
+			}
+			else if(WeaponName == "SpeedBoost")
+			{
+				GUI.DrawTexture(new Rect((Width / 2) - Offset, Screen.height - (Height / 2),
+					(Width / 2), (Height / 2)), textureSpeedBoost, ScaleMode.ScaleAndCrop);
+			}
+			
+			if(CurrentUpgrade.IsAvailable() == false)
+			{
+				GUI.DrawTexture(new Rect((Width / 2) - Offset, Screen.height - (Height / 2),
+					(Width / 2), (Height / 2)), textureInactive, ScaleMode.ScaleAndCrop);
+			}
+		}
+		
 		GUI.DrawTexture(new Rect((Width / 2) - Offset, Screen.height - (Height / 2),
-			(Width / 2), (Height / 2)), textureWeaponShotgun, ScaleMode.ScaleAndCrop);
+		(Width / 2), (Height / 2)), textureWeaponEmpty, ScaleMode.ScaleAndCrop);		
  	}
+	
+	void DrawSpeed()
+	{		
+		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
+		Train train = trainCarriages.GetComponent<Train>();
+		
+		GUI.Label(new Rect(Screen.width - 250, Screen.height - 30, ROUND_TIMER_WIDTH,
+						   GUIConstants.ONE_LINE_BOX_HEIGHT), "Speed  " + (int)train.GetSpeed());
+	}
 	
 	void OnGUI()
 	{
@@ -167,6 +210,7 @@ public class PlayerHUD : MonoBehaviour
 		DrawMenu();
 		DrawRoundTimer();
 		DrawWeapons();
+		DrawSpeed();
 	}
 	
 	void Start()

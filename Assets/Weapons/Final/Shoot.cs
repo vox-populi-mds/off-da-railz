@@ -18,13 +18,18 @@ public class Shoot : MonoBehaviour, IUpgrade{
 	protected AudioSource m_ReloadSource;
 	
 	protected float m_fReloadingTime = 0.0f;
-	protected bool m_bPlayingSound = false;
+	protected static bool m_bPlayingSound = false;
 	protected bool m_bEnabled = false;
 	
 	protected Transform m_GunPort;
+	
+	private string m_Name;
 
 	// Use this for initialization
-	void Start (){
+	void Start ()
+	{
+		m_Name = "Shotgun";
+		
 		m_fReloadingTime = 0.0f;
 		
 		if (m_ShootSound == null){
@@ -94,5 +99,15 @@ public class Shoot : MonoBehaviour, IUpgrade{
 			GetComponent<Animation>().Play("Take 001");	
 			m_bEnabled = false;
 		}
+	}
+	
+	public string GetName()
+	{
+		return(m_Name);
+	}
+	
+	public bool IsAvailable()
+	{
+		return(!m_bPlayingSound);
 	}
 }

@@ -516,6 +516,16 @@ public class Train : MonoBehaviour
 		}
 	}
 	
+	public void IncreasePower(float Modifier)
+	{
+		m_CurrentEnginePower *= Modifier;			
+	}
+	
+	public void DecreasePower(float Modifier)
+	{
+		m_CurrentEnginePower /= Modifier;			
+	}
+	
 	void onCollisionEnter(Collision _collision)
 	{
 		foreach(ContactPoint Contact in _collision)

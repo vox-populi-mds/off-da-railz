@@ -34,7 +34,27 @@ public class Carriage : MonoBehaviour
 		// Test the weapons
 		//GameObject l_Weapon; = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Final/Shotgun.prefab", typeof(GameObject))) as GameObject;
 		GameObject l_Weapon = ((Transform)Instantiate(m_Powerups[0])).gameObject;
-		m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<Shoot>();
+		
+		int iRand = Random.Range(0, 10);
+			
+		m_PowerupOrWeapon = (IUpgrade)l_Weapon.AddComponent<NoPowerUp>();
+		
+		//Create Speed boost carriage
+		if(iRand > 6)
+		{
+			GetComponentInChildren<MeshRenderer>().material.color = new Color(0.5f, 0.5f,0.1f,1.0f);			
+			m_PowerupOrWeapon = (IUpgrade)l_Weapon.AddComponent<SpeedBoost>();
+		}
+		//Create shotgun carriage
+		else if(iRand > 8)
+		{
+			GetComponentInChildren<MeshRenderer>().material.color = new Color(1.0f, 0.2f,0.2f,1.0f);			
+			m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<Shoot>();
+		}
+		else
+		{
+			m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<NoPowerUp>();
+		}
 		
 		if (!GameObject.Find("The Game").GetComponent<Game>().debug_mode)		
 		{
@@ -224,7 +244,10 @@ public class Carriage : MonoBehaviour
 		Transform leftGunPos = _train.FindChild("LeftGunPort");
 		m_Train = _train;
 		GetComponent<Health>().Reset();
-		m_PowerupOrWeapon.SetTarget(leftGunPos);
+		if(m_PowerupOrWeapon != null)
+		{
+			m_PowerupOrWeapon.SetTarget(leftGunPos);
+		}
 	}
 	
 	public float GetHealth()
@@ -444,6 +467,7 @@ public class Carriage : MonoBehaviour
 		{
 			if (m_Train == null)
 			{
+				//Audio.GetInstance.Play(m_collisionNoise, transform, 100, false);
 				TrainCarriages PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
 				PlayerTrainCarrages.networkView.RPC("AddCarriage", RPCMode.All, this.networkView.viewID);
 			}
@@ -451,6 +475,7 @@ public class Carriage : MonoBehaviour
 			{
 				if (m_ConnectionState == ConnectionState.CONNECTED_JOINT)
 				{
+					//Audio.GetInstance.Play(m_collisionNoise, transform, 100, false);
 					networkView.RPC("ApplyDamage", RPCMode.All, CollisionInfo.impactForceSum.magnitude);
 				}
 			}
@@ -467,12 +492,15 @@ public class Carriage : MonoBehaviour
 		m_FollowSpline = _State;
 	}
 	
-	public IUpgrade UpGrade(){
+	public IUpgrade UpGrade()
+	{
 		return (m_PowerupOrWeapon);	
 	}
 	
 	//private GameObject 			m_ObjectWeaponPowerUp;
 	private IUpgrade			m_PowerupOrWeapon;
+	
+	public AudioClip			m_collisionNoise;
 
 	public Transform[] 			m_WheelTransforms;
 	

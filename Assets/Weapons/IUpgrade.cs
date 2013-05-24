@@ -6,5 +6,7 @@ namespace OffDaRailz{
 		void SetTarget(Transform GunPort);
 		void EnableUpgrade();
 		void DisableUpgrade();
+		string GetName();
+		bool IsAvailable();
 	}
 }

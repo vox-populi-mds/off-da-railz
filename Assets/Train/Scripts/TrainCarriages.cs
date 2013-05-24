@@ -5,7 +5,7 @@ using OffDaRailz;
 
 public class TrainCarriages : MonoBehaviour 
 {
-	Carriage GetActiveCarriage() 
+	public Carriage GetActiveCarriage() 
 	{
 		return m_ActiveCarriage;
 	}
@@ -120,7 +120,8 @@ public class TrainCarriages : MonoBehaviour
 		{
 			if (Input.GetKeyDown(KeyCode.E) || Input.GetAxis("Mouse ScrollWheel")>0)
 			{
-				if (m_ActiveCarriage != null){
+				if (m_ActiveCarriage != null)
+				{
 					int index = m_listCarriages.IndexOf(m_ActiveCarriage);
 					m_ActiveCarriage.UpGrade().DisableUpgrade();
 				
@@ -132,13 +133,16 @@ public class TrainCarriages : MonoBehaviour
 					{
 						m_ActiveCarriage = m_listCarriages[0];
 					}
-				}else{
+				}
+				else
+				{
 					m_ActiveCarriage = m_listCarriages[0];
 				}
 				
-				m_ActiveCarriage.UpGrade().EnableUpgrade();				
-			} else
-			if (Input.GetKeyDown(KeyCode.Q) || Input.GetAxis("Mouse ScrollWheel")<0)
+				m_ActiveCarriage.UpGrade().EnableUpgrade();	
+				m_PowerUpAvailable = m_ActiveCarriage.UpGrade().IsAvailable();
+			} 
+			else if (Input.GetKeyDown(KeyCode.Q) || Input.GetAxis("Mouse ScrollWheel")<0)
 			{
 				if (m_ActiveCarriage != null){
 					int index = m_listCarriages.IndexOf(m_ActiveCarriage);
@@ -156,7 +160,8 @@ public class TrainCarriages : MonoBehaviour
 					m_ActiveCarriage = m_listCarriages[0];
 				}
 				
-				m_ActiveCarriage.UpGrade().EnableUpgrade();		
+				m_ActiveCarriage.UpGrade().EnableUpgrade();
+				m_PowerUpAvailable = m_ActiveCarriage.UpGrade().IsAvailable();
 			}
 			
 		}
@@ -399,6 +404,7 @@ public class TrainCarriages : MonoBehaviour
 		return retval;
 	}
 	
+	public 	bool				m_PowerUpAvailable;
 	private List<Carriage> 		m_listCarriages;
 	private List<Carriage> 		m_listCarriagesAwaitingConnection;
 	private Carriage			m_ActiveCarriage;
