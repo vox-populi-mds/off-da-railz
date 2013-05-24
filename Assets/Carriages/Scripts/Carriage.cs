@@ -465,9 +465,9 @@ public class Carriage : MonoBehaviour
 		
 		if (CollisionInfo.gameObject.name == "Train(Clone)")
 		{
+			Audio.GetInstance.Play(m_collisionNoise, transform, m_CollisionVolume, false);
 			if (m_Train == null)
 			{
-				Audio.GetInstance.Play(m_collisionNoise, transform, m_CollisionVolume, false);
 				TrainCarriages PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
 				PlayerTrainCarrages.networkView.RPC("AddCarriage", RPCMode.All, this.networkView.viewID);
 			}
@@ -475,7 +475,6 @@ public class Carriage : MonoBehaviour
 			{
 				if (m_ConnectionState == ConnectionState.CONNECTED_JOINT)
 				{
-					Audio.GetInstance.Play(m_collisionNoise, transform, m_CollisionVolume, false);
 					networkView.RPC("ApplyDamage", RPCMode.All, CollisionInfo.impactForceSum.magnitude);
 				}
 			}
