@@ -117,7 +117,7 @@ public class Score : MonoBehaviour
 		
 		if (Network.isServer)
 		{
-			networkView.RPC("UpdatePlayerScores",RPCMode.Others, Players.Get().GetAll());
+			SendScore();			
 		}
 	}
 				
@@ -131,6 +131,7 @@ public class Score : MonoBehaviour
 		if (m_pingCooldown > 1)
 		{
 			m_pingCooldown = 0;
+			SendScore();
 		}
 		
 		m_countdown -= Time.deltaTime;
@@ -148,34 +149,38 @@ public class Score : MonoBehaviour
 		}
 	}
 	
-	[RPC]
-	public void UpdatePlayerScores(List<Player> _listPlayer, NetworkMessageInfo info)
+	void SendScore()
 	{
-		var myPlayerList = Players.Get ();
-		foreach( Player player in _listPlayer )
+		foreach (Player player in Players.Get ().GetAll())
 		{
-			var thisplayer = myPlayerList.Get(player.IPAddress,player.Port);
-			if (thisplayer == null)
-			{
-				// attempting to update player that does not exist
-				var err = "Score.UpdatePlayerScore() : Player " + player.IPAddress + ":" + player.Port + " does not exist!";
-				Debug.LogError(err);
-				networkView.RPC("Tell",RPCMode.Server,err);
-			}
-			else
-			{
-				if (thisplayer.Me)
-				{
-					if (player.Score != thisplayer.Score)
-					{
-						Debug.Log("Server thinks my score is wrong");
-					}
-				}
-				thisplayer.Score = player.Score;	
-			}
+			networkView.RPC("UpdatePlayerScore",RPCMode.Others, player.Score, player.IPAddress, player.Port);
 		}
-		//Players.Get().
-		//return Players.Get ().Get(info.sender.ipAddress,info.sender.port).Score;
+	}
+	
+	[RPC]
+	public void UpdatePlayerScore(int score, string ipAddress, int port, NetworkMessageInfo info)
+	{
+		var thisplayer = Players.Get().Get(ipAddress, port);
+		
+		if (thisplayer == null)
+		{
+			// attempting to update player that does not exist
+			var msgString = "Score.UpdatePlayerScore() : Player " + ipAddress + ":" + port + " does not exist!";
+			Debug.LogError(msgString);
+			networkView.RPC("Tell",RPCMode.Server,msgString);
+		}
+		else
+		{
+			if (thisplayer.Me)
+			{
+				if (score != thisplayer.Score)
+				{
+					Debug.Log("Server thinks my score is wrong");
+				}
+			}
+			thisplayer.Score = score;	
+		}
+		
 	}
 				
 }
