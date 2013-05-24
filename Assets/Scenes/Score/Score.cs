@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Score : MonoBehaviour
 {
@@ -85,8 +86,8 @@ public class Score : MonoBehaviour
 		foreach (Player player in Players.Get().GetAll())
 		{
 			GUILayout.BeginHorizontal();
-			GUILayout.Label(player.Name, GUILayout.Width(column0width));
-			GUILayout.Label(player.Score.ToString(), GUILayout.Width(column1width));
+			GUILayout.Label(player.Name, GUILayout.Width(column0width));	
+			GUILayout.Label(player.Score.ToString() , GUILayout.Width(column1width));			
 			GUILayout.Label(player.LastPing.ToString(), GUILayout.Width(column2width));
 			GUILayout.EndHorizontal();
 		}
@@ -112,8 +113,14 @@ public class Score : MonoBehaviour
 	void Start()
 	{ 
 		m_pingCooldown = 0.0f;
+		
+		
+		if (Network.isServer)
+		{
+			networkView.RPC("UpdatePlayerScores",RPCMode.Others, Players.Get().GetAll());
+		}
 	}
-	
+				
 	void Update()
 	{
 		m_pingCooldown += Time.deltaTime;
@@ -140,4 +147,35 @@ public class Score : MonoBehaviour
 			}
 		}
 	}
+	
+	[RPC]
+	public void UpdatePlayerScores(List<Player> _listPlayer, NetworkMessageInfo info)
+	{
+		var myPlayerList = Players.Get ();
+		foreach( Player player in _listPlayer )
+		{
+			var thisplayer = myPlayerList.Get(player.IPAddress,player.Port);
+			if (thisplayer == null)
+			{
+				// attempting to update player that does not exist
+				var err = "Score.UpdatePlayerScore() : Player " + player.IPAddress + ":" + player.Port + " does not exist!";
+				Debug.LogError(err);
+				networkView.RPC("Tell",RPCMode.Server,err);
+			}
+			else
+			{
+				if (thisplayer.Me)
+				{
+					if (player.Score != thisplayer.Score)
+					{
+						Debug.Log("Server thinks my score is wrong");
+					}
+				}
+				thisplayer.Score = player.Score;	
+			}
+		}
+		//Players.Get().
+		//return Players.Get ().Get(info.sender.ipAddress,info.sender.port).Score;
+	}
+				
 }

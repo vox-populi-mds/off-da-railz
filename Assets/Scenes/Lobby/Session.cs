@@ -158,10 +158,25 @@ public class Session
 	{
 		m_leftGame = false;
 		m_round = 0;
+		//Players.Get().
 	}
 	
 	public void StartRound()
 	{
 		m_round++;	
+	}
+	
+	[RPC]
+	// if the client wants to 'Tell' the server something at any time, use this function
+	public void Tell(string msg, NetworkMessageInfo info)
+	{
+		var senderstring = info.sender.ipAddress + ":" + info.sender.port;
+		var player = Players.Get().Get(info.sender.ipAddress, info.sender.port);
+		
+		if (player != null)
+		{
+			senderstring = player.Name;
+		}
+		Debug.Log(senderstring + " said '" + msg + "'");
 	}
 }
