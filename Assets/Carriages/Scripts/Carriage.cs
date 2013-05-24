@@ -467,7 +467,7 @@ public class Carriage : MonoBehaviour
 		{
 			if (m_Train == null)
 			{
-				//Audio.GetInstance.Play(m_collisionNoise, transform, 100, false);
+				Audio.GetInstance.Play(m_collisionNoise, transform, m_CollisionVolume, false);
 				TrainCarriages PlayerTrainCarrages = CollisionInfo.gameObject.GetComponent<TrainCarriages>();
 				PlayerTrainCarrages.networkView.RPC("AddCarriage", RPCMode.All, this.networkView.viewID);
 			}
@@ -475,7 +475,7 @@ public class Carriage : MonoBehaviour
 			{
 				if (m_ConnectionState == ConnectionState.CONNECTED_JOINT)
 				{
-					//Audio.GetInstance.Play(m_collisionNoise, transform, 100, false);
+					Audio.GetInstance.Play(m_collisionNoise, transform, m_CollisionVolume, false);
 					networkView.RPC("ApplyDamage", RPCMode.All, CollisionInfo.impactForceSum.magnitude);
 				}
 			}
@@ -501,6 +501,7 @@ public class Carriage : MonoBehaviour
 	private IUpgrade			m_PowerupOrWeapon;
 	
 	public AudioClip			m_collisionNoise;
+	public float 				m_CollisionVolume = 1;
 
 	public Transform[] 			m_WheelTransforms;
 	
