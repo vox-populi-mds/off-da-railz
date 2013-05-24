@@ -11,6 +11,8 @@ public class Session
 	
 	bool m_leftGame;
 	
+	int m_levelPrefix;
+	
 	int m_roundCount;
 	
 	int m_round;
@@ -40,6 +42,7 @@ public class Session
 		Name = "Train wreck!";
 		
 		m_leftGame = false;
+		m_levelPrefix = 0;
 		m_round = 0;
 		m_roundCount = 0;
 		
@@ -75,14 +78,20 @@ public class Session
 		}
 	}
 	
+	public void EndGame()
+	{
+		LoadLevel("Lobby");
+	}
+	
 	public void EndRound()
 	{
+		LoadLevel("Score");
+		
 		foreach (Player player in Players.Get().GetAll())
 		{
 			player.Score += player.RoundScore;
+			player.Train = null;
 		}
-		
-		Application.LoadLevel("Score");
 	}
 	
 	public static Session Get()
@@ -118,11 +127,6 @@ public class Session
 		Connected = true;
 	}
 	
-	public void EndGame()
-	{
-		Application.LoadLevel("Lobby");
-	}
-	
 	public void FindHosts()
 	{
 		MasterServer.RequestHostList(GAME_TYPE);
@@ -144,6 +148,29 @@ public class Session
 		return m_leftGame;
 	}
 	
+	void LoadLevel(string level)
+	{
+		m_levelPrefix++;
+		
+		// There is no reason to send any more data over the network on the default channel,
+		// because we are about to load the level, thus all those objects will get deleted anyway
+		Network.SetSendingEnabled(0, false);	
+
+		// We need to stop receiving because first the level must be loaded first.
+		// Once the level is loaded, rpc's and other state update attached to objects in the level are allowed to fire
+		Network.isMessageQueueRunning = false;
+
+		// All network views loaded from a level will get a prefix into their NetworkViewID.
+		// This will prevent old updates from clients leaking into a newly created scene.
+		Network.SetLevelPrefix(m_levelPrefix);
+		Application.LoadLevel(level);
+
+		// Allow receiving data again
+		Network.isMessageQueueRunning = true;
+		// Now the level has been loaded and we can start sending out data to clients
+		Network.SetSendingEnabled(0, true);
+	}
+	
 	public void Quit()
 	{
 		Application.Quit();
@@ -162,8 +189,9 @@ public class Session
 	}
 	
 	public void StartRound()
-	{
-		m_round++;	
+	{		
+		m_round++;
+		LoadLevel("Game");
 	}
 	
 	[RPC]

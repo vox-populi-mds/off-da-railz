@@ -139,7 +139,7 @@ public class Score : MonoBehaviour
 		{
 			if (Session.Get().GetRound() < Session.Get().GetRoundCount())
 			{
-				Application.LoadLevel("Game");
+				Session.Get().StartRound();
 			}
 			else
 			{

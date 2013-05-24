@@ -11,7 +11,7 @@ public class Game : MonoBehaviour
 	private Transform 	m_clientsCameras = null;
 	
 	public Transform[] m_SpawnLocations = new Transform[16];
-			
+	
 	bool m_trainsLinked;
 	
 	public bool debug_mode
@@ -175,7 +175,6 @@ public class Game : MonoBehaviour
 	
 	void Start()
 	{
-		Session.Get().StartRound();
 		CreateTrain();
 		
 		m_clientsCameras = ((Transform) Instantiate(cameras, Vector3.zero, Quaternion.identity));

@@ -47,9 +47,9 @@ public class Lobby : MonoBehaviour
 	[RPC]
 	void OnGO()
 	{
-		Session.Get().StartGame();
 		Session.Get().SetRoundCount(3);
-		Application.LoadLevel("Game");
+		Session.Get().StartGame();
+		Session.Get().StartRound();
 	}
 	
 	void OnPlayerConnected(NetworkPlayer networkPlayer)
