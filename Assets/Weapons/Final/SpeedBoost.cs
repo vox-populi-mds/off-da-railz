@@ -9,10 +9,10 @@ public class SpeedBoost : MonoBehaviour, IUpgrade
 	protected bool Enabled;
 	public bool m_bEnabled = false;
 	protected float CoolDownTimer = 0.0f;
-	protected float CoolDownTime = 7.0f;
+	protected const float CoolDownTime = 7.0f;
 	
 	protected float EffectTimer = 0.0f;
-	protected float EffectTime = 3.0f;
+	protected const float EffectTime = 3.0f;
 	
 	protected float OriginalSpeed;
 	protected float OriginalThrottle;

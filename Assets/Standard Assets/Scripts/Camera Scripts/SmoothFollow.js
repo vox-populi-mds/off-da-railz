@@ -47,7 +47,8 @@ function LateUpdate ()
 	if (!target)
 		return;
 		
-	var Layermask : int = 1 << 8;
+	var Layermask : int = 1 << 9;
+	Layermask = ~Layermask;
 	var hit : RaycastHit;
 		
 	if(CollisionDetected)
