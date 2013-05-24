@@ -56,7 +56,7 @@ public class Shoot : MonoBehaviour, IUpgrade{
 				m_bPlayingSound = true;
 			}else{
 				if (m_bPlayingSound == false){
-					m_ReloadSource = Audio.GetInstance.Play(m_ReloadSound, m_RenderBullets.transform, 1.0f, false);
+					m_ReloadSource = Audio.GetInstance.Play(m_ReloadSound, m_RenderBullets.transform, 2.0f, false);
 					m_bPlayingSound = true;
 				}
 				
