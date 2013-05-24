@@ -17,14 +17,20 @@ public class WeaponParticleCollider : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		
 	}
 	
-	public void OnParticleCollision(GameObject CollideWith){
-		Health ObjectHealth = CollideWith.GetComponent<Health>();
-		
-		if (ObjectHealth != null){
-			ObjectHealth.SetDamage(m_fDamagePerParticle);
+	public void OnParticleCollision(GameObject CollideWith)
+	{
+		Transform p = CollideWith.transform.parent;
+		if(p != null)
+		{
+			Carriage c = p.GetComponent<Carriage>();
+			
+			if(c != null)
+			{
+				c.networkView.RPC("ApplyDamage", RPCMode.All, m_fDamagePerParticle);
+			}
 		}
 	}
 }

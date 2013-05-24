@@ -38,7 +38,7 @@ public class Shoot : MonoBehaviour, IUpgrade{
 	
 	// Update is called once per frame
 	void Update () {
-		if (m_bEnabled && (GetComponent<Animation>().IsPlaying("Take 001") == false)){
+		if (m_bEnabled && (GetComponent<Animation>().animation["Take 001"].normalizedTime > 0.9f)){
 			if (m_iMagazineBullets > 0){
 				if (Input.GetMouseButtonDown(0) && (m_RenderBullets.particleCount == 0)){
 					m_ShootSource = Audio.GetInstance.Play(m_ShootSound, m_RenderBullets.transform, 1.0f, false);	
@@ -78,6 +78,8 @@ public class Shoot : MonoBehaviour, IUpgrade{
 		}
 		
 		if (m_bEnabled == false){
+			GetComponent<Animation>().enabled = true;
+			GetComponent<Animation>().animation["Take 001"].normalizedTime = 0.0f;
 			GetComponent<Animation>().animation["Take 001"].speed = 1.0f;
 			GetComponent<Animation>().Play("Take 001");
 			m_bEnabled = true;
@@ -86,8 +88,11 @@ public class Shoot : MonoBehaviour, IUpgrade{
 	
 	public void DisableUpgrade(){
 		if (m_bEnabled == true){
+			GetComponent<Animation>().enabled = true;
+			GetComponent<Animation>().animation["Take 001"].normalizedTime = 1.0f;
 			GetComponent<Animation>().animation["Take 001"].speed = -1.0f;
-			GetComponent<Animation>().Play("Take 001");			
+			GetComponent<Animation>().Play("Take 001");	
+			m_bEnabled = false;
 		}
 	}
 }

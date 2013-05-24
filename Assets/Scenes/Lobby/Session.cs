@@ -145,7 +145,6 @@ public class Session
 		Connected = true;
 	}
 	
-		m_sessionInProgress = false;
 	public void FindHosts()
 	{
 		MasterServer.RequestHostList(GAME_TYPE);

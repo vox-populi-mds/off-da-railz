@@ -25,15 +25,15 @@ public class Carriage : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{	
-		GameObject l_Weapon;
 		SetupWheelColliders();
 		
 		Vector3 v3NewCenter = (transform.FindChild("FrontLatch").transform.localPosition + transform.FindChild("BackLatch").transform.localPosition) * 0.5f;
 		rigidbody.centerOfMass = v3NewCenter;
 		m_InitAngularDrag = rigidbody.angularDrag;
 			
-		// test the weapons
-		l_Weapon = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Final/Shotgun.prefab", typeof(GameObject))) as GameObject;
+		// Test the weapons
+		//GameObject l_Weapon; = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Final/Shotgun.prefab", typeof(GameObject))) as GameObject;
+		GameObject l_Weapon = ((Transform)Instantiate(m_Powerups[0])).gameObject;
 		m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<Shoot>();
 		
 		if (!GameObject.Find("The Game").GetComponent<Game>().debug_mode)		
@@ -413,7 +413,7 @@ public class Carriage : MonoBehaviour
 	public void ApplyDamage(float _fDamage)
 	{
 		GetComponent<Health>().SetDamage(_fDamage/2);	
-		Debug.Log("Damage sustained : " + _fDamage/2 + " (" + ToString() + ")");
+		//Debug.Log("Damage sustained : " + _fDamage/2 + " (" + ToString() + ")");
 	}
 	
 	[RPC]
@@ -484,6 +484,7 @@ public class Carriage : MonoBehaviour
 	public Vector3 				m_AirDragMultiplier = new Vector3(0.0f, 0.0f, 1.0f);
 	
 	public Mesh					m_DamagedMesh = null;
+	public Transform[]			m_Powerups;
 	
 	private bool 				m_IsOnGround = false;
 	private	float				m_GroundedTime = 0.0f;
