@@ -133,8 +133,6 @@ public class Spawner : MonoBehaviour
 			{
 				m_CurrentSpawnLocation = (m_CurrentSpawnLocation + iRandomPlus) - m_listSpawnLocations.Count;
 			}
-			
-			Debug.Log(m_CurrentSpawnLocation);
 		}
 	}
 	
