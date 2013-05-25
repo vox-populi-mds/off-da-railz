@@ -45,6 +45,12 @@ public class Shoot : MonoBehaviour, IUpgrade{
 	void Update () {
 		if (m_bEnabled && (GetComponent<Animation>().animation["Take 001"].normalizedTime > 0.9f)){
 			if (m_iMagazineBullets > 0){
+				
+				if (m_ReloadSource == null)
+				{
+					m_bPlayingSound = false;
+				}
+				
 				if (Input.GetMouseButtonDown(0) && (m_RenderBullets.particleCount == 0)){
 					m_ShootSource = Audio.GetInstance.Play(m_ShootSound, m_RenderBullets.transform, 1.0f, false);	
 					--m_iMagazineBullets;
@@ -53,7 +59,6 @@ public class Shoot : MonoBehaviour, IUpgrade{
 			}else if (m_fReloadingTime > m_fReloadTime){
 				m_iMagazineBullets = m_iMagazineCapacity;	
 				m_fReloadingTime = 0.0f;
-				m_bPlayingSound = true;
 			}else{
 				if (m_bPlayingSound == false){
 					m_ReloadSource = Audio.GetInstance.Play(m_ReloadSound, m_RenderBullets.transform, 2.0f, false);
@@ -63,11 +68,20 @@ public class Shoot : MonoBehaviour, IUpgrade{
 				m_fReloadingTime += Time.deltaTime;
 			}
 		}
+		if (m_iMagazineBullets < 1)
+		{
+			if (Input.GetMouseButtonDown(0) && m_bEnabled)
+			{
+				Players.Get().GetMe().Train.GetComponent<TrainCarriages>().Buzz();
+			}
+		}
 		
 		if (m_GunPort != null){
 			transform.position = m_GunPort.position;
 			transform.rotation = m_GunPort.rotation; 
 		}
+		
+		
 	}
 	
 	public void SetTarget(Transform GunPort){

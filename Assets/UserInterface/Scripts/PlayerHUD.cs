@@ -52,64 +52,67 @@ public class PlayerHUD : MonoBehaviour
 	
 	void DrawCarriages()
 	{		
-		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
+		if (Players.Get().GetMe().Train != null)
+		{
+			TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
 		
-		int iOffsetX = 1;
-		
-		if(trainCarriages.GetNumCarriages() < 10)
-		{		
-			for (int index = 1; index <= trainCarriages.GetNumCarriages(); index++)
-			{			
-				
-				float hp 	= trainCarriages.GetCarriage(index-1).GetHealth();
-				uint damageLevel	= 0;
-				if (hp < 100)
+			int iOffsetX = 1;
+			
+			if(trainCarriages.GetNumCarriages() < 10)
+			{		
+				for (int index = 1; index <= trainCarriages.GetNumCarriages(); index++)
+				{			
+					
+					float hp 	= trainCarriages.GetCarriage(index-1).GetHealth();
+					uint damageLevel	= 0;
+					if (hp < 100)
+					{
+						++damageLevel;
+						if (hp < 30)
+						{
+							++damageLevel;
+						}
+					}
+					
+					GUI.DrawTexture(new Rect(Screen.width - iOffsetX * TextureWidth, 0, TextureWidth, TextureHeight), textureCarridges[damageLevel], ScaleMode.ScaleToFit);
+					if(index % 5 == 0)
+					{
+						TextureHeight += TextureHeight;
+						iOffsetX = 0;
+					}	
+					
+					iOffsetX++;
+				}
+			}
+			//If there are more than 10 carriages, simply draw the texture with the number of carriages overlayed.
+			else
+			{
+				float maxHP = trainCarriages.GetNumCarriages() * 100;
+				float currentHP = trainCarriages.CumulativeHealth();
+				float healthRatio = currentHP/maxHP;
+				uint damageLevel = 0;
+	
+				if (healthRatio < 0.9f)
 				{
 					++damageLevel;
-					if (hp < 30)
+					if (healthRatio < 0.4f)
 					{
 						++damageLevel;
 					}
 				}
 				
-				GUI.DrawTexture(new Rect(Screen.width - iOffsetX * TextureWidth, 0, TextureWidth, TextureHeight), textureCarridges[damageLevel], ScaleMode.ScaleToFit);
-				if(index % 5 == 0)
-				{
-					TextureHeight += TextureHeight;
-					iOffsetX = 0;
-				}	
+				Rect TextureBounds = new Rect(Screen.width - iOffsetX * TextureWidth, 0, TextureWidth, TextureHeight);					
+				GUI.DrawTexture(TextureBounds, textureCarridges[damageLevel], ScaleMode.ScaleToFit);
 				
-				iOffsetX++;
+				float RectX = TextureBounds.x + (TextureBounds.width / 2);
+				float RectY = TextureHeight / 3;
+				
+				Rect NumberBounds = new Rect(RectX, RectY, RectX, TextureBounds.height / 4);
+				
+				GUI.color = Color.red;
+				GUI.Label(NumberBounds, trainCarriages.GetNumCarriages().ToString());
+				GUI.color = Color.white;
 			}
-		}
-		//If there are more than 10 carriages, simply draw the texture with the number of carriages overlayed.
-		else
-		{
-			float maxHP = trainCarriages.GetNumCarriages() * 100;
-			float currentHP = trainCarriages.CumulativeHealth();
-			float healthRatio = currentHP/maxHP;
-			uint damageLevel = 0;
-
-			if (healthRatio < 0.9f)
-			{
-				++damageLevel;
-				if (healthRatio < 0.4f)
-				{
-					++damageLevel;
-				}
-			}
-			
-			Rect TextureBounds = new Rect(Screen.width - iOffsetX * TextureWidth, 0, TextureWidth, TextureHeight);					
-			GUI.DrawTexture(TextureBounds, textureCarridges[damageLevel], ScaleMode.ScaleToFit);
-			
-			float RectX = TextureBounds.x + (TextureBounds.width / 2);
-			float RectY = TextureHeight / 3;
-			
-			Rect NumberBounds = new Rect(RectX, RectY, RectX, TextureBounds.height / 4);
-			
-			GUI.color = Color.red;
-			GUI.Label(NumberBounds, trainCarriages.GetNumCarriages().ToString());
-			GUI.color = Color.white;
 		}
 	}
 	

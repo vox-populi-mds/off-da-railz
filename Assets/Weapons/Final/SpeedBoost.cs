@@ -62,6 +62,11 @@ public class SpeedBoost : MonoBehaviour, IUpgrade
 				CoolDown = false;
 				CoolDownTimer = 0.0f;
 			}
+			if (Input.GetMouseButtonDown(0) && m_bEnabled)
+			{
+				if (Players.Get ().GetMe().Train != null)
+				Players.Get().GetMe().Train.GetComponent<TrainCarriages>().Buzz();
+			}
 		}
 	}
 	

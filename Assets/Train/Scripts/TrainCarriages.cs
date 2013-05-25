@@ -21,8 +21,15 @@ public class TrainCarriages : MonoBehaviour
 			m_listCarriages.Add(c);
 			c.SetTrain(transform);
 			
+			if (m_listCarriages.Count == 1)
+			{
+				m_ActiveCarriage = m_listCarriages[0];
+				m_ActiveCarriage.UpGrade ().EnableUpgrade();
+			}
+			
 			return true;
 		}
+		
 		
 		//over capacity!
 		return false;
@@ -116,7 +123,7 @@ public class TrainCarriages : MonoBehaviour
 	// Update is called once per frame
 	void Update() 
 	{	
-		if (m_listCarriages.Count >= 1) 
+		if (m_listCarriages.Count > 1) 
 		{
 			if (Input.GetKeyDown(KeyCode.E) || Input.GetAxis("Mouse ScrollWheel")>0)
 			{
@@ -164,6 +171,13 @@ public class TrainCarriages : MonoBehaviour
 				m_PowerUpAvailable = m_ActiveCarriage.UpGrade().IsAvailable();
 			}
 			
+		}
+		if (m_listCarriages.Count < 1)
+		{
+			if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E) || Input.GetAxis("Mouse ScrollWheel")<0 || Input.GetAxis("Mouse ScrollWheel")>0)
+			{
+				Buzz ();
+			}
 		}
 		
 		CleanOldWaypoints();
@@ -404,6 +418,11 @@ public class TrainCarriages : MonoBehaviour
 		return retval;
 	}
 	
+	public void Buzz()
+	{
+		Audio.GetInstance.Play(m_buzzNoise,transform,1.0f,false);
+	}
+	
 	public 	bool				m_PowerUpAvailable;
 	private List<Carriage> 		m_listCarriages;
 	private List<Carriage> 		m_listCarriagesAwaitingConnection;
@@ -424,4 +443,5 @@ public class TrainCarriages : MonoBehaviour
 	public const uint		MAX_CARRIAGES = 50;
 	
 	public AudioClip 		m_connectionNoise;
+	public AudioClip		m_buzzNoise;
 }
