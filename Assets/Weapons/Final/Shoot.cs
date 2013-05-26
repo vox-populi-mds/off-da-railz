@@ -8,8 +8,8 @@ using OffDaRailz;
 public class Shoot : MonoBehaviour, IUpgrade{
 	public static int m_iMagazineCapacity = 10;
 	public static float m_fDamage = 10.0f;
-	public static AudioClip m_ShootSound;
-	public static AudioClip m_ReloadSound;
+	public AudioClip m_ShootSound;
+	public AudioClip m_ReloadSound;
 	public static float m_fReloadTime = 5.0f;
 	protected static ParticleEmitter m_RenderBullets;
 	
@@ -31,14 +31,6 @@ public class Shoot : MonoBehaviour, IUpgrade{
 		m_Name = "Shotgun";
 		
 		m_fReloadingTime = 0.0f;
-		
-		if (m_ShootSound == null){
-			m_ShootSound = Resources.LoadAssetAtPath("Assets/Weapons/Final/FireShotgun.mp3", typeof(AudioClip)) as AudioClip;
-		}
-		
-		if (m_ReloadSound == null){
-			m_ReloadSound = Resources.LoadAssetAtPath("Assets/Weapons/Final/ReloadShotgun.mp3", typeof(AudioClip)) as AudioClip;
-		}
 	}
 	
 	// Update is called once per frame

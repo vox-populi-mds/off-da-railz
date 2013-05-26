@@ -4,7 +4,7 @@ using OffDaRailz;
 
 public class WeaponParticleCollider : MonoBehaviour {
 	public float m_fDamagePerShot;
-	public static AudioClip m_BulletMetalSound;
+	public AudioClip m_BulletMetalSound;
 	private float m_fDamagePerParticle;
 	
 	// Use this for initialization
@@ -13,10 +13,6 @@ public class WeaponParticleCollider : MonoBehaviour {
 		
 		if (ParentSystem != null){
 			m_fDamagePerParticle = m_fDamagePerShot / ParentSystem.maxEmission;
-		}
-		
-		if (m_BulletMetalSound == null){
-			m_BulletMetalSound = Resources.LoadAssetAtPath("Assets/Weapons/Final/bulletmetal.mp3", typeof(AudioClip)) as AudioClip;
 		}
 	}
 	

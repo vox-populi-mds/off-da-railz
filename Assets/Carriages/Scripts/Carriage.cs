@@ -32,7 +32,6 @@ public class Carriage : MonoBehaviour
 		m_InitAngularDrag = rigidbody.angularDrag;
 			
 		// Test the weapons
-		//GameObject l_Weapon; = Instantiate(Resources.LoadAssetAtPath("Assets/Weapons/Final/Shotgun.prefab", typeof(GameObject))) as GameObject;
 		GameObject l_Weapon = ((Transform)Instantiate(m_Powerups[0])).gameObject;
 		
 		int iRand = Random.Range(0, 10);
