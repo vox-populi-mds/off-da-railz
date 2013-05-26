@@ -183,6 +183,7 @@ public class Train : MonoBehaviour
 	
 	void Update() 
 	{
+		
 		Vector3 RelativeVelocity = transform.InverseTransformDirection(rigidbody.velocity);
 		
 		ProcessAnimation(RelativeVelocity);
@@ -356,6 +357,20 @@ public class Train : MonoBehaviour
 		{	
 			FlipTrain();
 		}
+	}
+	
+	[RPC]
+	// if the client wants to 'Tell' the server something at any time, use this function
+	public void Tell(string msg, NetworkMessageInfo info)
+	{
+		var senderstring = info.sender.ipAddress + ":" + info.sender.port;
+		var player = Players.Get().Get(info.sender.ipAddress, info.sender.port);
+		
+		if (player != null)
+		{
+			senderstring = player.Name;
+		}
+		Debug.Log(senderstring + " said '" + msg + "'");
 	}
 	
 	// ---------------------------------- Fixed Update Functions (Rigid Body) ---------------------------------------- //
