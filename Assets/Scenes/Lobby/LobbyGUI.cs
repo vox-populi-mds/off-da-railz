@@ -72,7 +72,7 @@ public class LobbyGUI : MonoBehaviour
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("Your Name");
 		
-		string tempPlayerName = GUILayout.TextField(Players.Get().GetMe().Name);
+		string tempPlayerName = GUILayout.TextField(Players.Get().GetMe().Name, 20);
 		if (tempPlayerName != Players.Get().GetMe().Name)
 		{
 			GetComponent<Lobby>().UpdatePlayerName(tempPlayerName);
