@@ -6,9 +6,9 @@ public class SpeedBoost : MonoBehaviour, IUpgrade
 {
 	private string m_Name;
 	protected static bool CoolDown;
-	protected bool Enabled;
+	protected bool m_bEffectEnabled;
 	public bool m_bEnabled = false;
-	protected float CoolDownTimer = 0.0f;
+	protected static float CoolDownTimer = 0.0f;
 	protected const float CoolDownTime = 7.0f;
 	
 	protected float EffectTimer = 0.0f;
@@ -37,10 +37,10 @@ public class SpeedBoost : MonoBehaviour, IUpgrade
 			train.IncreasePower(PowerModifier);
 			
 			CoolDown = true;
-			Enabled = true;
+			m_bEffectEnabled = true;
 		}
 		
-		if(Enabled)
+		if(m_bEffectEnabled)
 		{
 			EffectTimer += Time.deltaTime;
 			if(EffectTimer > EffectTime)
@@ -50,11 +50,11 @@ public class SpeedBoost : MonoBehaviour, IUpgrade
 				
 				train.DecreasePower(PowerModifier);
 				EffectTimer = 0.0f;
-				Enabled = false;
+				m_bEffectEnabled = false;
 			}
 		}
 		
-		if(CoolDown)
+		if(CoolDown && m_bEnabled)
 		{
 			CoolDownTimer += Time.deltaTime;
 			if(CoolDownTimer > CoolDownTime)
