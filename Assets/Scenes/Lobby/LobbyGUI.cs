@@ -114,7 +114,6 @@ public class LobbyGUI : MonoBehaviour
 			{
 				if (GUILayout.Button("GO!", widthOption))
 				{
-					GetComponent<Lobby>().
 					GetComponent<Lobby>().GO();
 				}
 			}
