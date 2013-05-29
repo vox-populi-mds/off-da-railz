@@ -5,19 +5,16 @@ using OffDaRailz;
 public class SpeedBoost : MonoBehaviour, IUpgrade
 {
 	private string m_Name;
-	protected static bool CoolDown;
+	protected bool CoolDown;
 	protected bool m_bEffectEnabled;
 	public bool m_bEnabled = false;
-	protected static float CoolDownTimer = 0.0f;
+	protected float CoolDownTimer = 0.0f;
 	protected const float CoolDownTime = 7.0f;
 	
 	protected float EffectTimer = 0.0f;
 	protected const float EffectTime = 3.0f;
 	
-	protected float OriginalSpeed;
-	protected float OriginalThrottle;
-	
-	protected float PowerModifier = 2.0f;
+	protected float PowerModifier = 5.0f;
 	
 	void Start ()
 	{
@@ -26,18 +23,16 @@ public class SpeedBoost : MonoBehaviour, IUpgrade
 	
 	void Update ()
 	{
-		if (Input.GetMouseButtonDown(0) && !CoolDown && m_bEnabled)		
+		if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
+			&& !CoolDown && m_bEnabled)		
 		{
 			TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();			
 			Train train = trainCarriages.GetComponent<Train>();
 			
-			OriginalSpeed = train.m_MaximumVelocity;
-			OriginalThrottle = train.m_Throttle;
-			
 			train.IncreasePower(PowerModifier);
 			
 			CoolDown = true;
-			m_bEffectEnabled = true;
+			m_bEffectEnabled = true;			
 		}
 		
 		if(m_bEffectEnabled)
@@ -54,7 +49,7 @@ public class SpeedBoost : MonoBehaviour, IUpgrade
 			}
 		}
 		
-		if(CoolDown && m_bEnabled)
+		if(CoolDown)
 		{
 			CoolDownTimer += Time.deltaTime;
 			if(CoolDownTimer > CoolDownTime)

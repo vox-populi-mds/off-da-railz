@@ -85,9 +85,9 @@ public class CameraToggle : MonoBehaviour {
 			newFOV = Mathf.Lerp(Cameras[cameraIndex].fov, newFOV, Time.deltaTime);
 			Cameras[cameraIndex].fov = newFOV;
 		}
-		if(newFOV > 95)
+		if(newFOV > 105)
 		{
-			newFOV = 95;
+			newFOV = 105;
 			Cameras[cameraIndex].fov = newFOV;
 		}
 	}

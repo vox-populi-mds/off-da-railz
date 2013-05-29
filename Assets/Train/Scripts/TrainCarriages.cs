@@ -125,50 +125,72 @@ public class TrainCarriages : MonoBehaviour
 	{	
 		if (m_listCarriages.Count > 1) 
 		{
+			//Scroll up
 			if (Input.GetKeyDown(KeyCode.E) || Input.GetAxis("Mouse ScrollWheel")>0)
 			{
-				if (m_ActiveCarriage != null)
-				{
-					int index = m_listCarriages.IndexOf(m_ActiveCarriage);
-					m_ActiveCarriage.UpGrade().DisableUpgrade();
+				//Record current index
+				int index  = m_listCarriages.IndexOf(m_ActiveCarriage);
+				int NumCarriages = GetNumCarriages();
+				string CurrentPowerupeName = m_ActiveCarriage.UpGrade().GetName();
+				string NextPowerupName;
 				
+				for(int i = 0; i < NumCarriages; i++)
+				{
+					//Get next sequential carriage
 					if (m_listCarriages.Count > index + 1)
 					{
-						m_ActiveCarriage = m_listCarriages[index+1];
+						index++;
 					}			
 					else
 					{
-						m_ActiveCarriage = m_listCarriages[0];
+						index = 0;
 					}
+					//check what power up it has
+					NextPowerupName = m_listCarriages[index].UpGrade().GetName();
+					if(CurrentPowerupeName != NextPowerupName)
+					{
+						//Disable current powerup
+						m_ActiveCarriage.UpGrade().DisableUpgrade();	
+						//Set this as the current carriage and break out of loop
+						m_ActiveCarriage = m_listCarriages[index];
+						m_ActiveCarriage.UpGrade().EnableUpgrade();	
+						m_PowerUpAvailable = m_ActiveCarriage.UpGrade().IsAvailable();
+						break;
+					}					
 				}
-				else
-				{
-					m_ActiveCarriage = m_listCarriages[0];
-				}
-				
-				m_ActiveCarriage.UpGrade().EnableUpgrade();	
-				m_PowerUpAvailable = m_ActiveCarriage.UpGrade().IsAvailable();
 			} 
 			else if (Input.GetKeyDown(KeyCode.Q) || Input.GetAxis("Mouse ScrollWheel")<0)
 			{
-				if (m_ActiveCarriage != null){
-					int index = m_listCarriages.IndexOf(m_ActiveCarriage);
-					m_ActiveCarriage.UpGrade();
-					
+				//Record current index
+				int index  = m_listCarriages.IndexOf(m_ActiveCarriage);
+				int NumCarriages = GetNumCarriages();
+				string CurrentPowerupeName = m_ActiveCarriage.UpGrade().GetName();
+				string NextPowerupName;
+				
+				for(int i = NumCarriages - 1; i > 0; i--)
+				{
+					//Get next sequential carriage
 					if (index > 0)
 					{
-						m_ActiveCarriage = m_listCarriages[index-1];
-					}
+						index--;
+					}			
 					else
 					{
-						m_ActiveCarriage = m_listCarriages[m_listCarriages.Count-1];
+						index = NumCarriages - 1;
 					}
-				}else{
-					m_ActiveCarriage = m_listCarriages[0];
+					//check what power up it has
+					NextPowerupName = m_listCarriages[index].UpGrade().GetName();
+					if(CurrentPowerupeName != NextPowerupName)
+					{
+						//Disable current powerup
+						m_ActiveCarriage.UpGrade().DisableUpgrade();
+						//Set this as the current carriage and break out of loop
+						m_ActiveCarriage = m_listCarriages[index];
+						m_ActiveCarriage.UpGrade().EnableUpgrade();	
+						m_PowerUpAvailable = m_ActiveCarriage.UpGrade().IsAvailable();
+						break;
+					}					
 				}
-				
-				m_ActiveCarriage.UpGrade().EnableUpgrade();
-				m_PowerUpAvailable = m_ActiveCarriage.UpGrade().IsAvailable();
 			}
 			
 		}

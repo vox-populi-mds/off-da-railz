@@ -43,7 +43,9 @@ public class Shoot : MonoBehaviour, IUpgrade{
 					m_bPlayingSound = false;
 				}
 				
-				if (Input.GetMouseButtonDown(0) && (m_RenderBullets.particleCount == 0)){
+				if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
+					&& (m_RenderBullets.particleCount == 0))
+				{
 					m_ShootSource = Audio.GetInstance.Play(m_ShootSound, m_RenderBullets.transform, 1.0f, false);	
 					--m_iMagazineBullets;
 					m_RenderBullets.Emit();
