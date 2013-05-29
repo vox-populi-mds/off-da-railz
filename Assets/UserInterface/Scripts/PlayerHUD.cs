@@ -184,8 +184,13 @@ public class PlayerHUD : MonoBehaviour
 	
 	void DrawWeapons()
 	{
-		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
+		if(Players.Get().GetMe().Train == null)
+		{
+			return;
+		}
 		
+		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
+				
 		float Width = textureWeaponShotgun.width * GUIscale;
 		float Height = textureWeaponShotgun.height * GUIscale;		
 		float Offset = 100 * GUIscale;

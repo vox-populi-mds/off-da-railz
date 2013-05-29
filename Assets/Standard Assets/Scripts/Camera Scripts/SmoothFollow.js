@@ -80,21 +80,22 @@ function LateUpdate ()
 	// Convert the angle into a rotation
 	var currentRotation = Quaternion.Euler (0, currentRotationAngle, 0);
 	
-	//if(CollisionDetected == false)
-	//{		
-		//Set the position of the camera on the x-z plane to:
-		//distance meters behind the target
-		transform.position = target.position;
-		transform.position -= currentRotation * Vector3.forward * distance;     	
 		
-		// Set the height of the camera
-		transform.position.y = currentHeight;		
-	//}
+	//Set the position of the camera on the x-z plane to:
+	//distance meters behind the target
+	transform.position = target.position;
+	transform.position -= currentRotation * Vector3.forward * distance;     	
+	
+	// Set the height of the camera
+	transform.position.y = currentHeight;		
 	
 	var TargetPos : Vector3 = target.position;
 	TargetPos.y += 10;
 	
-	if( Physics.Linecast(TargetPos, transform.position, hit, Layermask))
+	var iLayermask : int = 0;
+	iLayermask  = 1 << 8;
+	
+	if( Physics.Linecast(TargetPos, transform.position, hit, iLayermask))
     {
     	CollisionDetected = true;   
     	
