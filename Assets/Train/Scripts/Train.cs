@@ -44,6 +44,18 @@ public class Train : MonoBehaviour
 		{
 			DisableDebugWheelRendering();
 		}
+		
+		SetupAnimations();
+	}
+	
+	void SetupAnimations()
+	{
+		Animation Anim = GetComponentInChildren<Animation>();
+		
+		Anim.animation["Turning"].layer = 1;
+		Anim.animation["Turning"].weight = 1.0f;
+		Anim.animation["Driving"].speed = 0.0f;
+		Anim.Blend("Turning");
 	}
 	
 	void DisableDebugWheelRendering()
@@ -238,12 +250,14 @@ public class Train : MonoBehaviour
 	
 	void ProcessAnimation(Vector3 _RelativeVelocity)
 	{
-		Animation DriveAnimation = GetComponentInChildren<Animation>();
+		Animation Anim = GetComponentInChildren<Animation>();
 		
 		float CurrentSpeed = _RelativeVelocity.z;
 		float SpeedScale = CurrentSpeed / 10.0f;
 		
-		DriveAnimation.animation["Drive"].speed = SpeedScale;
+		Anim.animation["Driving"].speed = SpeedScale;
+		Anim.animation["Turning"].normalizedTime = ((m_Steer * 0.5f) + 1.0f) * 0.5f;
+	
 	}
 	
 	void ProcessWheelGraphics(Vector3 _RelativeVelocity)
