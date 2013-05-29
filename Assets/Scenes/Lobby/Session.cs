@@ -1,17 +1,21 @@
 using UnityEngine;
 using System;
 
-public class Session
+public class Session : MonoBehaviour
 {
 	const string GAME_TYPE = "VoxPopuli::OffDaRailz";
 	
 	const int PORT = 25002;
 	
-	static Session instance;
+	static Session m_instance;
 	
 	bool m_leftGame;
 	
 	int m_levelPrefix;
+	
+	float m_levelLoadTime;
+	
+	string m_levelToLoad;
 	
 	int m_roundCount;
 	
@@ -51,20 +55,25 @@ public class Session
 		set;
 	}
 	
-	private Session()
+	void Awake()
 	{
 		Description = "Thy train shall be wreckethed.";
 		Connected = false;
 		Name = "Train wreck!";
 		
+		m_instance = this;
 		m_leftGame = false;
 		m_levelPrefix = 0;
+		m_levelLoadTime = 0.0f;
+		m_levelToLoad = null;
 		m_round = 0;
 		m_roundCount = 0;
 		
 		Application.runInBackground = true;
 		MasterServer.RequestHostList(GAME_TYPE);
 		Network.sendRate = 100;
+		
+		DontDestroyOnLoad(this);
 	}
 	
 	public void Connect(HostData host)
@@ -112,14 +121,19 @@ public class Session
 		m_sessionInProgress = true;
 	}
 	
+	public void FindHosts()
+	{
+		MasterServer.RequestHostList(GAME_TYPE);
+	}
+	
 	public static Session Get()
 	{
-		if (instance == null)
-		{
-			instance = new Session();
-		}
-		
-		return instance;
+		return m_instance;
+	}
+	
+	public HostData[] GetHosts()
+	{
+		return MasterServer.PollHostList();	
 	}
 	
 	public int GetRound()
@@ -145,16 +159,6 @@ public class Session
 		Connected = true;
 	}
 	
-	public void FindHosts()
-	{
-		MasterServer.RequestHostList(GAME_TYPE);
-	}
-	
-	public HostData[] GetHosts()
-	{
-		return MasterServer.PollHostList();	
-	}
-	
 	public void LeaveGame()
 	{
 		m_leftGame = true;
@@ -166,7 +170,16 @@ public class Session
 		return m_leftGame;
 	}
 	
-	void LoadLevel(string level)
+	public void LoadLevel(string level)
+	{
+		if (Network.isServer)
+		{
+			networkView.RPC("OnLoadLevel", RPCMode.All, level);
+		}
+	}
+	
+	[RPC]
+	void OnLoadLevel(string level)
 	{
 		m_levelPrefix++;
 		
@@ -181,7 +194,15 @@ public class Session
 		// All network views loaded from a level will get a prefix into their NetworkViewID.
 		// This will prevent old updates from clients leaking into a newly created scene.
 		Network.SetLevelPrefix(m_levelPrefix);
-		Application.LoadLevel(level);
+		
+		m_levelLoadTime = Time.timeSinceLevelLoad + 1.0f;
+		m_levelToLoad = level;
+	}
+	
+	void OnLoadLevelFinalise()
+	{
+		Application.LoadLevel(m_levelToLoad);
+		m_levelToLoad = null;
 
 		// Allow receiving data again
 		Network.isMessageQueueRunning = true;
@@ -199,12 +220,15 @@ public class Session
 		m_roundCount = roundCount;
 	}
 	
+	void Start()
+	{
+	}
+	
 	public void StartGame()
 	{
 		m_sessionInProgress = true;
 		m_leftGame = false;
 		m_round = 0;
-		//Players.Get().
 	}
 	
 	public void StartRound()
@@ -213,5 +237,12 @@ public class Session
 		LoadLevel("Game");
 	}
 	
-	
+	void Update()
+	{
+		if (m_levelToLoad != null &&
+			m_levelLoadTime <= Time.timeSinceLevelLoad)
+		{
+			OnLoadLevelFinalise();
+		}
+	}
 }
