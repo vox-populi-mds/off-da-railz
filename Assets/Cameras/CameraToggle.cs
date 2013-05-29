@@ -41,9 +41,9 @@ public class CameraToggle : MonoBehaviour {
 	{
 		int iDistanceScale = m_target.parent.GetComponent<TrainCarriages>().GetNumCarriages();
 		
-		if(iDistanceScale > 10)
+		if(iDistanceScale > 7)
 		{
-			iDistanceScale = 10;	
+			iDistanceScale = 7;	
 		}
 		
 		if(cameraIndex == 0 || cameraIndex == 1)

@@ -229,7 +229,12 @@ public class PlayerHUD : MonoBehaviour
  	}
 	
 	void DrawSpeed()
-	{		
+	{	
+		if(Players.Get().GetMe().Train == null)
+		{
+			return;
+		}
+		
 		TrainCarriages trainCarriages = Players.Get().GetMe().Train.GetComponent<TrainCarriages>();
 		Train train = trainCarriages.GetComponent<Train>();
 		
