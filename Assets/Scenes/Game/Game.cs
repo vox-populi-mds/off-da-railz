@@ -178,12 +178,7 @@ public class Game : MonoBehaviour
 	}
 	
 	void Start()
-	{
-		if (!Session.Get().ReadyToLoadGame)
-		{
-			return;
-		}
-		
+	{		
 		CreateTrain();
 		
 		m_clientsCameras = ((Transform) Instantiate(cameras, Vector3.zero, Quaternion.identity));
@@ -213,32 +208,5 @@ public class Game : MonoBehaviour
 			m_roundTimeExpired = true;
 			Session.Get().EndRound();
 		}
-	}
-
-	void OnPlayerConnected(NetworkPlayer networkPlayer)
-	{
-		// This game is in session kindly Fuck off
-		if (Session.Get ().GameInSession && Network.isServer)
-		{
-			networkView.RPC("GoAway", networkPlayer);
-		}
-	}	
-	
-	[RPC]
-	void GoAway()
-	{
-		Session.Get().Disconnect();
-	}
-	
-	void OnPlayerDisconnected(NetworkPlayer networkPlayer)
-	{
-		Players.Get().Remove(networkPlayer);
-		networkView.RPC("RemoveOnOthers", RPCMode.Others);
-	}
-	
-	[RPC]
-	void RemoveOnOthers(NetworkMessageInfo info)
-	{
-		Players.Get().Remove(info.sender);
 	}
 }

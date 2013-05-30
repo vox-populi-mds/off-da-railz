@@ -206,11 +206,7 @@ public class LobbyGUI : MonoBehaviour
 				{
 					if (GUILayout.Button("Connect"))
 					{
-						// Make sure a game is not in session before connecting
-						if (!Session.Get().GameInSession)
-						{
-							Session.Get().Connect(host);
-						}
+						Session.Get().Connect(host);
 					}
 				}
 			}

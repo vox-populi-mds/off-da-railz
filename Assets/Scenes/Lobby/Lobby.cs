@@ -47,7 +47,6 @@ public class Lobby : MonoBehaviour
 	[RPC]
 	void OnGO()
 	{
-		Session.Get().ReadyToLoadGame = true;
 		Session.Get().SetRoundCount(3);
 		Session.Get().StartGame();
 		Session.Get().StartRound();
@@ -62,13 +61,6 @@ public class Lobby : MonoBehaviour
 		
 		networkView.RPC("OnRequestPlayerName", networkPlayer);
 	}
-	
-	[RPC]
-	void GoAway()
-	{
-		// Disconnect this guy as he joined a game which he cannot.
-		Session.Get().Disconnect();
-	}	
 	
 	[RPC]
 	void OnPlayerReady(NetworkMessageInfo info)

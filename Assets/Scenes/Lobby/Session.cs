@@ -6,13 +6,13 @@ public class Session : MonoBehaviour
 {
 	const string GAME_TYPE = "VoxPopuli::OffDaRailz";
 	
+	const int MAX_PLAYERS = 16;
+	
 	const int PORT = 25002;
 	
 	static Session m_instance;
 	
 	bool m_leftGame;
-	
-	int m_levelPrefix;
 	
 	float m_levelLoadTime;
 	
@@ -21,22 +21,6 @@ public class Session : MonoBehaviour
 	int m_roundCount;
 	
 	int m_round;
-	
-	bool m_sessionInProgress = false;
-	
-	bool m_readyToLoadGame = false;
-	
-	public bool ReadyToLoadGame
-	{
-		get { return m_readyToLoadGame; }
-		set { m_readyToLoadGame = value; }
-	}
-	
-	public bool GameInSession
-	{
-		get { return m_sessionInProgress; }
-		set { m_sessionInProgress = value; }
-	}
 	
 	public bool Connected
 	{
@@ -68,7 +52,6 @@ public class Session : MonoBehaviour
 		{
 			m_instance = this;
 			m_leftGame = false;
-			m_levelPrefix = 0;
 			m_levelLoadTime = 0.0f;
 			m_levelToLoad = null;
 			m_round = 0;
@@ -101,7 +84,6 @@ public class Session : MonoBehaviour
 		Network.Disconnect();
 		Players.Get().RemoveOthers();
 		Connected = false;
-		m_sessionInProgress = false;
 		
 		if (Network.isServer)
 		{
@@ -116,6 +98,7 @@ public class Session : MonoBehaviour
 		
 		if (Network.isServer)
 		{
+			Network.maxConnections = MAX_PLAYERS - 1;
 			MasterServer.RegisterHost(GAME_TYPE, Name, Description);
 		}
 	}
@@ -129,7 +112,6 @@ public class Session : MonoBehaviour
 			player.Score += player.RoundScore;
 			player.Train = null;
 		}
-		m_sessionInProgress = true;
 	}
 	
 	public void FindHosts()
@@ -172,7 +154,7 @@ public class Session : MonoBehaviour
 	{
 		// Use NAT punchthrough if no public IP present
 		// Limit max connections to 16
-		Network.InitializeServer(15, PORT, !Network.HavePublicAddress());
+		Network.InitializeServer(MAX_PLAYERS - 1, PORT, !Network.HavePublicAddress());
 		MasterServer.RegisterHost(GAME_TYPE, Name, Description);
 		Player me = Players.Get().GetMe();
 		me.Apply(Network.player); // I think at this stage the network player isn't even initialised so this is probably a waste of time...
@@ -200,10 +182,30 @@ public class Session : MonoBehaviour
 		}
 	}
 	
+	void OnFailedToConnect(NetworkConnectionError error)
+	{
+		Connected = false;
+		
+		// The host list is probably out of date.
+		MasterServer.RequestHostList(GAME_TYPE);
+    }
+	
 	[RPC]
 	void OnLoadLevel(string level)
 	{
-		m_levelPrefix++;
+		int levelPrefix = -1;
+		if (level == "Lobby")
+		{
+			levelPrefix = 0;
+		}
+		else if (level == "Game")
+		{
+			levelPrefix = 1;
+		}
+		else if (level == "Score")
+		{
+			levelPrefix = 2;
+		}
 		
 		// There is no reason to send any more data over the network on the default channel,
 		// because we are about to load the level, thus all those objects will get deleted anyway
@@ -215,7 +217,7 @@ public class Session : MonoBehaviour
 
 		// All network views loaded from a level will get a prefix into their NetworkViewID.
 		// This will prevent old updates from clients leaking into a newly created scene.
-		Network.SetLevelPrefix(m_levelPrefix);
+		Network.SetLevelPrefix(levelPrefix);
 		
 		m_levelLoadTime = Time.timeSinceLevelLoad + 1.0f;
 		m_levelToLoad = level;
@@ -259,7 +261,6 @@ public class Session : MonoBehaviour
 	
 	public void StartGame()
 	{
-		m_sessionInProgress = true;
 		m_leftGame = false;
 		m_round = 0;
 		
@@ -267,6 +268,7 @@ public class Session : MonoBehaviour
 		
 		if (Network.isServer)
 		{
+			Network.maxConnections = Network.connections.Length;
 			MasterServer.RegisterHost(GAME_TYPE, Name, "<CLOSED>");
 		}
 	}
