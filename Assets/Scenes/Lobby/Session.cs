@@ -245,6 +245,8 @@ public class Session : MonoBehaviour
 		m_sessionInProgress = true;
 		m_leftGame = false;
 		m_round = 0;
+		
+		Players.Get().GetMe().Score = 0;
 	}
 	
 	public void StartRound()
