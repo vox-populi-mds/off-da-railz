@@ -215,9 +215,20 @@ public class Session : MonoBehaviour
 		Network.SetSendingEnabled(0, true);
 	}
 	
+	void OnPlayerDisconnected(NetworkPlayer networkPlayer)
+	{
+		networkView.RPC("RemovePlayer", RPCMode.All, networkPlayer.ipAddress, networkPlayer.port);
+	}
+	
 	public void Quit()
 	{
 		Application.Quit();
+	}
+	
+	[RPC]
+	void RemovePlayer(string ipAddress, int port)
+	{
+		Players.Get().Remove(ipAddress, port);
 	}
 	
 	public void SetRoundCount(int roundCount)

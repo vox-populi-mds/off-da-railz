@@ -50,7 +50,7 @@ public class Game : MonoBehaviour
 	{
 		get
 		{
-			return 10.0f;
+			return 90.0f;
 		}
 	}
 	
@@ -108,7 +108,8 @@ public class Game : MonoBehaviour
 					GameObject[] trainObjects = GameObject.FindGameObjectsWithTag("Player");
 					foreach (GameObject trainObject in trainObjects)
 					{
-						if (player.TrainViewID == trainObject.networkView.viewID.ToString())
+						if (trainObject.networkView != null &&
+							player.TrainViewID == trainObject.networkView.viewID.ToString())
 						{
 							player.Train = trainObject;
 							Transform playerMarker = trainObject.transform.FindChild("PlayerMarker");

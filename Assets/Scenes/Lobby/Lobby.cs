@@ -63,16 +63,11 @@ public class Lobby : MonoBehaviour
 		networkView.RPC("OnRequestPlayerName", networkPlayer);
 	}
 	
-	void OnPlayerDisconnected(NetworkPlayer networkPlayer)
-	{
-		Players.Get().Remove(networkPlayer);
-	}
-	
 	[RPC]
 	void GoAway()
 	{
 		// Disconnect this guy as he joined a game which he cannot.
-		Session.Get ().Disconnect();
+		Session.Get().Disconnect();
 	}	
 	
 	[RPC]

@@ -98,10 +98,15 @@ public class Players
 	
 	public void Remove(NetworkPlayer networkPlayer)
 	{
+		Remove(networkPlayer.ipAddress, networkPlayer.port);
+	}
+	
+	public void Remove(string ipAddress, int port)
+	{
 		List<Player> players = new List<Player>(m_players);
 		foreach (Player player in players)
 		{
-			if (player.Matches(networkPlayer))
+			if (player.IPAddress == ipAddress && player.Port == port)
 			{
 				Remove(player);
 			}
