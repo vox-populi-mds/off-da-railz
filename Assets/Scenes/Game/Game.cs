@@ -12,6 +12,8 @@ public class Game : MonoBehaviour
 	
 	public Transform[] m_SpawnLocations = new Transform[16];
 	
+	bool m_roundTimeExpired;
+	
 	bool m_trainsLinked;
 	
 	public bool debug_mode
@@ -48,7 +50,7 @@ public class Game : MonoBehaviour
 	{
 		get
 		{
-			return 90.0f;
+			return 10.0f;
 		}
 	}
 	
@@ -62,6 +64,7 @@ public class Game : MonoBehaviour
 	
 	void Awake()
 	{
+		m_roundTimeExpired = false;
 		m_trainsLinked = false;
 	}
 	
@@ -175,8 +178,10 @@ public class Game : MonoBehaviour
 	
 	void Start()
 	{
-		if (!Session.Get ().ReadyToLoadGame)
+		if (!Session.Get().ReadyToLoadGame)
+		{
 			return;
+		}
 		
 		CreateTrain();
 		
@@ -201,12 +206,13 @@ public class Game : MonoBehaviour
 		
 		ProcessPlayerMarkerText();
 		
-		if (RoundTimeElapsed > RoundTimeLimit)
+		if (!m_roundTimeExpired &&
+			RoundTimeElapsed > RoundTimeLimit)
 		{
+			m_roundTimeExpired = true;
 			Session.Get().EndRound();
 		}
 	}
-	
 
 	void OnPlayerConnected(NetworkPlayer networkPlayer)
 	{
@@ -220,7 +226,7 @@ public class Game : MonoBehaviour
 	[RPC]
 	void GoAway()
 	{
-		Session.Get ().Disconnect();
+		Session.Get().Disconnect();
 	}
 	
 	void OnPlayerDisconnected(NetworkPlayer networkPlayer)

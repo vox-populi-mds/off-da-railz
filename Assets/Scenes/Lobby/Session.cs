@@ -61,19 +61,24 @@ public class Session : MonoBehaviour
 		Connected = false;
 		Name = "Train wreck!";
 		
-		m_instance = this;
-		m_leftGame = false;
-		m_levelPrefix = 0;
-		m_levelLoadTime = 0.0f;
-		m_levelToLoad = null;
-		m_round = 0;
-		m_roundCount = 0;
-		
-		Application.runInBackground = true;
-		MasterServer.RequestHostList(GAME_TYPE);
-		Network.sendRate = 100;
-		
-		DontDestroyOnLoad(this);
+		// Yuck... multiple of these objects may get created (one for every time the lobby is loaded) and we're just
+		// going to ignore the redundant duplicates.
+		if (m_instance == null)
+		{
+			m_instance = this;
+			m_leftGame = false;
+			m_levelPrefix = 0;
+			m_levelLoadTime = 0.0f;
+			m_levelToLoad = null;
+			m_round = 0;
+			m_roundCount = 0;
+			
+			Application.runInBackground = true;
+			MasterServer.RequestHostList(GAME_TYPE);
+			Network.sendRate = 100;
+			
+			DontDestroyOnLoad(this);
+		}
 	}
 	
 	public void Connect(HostData host)

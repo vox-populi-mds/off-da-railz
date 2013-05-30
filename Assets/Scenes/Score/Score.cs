@@ -12,14 +12,25 @@ public class Score : MonoBehaviour
 	
 	float m_countdown;
 	
-	float m_scoreBoxHeight;
+	bool m_countdownExpired;
 	
-	public Font m_font;
+	string m_countdownText;
+	
+	float m_scoreBoxHeight;
 	
 	void Awake()
 	{
 		m_aboveScoreBoxHeight = GUIConstants.GAP_SIZE_DOUBLE + GUIConstants.ONE_LINE_BOX_HEIGHT;
 		m_countdown = 20.0f;
+		m_countdownExpired = false;
+		if (Session.Get().GetRound() < Session.Get().GetRoundCount())
+		{
+			m_countdownText = "Next Round Starting in ";
+		}
+		else
+		{
+			m_countdownText = "Returning to Lobby in ";
+		}
 		
 		// Enable cursor visibility
 		Screen.showCursor = true;
@@ -30,11 +41,11 @@ public class Score : MonoBehaviour
 		string countdownText = "";
 		if (Session.Get().GetRound() < Session.Get().GetRoundCount())
 		{
-			countdownText = "Next Round Starting in " + (int) m_countdown;
+			countdownText = m_countdownText + (int) Mathf.Max(0.1f, m_countdown);
 		}
 		else
 		{
-			countdownText = "Returning to Lobby in " + (int) m_countdown;
+			countdownText = m_countdownText + (int) Mathf.Max(0.1f, m_countdown);
 		}
 		
 		GUI.Box(new Rect(GUIConstants.GAP_SIZE, Screen.height - GUIConstants.GAP_SIZE -
@@ -103,24 +114,30 @@ public class Score : MonoBehaviour
 	
 	void OnGUI()
 	{
-		GUI.skin.font = m_font;
-		
 		DrawCountdownBox();
 		DrawScoreBox();
 		DrawTitleBox();
+	}
+	
+	[RPC]
+	public void OnUpdatePlayerScore(string ipAddress, int port, int score)
+	{
+		Players.Get().Get(ipAddress, port).Score = score;
 	}
 	
 	void Start()
 	{ 
 		m_pingCooldown = 0.0f;
 		
-		
 		if (Network.isServer)
 		{
-			SendScore();			
+			foreach (Player player in Players.Get().GetAll())
+			{
+				networkView.RPC("OnUpdatePlayerScore", RPCMode.Others, player.IPAddress, player.Port, player.Score);
+			}			
 		}
 	}
-				
+	
 	void Update()
 	{
 		m_pingCooldown += Time.deltaTime;
@@ -131,13 +148,14 @@ public class Score : MonoBehaviour
 		if (m_pingCooldown > 1)
 		{
 			m_pingCooldown = 0;
-			SendScore();
 		}
 		
 		m_countdown -= Time.deltaTime;
 		
-		if (m_countdown < 0.0f)
+		if (!m_countdownExpired &&
+			m_countdown < 0.0f)
 		{
+			m_countdownExpired = true;
 			if (Session.Get().GetRound() < Session.Get().GetRoundCount())
 			{
 				Session.Get().StartRound();
@@ -147,40 +165,5 @@ public class Score : MonoBehaviour
 				Session.Get().EndGame();
 			}
 		}
-	}
-	
-	void SendScore()
-	{
-		foreach (Player player in Players.Get ().GetAll())
-		{
-			networkView.RPC("UpdatePlayerScore",RPCMode.Others, player.Score, player.IPAddress, player.Port);
-		}
-	}
-	
-	[RPC]
-	public void UpdatePlayerScore(int score, string ipAddress, int port, NetworkMessageInfo info)
-	{
-		var thisplayer = Players.Get().Get(ipAddress, port);
-		
-		if (thisplayer == null)
-		{
-			// attempting to update player that does not exist
-			var msgString = "Score.UpdatePlayerScore() : Player " + ipAddress + ":" + port + " does not exist!";
-			Debug.LogError(msgString);
-			networkView.RPC("Tell",RPCMode.Server,msgString);
-		}
-		else
-		{
-			if (thisplayer.Me)
-			{
-				if (score != thisplayer.Score)
-				{
-					Debug.Log("Server thinks my score is wrong");
-				}
-			}
-			thisplayer.Score = score;	
-		}
-		
-	}
-				
+	}	
 }
