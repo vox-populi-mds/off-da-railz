@@ -112,6 +112,11 @@ public class Session : MonoBehaviour
 	public void EndGame()
 	{
 		LoadLevel("Lobby");
+		
+		if (Network.isServer)
+		{
+			MasterServer.RegisterHost(GAME_TYPE, Name, Description);
+		}
 	}
 	
 	public void EndRound()
@@ -138,7 +143,18 @@ public class Session : MonoBehaviour
 	
 	public HostData[] GetHosts()
 	{
-		return MasterServer.PollHostList();	
+		HostData[] hosts = MasterServer.PollHostList();
+		List<HostData> openHosts = new List<HostData>();
+		
+		foreach (HostData host in hosts)
+		{
+			if (host.comment != "<CLOSED>")
+			{
+				openHosts.Add(host);
+			}
+		}
+		
+		return openHosts.ToArray();	
 	}
 	
 	public int GetRound()
@@ -247,6 +263,11 @@ public class Session : MonoBehaviour
 		m_round = 0;
 		
 		Players.Get().GetMe().Score = 0;
+		
+		if (Network.isServer)
+		{
+			MasterServer.RegisterHost(GAME_TYPE, Name, "<CLOSED>");
+		}
 	}
 	
 	public void StartRound()
