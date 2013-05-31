@@ -339,9 +339,9 @@ public class Train : MonoBehaviour
 		m_Throttle = Input.GetAxis("Vertical");
 		m_Steer = Input.GetAxis("Horizontal");
 		
-		if(m_AutomaticThrottle)
+		if(m_AutomaticThrottle && m_Throttle < 0.5f)
 		{
-			m_Throttle = 1.0f;
+			m_Throttle = 0.5f;
 		}
 	}
 	
@@ -546,8 +546,10 @@ public class Train : MonoBehaviour
 	}
 	
 	public void IncreasePower(float Modifier)
-	{
-		m_CurrentEnginePower *= Modifier;			
+	{	
+		m_CurrentEnginePower *= Modifier;
+		
+		Mathf.Clamp(m_CurrentEnginePower, 0.0f, m_EngineForceValues[m_NumberOfGears - 1] * 2.0f);
 	}
 	
 	public void DecreasePower(float Modifier)

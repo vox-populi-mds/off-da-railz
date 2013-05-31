@@ -14,7 +14,7 @@ public class SpeedBoost : MonoBehaviour, IUpgrade
 	protected float EffectTimer = 0.0f;
 	protected const float EffectTime = 3.0f;
 	
-	protected float PowerModifier = 5.0f;
+	protected float PowerModifier = 2.0f;
 	
 	void Start ()
 	{

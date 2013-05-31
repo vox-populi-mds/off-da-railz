@@ -31,28 +31,10 @@ public class Carriage : MonoBehaviour
 		rigidbody.centerOfMass = v3NewCenter;
 		m_InitAngularDrag = rigidbody.angularDrag;
 			
-		// Test the weapons
-		GameObject l_Weapon = ((Transform)Instantiate(m_Powerups[0])).gameObject;
-		
-		int iRand = Random.Range(0, 10);
-			
-		m_PowerupOrWeapon = (IUpgrade)l_Weapon.AddComponent<NoPowerUp>();
-		
-		//Create Speed boost carriage
-		if(iRand > 0 && iRand < 7)
+		if(Network.isServer)
 		{
-			GetComponentInChildren<MeshRenderer>().material.color = new Color(0.5f, 0.5f,0.1f,1.0f);			
-			m_PowerupOrWeapon = (IUpgrade)l_Weapon.AddComponent<SpeedBoost>();
-		}
-		//Create shotgun carriage
-		else if(iRand > 7 && iRand < 9)
-		{
-			GetComponentInChildren<MeshRenderer>().material.color = new Color(1.0f, 0.2f,0.2f,1.0f);			
-			m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<Shoot>();
-		}
-		else
-		{
-			m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<NoPowerUp>();
+			int iRand = Random.Range(0, 10);
+			networkView.RPC("CreatePowerup", RPCMode.All, iRand);
 		}
 		
 		if (!GameObject.Find("The Game").GetComponent<Game>().debug_mode)		
@@ -60,6 +42,34 @@ public class Carriage : MonoBehaviour
 			DisableDebugWheelRendering();
 		}
 		m_Train = null;
+	}
+	
+	[RPC]
+	void CreatePowerup(int _iRandNum)
+	{
+		// Create the weapons
+		GameObject l_Weapon = ((Transform)Instantiate(m_Powerups[0])).gameObject;
+			
+		m_PowerupOrWeapon = (IUpgrade)l_Weapon.AddComponent<NoPowerUp>();
+		
+		//Create Speed boost carriage
+		if(_iRandNum > 0 && _iRandNum < 7)
+		{
+			GetComponentInChildren<MeshRenderer>().material.color = new Color(0.5f, 0.5f,0.1f,1.0f);			
+			Destroy(l_Weapon.GetComponent<Shoot>());
+			m_PowerupOrWeapon = (IUpgrade)l_Weapon.AddComponent<SpeedBoost>();
+		}
+		//Create shotgun carriage
+		else if(_iRandNum > 7 && _iRandNum < 9)
+		{
+			GetComponentInChildren<MeshRenderer>().material.color = new Color(1.0f, 0.2f,0.2f,1.0f);			
+			m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<Shoot>();
+		}
+		else
+		{
+			Destroy(l_Weapon.GetComponent<Shoot>());
+			m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<NoPowerUp>();
+		}
 	}
 	
 	// Update is called once per frame

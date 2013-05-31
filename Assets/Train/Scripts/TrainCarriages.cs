@@ -123,6 +123,22 @@ public class TrainCarriages : MonoBehaviour
 	// Update is called once per frame
 	void Update() 
 	{	
+		if(GetComponent<Train>().IsMine())
+		{
+			ProcessActiveCarriage();
+		}
+		
+		CleanOldWaypoints();
+		
+		ProcessWaypointCreation();
+		
+		ProcessCarriagesSpline();
+		
+		ProcessNewCarriagesConnection();
+	}
+	
+	void ProcessActiveCarriage()
+	{
 		if (m_listCarriages.Count > 1) 
 		{
 			//Scroll up
@@ -151,6 +167,7 @@ public class TrainCarriages : MonoBehaviour
 					{
 						//Disable current powerup
 						m_ActiveCarriage.UpGrade().DisableUpgrade();	
+						
 						//Set this as the current carriage and break out of loop
 						m_ActiveCarriage = m_listCarriages[index];
 						m_ActiveCarriage.UpGrade().EnableUpgrade();	
@@ -201,14 +218,6 @@ public class TrainCarriages : MonoBehaviour
 				Buzz ();
 			}
 		}
-		
-		CleanOldWaypoints();
-		
-		ProcessWaypointCreation();
-		
-		ProcessCarriagesSpline();
-		
-		ProcessNewCarriagesConnection();
 	}
 	
 	void CleanOldWaypoints()
