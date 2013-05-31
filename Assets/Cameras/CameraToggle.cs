@@ -46,7 +46,7 @@ public class CameraToggle : MonoBehaviour {
 			iDistanceScale = 7;	
 		}
 		
-		if(cameraIndex == 0 || cameraIndex == 1)
+		if(cameraIndex == 0)
 		{
 			float NewDistance = distance + 30 * iDistanceScale;
 			float NewHeight = height + 5 * iDistanceScale;

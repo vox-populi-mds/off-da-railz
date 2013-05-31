@@ -53,14 +53,14 @@ public class Carriage : MonoBehaviour
 		m_PowerupOrWeapon = (IUpgrade)l_Weapon.AddComponent<NoPowerUp>();
 		
 		//Create Speed boost carriage
-		if(_iRandNum > 0 && _iRandNum < 7)
+		if(_iRandNum > 0 && _iRandNum < 4)
 		{
 			GetComponentInChildren<MeshRenderer>().material.color = new Color(0.5f, 0.5f,0.1f,1.0f);			
 			Destroy(l_Weapon.GetComponent<Shoot>());
 			m_PowerupOrWeapon = (IUpgrade)l_Weapon.AddComponent<SpeedBoost>();
 		}
 		//Create shotgun carriage
-		else if(_iRandNum > 7 && _iRandNum < 9)
+		else if(_iRandNum > 3 && _iRandNum < 7)
 		{
 			GetComponentInChildren<MeshRenderer>().material.color = new Color(1.0f, 0.2f,0.2f,1.0f);			
 			m_PowerupOrWeapon = (IUpgrade)l_Weapon.GetComponent<Shoot>();
