@@ -10,8 +10,6 @@ public class Game : MonoBehaviour
 	public Transform[] 	levelObstacles = new Transform[100];
 	private Transform 	m_clientsCameras = null;
 	
-	public Transform[] m_SpawnLocations = new Transform[16];
-	
 	bool m_roundTimeExpired;
 	
 	bool m_trainsLinked;
@@ -74,12 +72,7 @@ public class Game : MonoBehaviour
 		
 		if(Network.isClient || Network.isServer)
 		{
-			// Old method of spawning
-			/*trainObject = ((Transform) Network.Instantiate(train, new Vector3(UnityEngine.Random.Range(-300.0f, 300.0f),
-				5.0f, UnityEngine.Random.Range(-300.0f, 300.0f)), Quaternion.identity, 0)).gameObject;*/
-			
-			int SpawnLocId = UnityEngine.Random.Range(0, 15);
-			trainObject = ((Transform) Network.Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId].rotation, 0)).gameObject;
+			trainObject = ((Transform) Network.Instantiate(train, Players.Get().GetMe().SpawnPostion, Players.Get().GetMe().SpawnRotation, 0)).gameObject;
 			trainObject.GetComponent<Train>().SetMine(true);
 			networkView.RPC("OnCreateTrain", RPCMode.Others, Network.player.ipAddress, Network.player.port,
 				trainObject.networkView.viewID.ToString());
@@ -87,9 +80,7 @@ public class Game : MonoBehaviour
 		}
 		else 
 		{
-			int SpawnLocId = UnityEngine.Random.Range(0, 15);
-			trainObject = ((Transform) Instantiate(train, m_SpawnLocations[SpawnLocId].position, m_SpawnLocations[SpawnLocId]
-				.rotation)).gameObject;			
+			trainObject = ((Transform) Instantiate(train, Players.Get().GetMe().SpawnPostion, Players.Get().GetMe().SpawnRotation)).gameObject;			
 			trainObject.GetComponent<Train>().SetMine(true);
 		}
 	}

@@ -6,6 +6,10 @@ public class Lobby : MonoBehaviour
 {	
 	public Color[] m_colors;
 	
+	public Transform[] m_SpawnLocations = new Transform[16];
+	
+	private Stack<Transform> m_SpawnStack = new Stack<Transform>();
+	
 	float m_lastPlayerUpdateTime;
 	
 	void Awake()
@@ -13,6 +17,11 @@ public class Lobby : MonoBehaviour
 		// Enable cursor visibility
 		Screen.showCursor = true;
 		m_lastPlayerUpdateTime = Time.timeSinceLevelLoad;
+		
+		foreach(Transform t in m_SpawnLocations)
+		{
+			m_SpawnStack.Push(t);
+		}
 	}
 	
 	public void GO()
@@ -23,7 +32,10 @@ public class Lobby : MonoBehaviour
 	
 	public void Host()
 	{
+		Transform SpawnLocation = m_SpawnStack.Pop();
 		Players.Get().GetMe().Color = m_colors[0];
+		Players.Get().GetMe().SpawnPostion = SpawnLocation.position;
+		Players.Get().GetMe().SpawnRotation = SpawnLocation.rotation;
 		Session.Get().Host();
 	}
 	
@@ -50,16 +62,29 @@ public class Lobby : MonoBehaviour
 		Session.Get().SetRoundCount(3);
 		Session.Get().StartGame();
 		Session.Get().StartRound();
-	}	
+	}
 	
 	void OnPlayerConnected(NetworkPlayer networkPlayer)
 	{
+		Transform SpawnLocation = m_SpawnStack.Pop();
 		Player player = new Player();
 		player.Apply(networkPlayer);
 		player.Color = m_colors[Players.Get().GetAll().Count];
+		player.SpawnPostion = SpawnLocation.position;
+		player.SpawnRotation = SpawnLocation.rotation;
 		Players.Get().Add(player);
 		
 		networkView.RPC("OnRequestPlayerName", networkPlayer);
+	}
+	
+	void OnPlayerDisconnected(NetworkPlayer networkPlayer)
+	{
+		Transform SpawnLocation = new GameObject().transform;
+		
+		SpawnLocation.position = Players.Get().Get(networkPlayer).SpawnPostion;
+		SpawnLocation.rotation = Players.Get().Get(networkPlayer).SpawnRotation;
+		
+		m_SpawnStack.Push(SpawnLocation);
 	}
 	
 	[RPC]
@@ -92,6 +117,17 @@ public class Lobby : MonoBehaviour
 		if (Players.Get().Get(ipAddress, port) != null)
 		{
 			Players.Get().Get(ipAddress, port).Name = playerName;
+		}
+	}
+	
+	[RPC]
+	void OnUpdatePlayerSpawn(string ipAddress, int port, Vector3 spawnPosition, Quaternion spawnRotation)
+	{
+		// The player itself might not have been seen yet.
+		if (Players.Get().Get(ipAddress, port) != null)
+		{
+			Players.Get().Get(ipAddress, port).SpawnPostion = spawnPosition;
+			Players.Get().Get(ipAddress, port).SpawnRotation = spawnRotation;
 		}
 	}
 	
@@ -129,6 +165,7 @@ public class Lobby : MonoBehaviour
 				networkView.RPC("OnUpdatePlayerColor", RPCMode.Others, player.IPAddress, player.Port, player.Color.r,
 					player.Color.g, player.Color.b, player.Color.a);
 				networkView.RPC("OnUpdatePlayerName", RPCMode.Others, player.IPAddress, player.Port, player.Name);
+				networkView.RPC("OnUpdatePlayerSpawn", RPCMode.All, player.IPAddress, player.Port, player.SpawnPostion, player.SpawnRotation);
 			}
 		}
 	}

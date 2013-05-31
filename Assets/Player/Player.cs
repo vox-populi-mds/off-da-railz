@@ -63,6 +63,18 @@ public class Player
 		set;
 	}
 	
+	public Vector3 SpawnPostion
+	{
+		get;
+		set;
+	}
+	
+	public Quaternion SpawnRotation
+	{
+		get;
+		set;
+	}
+	
 	public GameObject Train
 	{
 		get;
@@ -84,6 +96,8 @@ public class Player
 		Ready = false;
 		RoundScore = 0;
 		Score = 0;
+		SpawnPostion = Vector3.zero;
+		SpawnRotation = Quaternion.identity;
 		Train = null;
 	}
 	
