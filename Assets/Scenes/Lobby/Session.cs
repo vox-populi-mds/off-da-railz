@@ -114,6 +114,11 @@ public class Session : MonoBehaviour
 		}
 	}
 	
+	public int GetNumHosts()
+	{
+		return MasterServer.PollHostList().Length;
+	}
+	
 	public void FindHosts()
 	{
 		MasterServer.RequestHostList(GAME_TYPE);

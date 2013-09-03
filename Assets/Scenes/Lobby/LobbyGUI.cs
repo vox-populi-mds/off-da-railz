@@ -215,6 +215,10 @@ public class LobbyGUI : MonoBehaviour
 		GUILayout.EndArea();
 	}
 	
+	void Update()
+	{
+	}
+	
 	void OnGUI()
 	{
 		GUI.skin.font = m_font;
