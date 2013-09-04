@@ -217,6 +217,41 @@ public class LobbyGUI : MonoBehaviour
 	
 	void Update()
 	{
+		if (Input.GetKeyDown(KeyCode.Return))
+		{			
+			if (Session.Get().Connected) // if already in a game
+			{
+				if (Network.isServer) // if player is host
+				{
+					GetComponent<Lobby>().GO(); // start the game
+				}
+			}
+			else // if not in a game yet
+			{		
+				int numHosts = Session.Get().GetNumHosts();
+				
+				if (numHosts > 0) // if at least one game exists
+				{
+					HostData[] hosts = Session.Get().GetHosts();
+					int randResult = Random.Range(0,numHosts-1);
+					Session.Get().Connect(hosts[randResult]);
+					GetComponent<Lobby>().PlayerReady();
+				}
+				else // if there are no open games
+				{
+					GetComponent<Lobby>().Host();
+					GetComponent<Lobby>().PlayerReady();					
+				}
+			}
+		}
+		
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			if (Session.Get().Connected) // if already in a game
+			{
+				Session.Get().Disconnect();
+			}
+		}
 	}
 	
 	void OnGUI()
